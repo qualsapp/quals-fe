@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, CircleCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -29,4 +29,30 @@ function Checkbox({
   );
 }
 
-export { Checkbox };
+interface CheckboxCardProps
+  extends React.ComponentProps<typeof CheckboxPrimitive.Root> {
+  option: {
+    label: string;
+    value: string;
+    icon?: React.JSXElementConstructor<React.SVGProps<SVGSVGElement>>;
+  };
+}
+
+const CheckboxCard = ({ className, option, ...props }: CheckboxCardProps) => {
+  return (
+    <CheckboxPrimitive.Root
+      className="relative text-sm border border-primary  rounded-sm px-2 text-start text-primary disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white data-[state=checked]:bg-primary cursor-pointer flex items-center transition-all"
+      {...props}
+    >
+      {option.icon ? <option.icon className="mb-3" /> : null}
+
+      <span className="font-medium">{option.label}</span>
+
+      {/* <CheckboxPrimitive.Indicator className="absolute top-2 right-2">
+        <CircleCheck className="fill-primary text-primary-foreground" />
+      </CheckboxPrimitive.Indicator> */}
+    </CheckboxPrimitive.Root>
+  );
+};
+
+export { Checkbox, CheckboxCard };

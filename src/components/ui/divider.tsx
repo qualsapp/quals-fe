@@ -1,7 +1,19 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
-const Divider = () => {
-  return <div className="border-t border-[0.25px] border-gray-200 flex-grow" />;
+type Props = {
+  className?: string;
+};
+
+const Divider = ({ className }: Props) => {
+  return (
+    <div
+      className={cn(
+        "border-t border-[0.25px] border-gray-200 flex-grow",
+        className
+      )}
+    />
+  );
 };
 
 export { Divider };
