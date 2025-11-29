@@ -12,6 +12,17 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
   Item,
   ItemActions,
   ItemContent,
@@ -28,16 +39,51 @@ import { Timer } from "lucide-react";
 type Props = {};
 
 const MatchCard = (props: Props) => {
+  const hasStarted = false;
   return (
     <Card className="w-full max-w-sm p-0">
       <CardHeader className="bg-primary rounded-t-lg pt-2 pb-1">
         <CardTitle className="mb-0">
-          <Link
-            href={`/community/events/123`}
-            className="underline text-center block text-secondary"
-          >
-            Match 1
-          </Link>
+          {hasStarted ? (
+            <Link
+              href={`/community/events/123/matches/1`}
+              className="underline text-center block text-secondary"
+            >
+              <Button
+                variant="link"
+                className="text-secondary w-full text-center underline"
+                size="sm"
+              >
+                Match 1
+              </Button>
+            </Link>
+          ) : (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="link"
+                  className="text-secondary w-full text-center underline"
+                  size="sm"
+                >
+                  Match 1
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-center">Match 1</DialogTitle>
+                  <DialogDescription className="text-center">
+                    Do you want to start this match?
+                  </DialogDescription>
+                </DialogHeader>
+
+                <DialogFooter className="flex mx-auto">
+                  <Link href={`/community/events/123/matches/1`}>
+                    <Button>Start Match</Button>
+                  </Link>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </CardTitle>
       </CardHeader>
 

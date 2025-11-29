@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 type MenuItem = {
   label: string;
   href: string;
+  isHighlight?: boolean;
 };
 
 const navItemClasses =
@@ -33,8 +34,8 @@ const navItemHighlight =
 const Header = () => {
   const isLoggedIn = true; // Replace with actual authentication logic
   const menuItems: MenuItem[] = [
-    { label: "Event", href: "/events" },
-    { label: "Komunitas", href: "/communities" },
+    { label: "Komunitas", href: "/community", isHighlight: false },
+    { label: "Switch to Player", href: "/player", isHighlight: true },
   ];
   return (
     <header className="bg-primary sticky top-0 z-50 text-white">
@@ -52,7 +53,7 @@ const Header = () => {
                   asChild
                   key={index}
                   className={
-                    item.label === "Daftar" ? navItemHighlight : navItemClasses
+                    item.isHighlight ? navItemHighlight : navItemClasses
                   }
                 >
                   <Link href={item.href} className="text-secondary">
@@ -64,35 +65,39 @@ const Header = () => {
 
             {isLoggedIn ? (
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
                   <Avatar className="size-6">
                     <AvatarImage src="https://github.com/evilrabbit.png" />
                     <AvatarFallback>ER</AvatarFallback>
                   </Avatar>
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="w-full">
-                  <ul className="grid gap-3 p-4 grid-cols-1 w-full">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/profile"
-                          className="block p-3 rounded-md hover:bg-secondary hover:text-primary"
-                        >
-                          Profile
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/settings"
-                          className="block p-3 rounded-md hover:bg-secondary hover:text-primary"
-                        >
-                          Settings
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
+                <NavigationMenuContent className="w-full p-0">
+                  <NavigationMenuItem className="rounded-none">
+                    <NavigationMenuLink
+                      asChild
+                      className="rounded-none border-3 border-transparent hover:border-l-primary"
+                    >
+                      <Link
+                        href="/profile"
+                        className="block py-4 px-6 hover:bg-primary/10 hover:text-primary font-bold "
+                      >
+                        Profile
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="rounded-none border-3 border-transparent hover:border-l-primary"
+                    >
+                      <Link
+                        href="/settings"
+                        className="block py-4 px-6 hover:bg-primary/10 font-bold border-3 border-transparent hover:border-l-primary hover:text-primary"
+                      >
+                        Settings
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                 </NavigationMenuContent>
               </NavigationMenuItem>
             ) : (

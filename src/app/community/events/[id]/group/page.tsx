@@ -40,7 +40,7 @@ const page = (props: Props) => {
       <div className="container flex flex-col lg:flex-row gap-5 justify-between">
         <div className="space-y-3">
           <h2 className="text-lg font-bold">Quals OPEN 2025</h2>
-          <Badge variant="gray" className="font-bold !rounded-sm">
+          <Badge variant="gray" className="font-bold ">
             9 Oct - 12 Oct
           </Badge>
           <p>
