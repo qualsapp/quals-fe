@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Footer, Header } from "@/components/layout";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -18,13 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.className} antialiased min-h-screen flex flex-col`}
       >
-        <Header />
-        <main className="grow">{children}</main>
-        <Footer />
+        <ReactQueryProvider>
+          <Header />
+          <main className="grow">{children}</main>
+          <Footer />
+        </ReactQueryProvider>
       </body>
     </html>
   );

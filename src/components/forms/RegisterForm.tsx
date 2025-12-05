@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input, InputPassword } from "../ui/input";
-import { Button } from "../ui/button";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,15 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { userService } from "@/services/user-service";
+import { Button } from "../ui/button";
 
-const registerScheme = z
+import { useMutation } from "@tanstack/react-query";
+
+const RegisterScheme = z
   .object({
     email: z.email("Invalid email"),
     password: z.string().min(8, "Min 8 characters"),
     confirmPassword: z.string().min(8, "Min 8 characters"),
-    role: z.enum(["player", "host", ""]),
+    user_type: z.string().nonempty("Role is required"),
   })
-  .superRefine(({ password, confirmPassword, role }, ctx) => {
+  .superRefine(({ password, confirmPassword, user_type }, ctx) => {
     if (password !== confirmPassword) {
       ctx.addIssue({
         path: ["confirmPassword"],
@@ -38,7 +42,7 @@ const registerScheme = z
       });
     }
 
-    if (role !== "player" && role !== "host") {
+    if (user_type !== "player" && user_type !== "host") {
       ctx.addIssue({
         path: ["role"],
         code: "custom",
@@ -48,18 +52,26 @@ const registerScheme = z
   });
 
 const RegisterForm = () => {
-  const form = useForm<z.infer<typeof registerScheme>>({
-    resolver: zodResolver(registerScheme),
+  const form = useForm<z.infer<typeof RegisterScheme>>({
+    resolver: zodResolver(RegisterScheme),
     defaultValues: {
       email: "",
       password: "",
       confirmPassword: "",
-      role: "",
+      user_type: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof registerScheme>) => {
-    console.log(data);
+  const { mutate, error } = useMutation({
+    mutationFn: (data: z.infer<typeof RegisterScheme>) =>
+      userService.register(data),
+    onSuccess: (data) => {
+      console.log("Registration successful:", data);
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof RegisterScheme>) => {
+    mutate(data);
   };
   return (
     <Form {...form}>
@@ -108,12 +120,12 @@ const RegisterForm = () => {
         />
         <FormField
           control={form.control}
-          name="role"
+          name="user_type"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
               <FormControl>
-                <Select>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih role" />
                   </SelectTrigger>
@@ -129,11 +141,15 @@ const RegisterForm = () => {
             </FormItem>
           )}
         />
-        <div className="text-center">
-          <Button type="submit" className="px-10">
-            Daftar
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          className="px-10"
+          disabled={!form.formState.isValid}
+        >
+          Daftar
+        </Button>
+
+        {error && <p className="text-red-500 text-center">{error.message}</p>}
       </form>
     </Form>
   );

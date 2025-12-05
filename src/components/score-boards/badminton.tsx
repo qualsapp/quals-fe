@@ -7,7 +7,7 @@ type Props = {};
 
 const BadmintonBoard = (props: Props) => {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 ">
       <div className="flex border-4 border-primary-100 w-full">
         <div className="w-full">
           <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">

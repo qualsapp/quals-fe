@@ -18,9 +18,11 @@ const page = (props: Props) => {
             <ArrowLeft /> Back to Matches
           </Button>
         </Link>
-        <BadmintonBoard />
+        <div className="">
+          <BadmintonBoard />
+        </div>
 
-        <TennisBoard />
+        {/* <TennisBoard /> */}
       </div>
     </div>
   );
