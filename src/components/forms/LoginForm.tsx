@@ -15,25 +15,38 @@ import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "../ui/checkbox";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useMutation } from "@tanstack/react-query";
+import { userService } from "@/services/user-service";
+import { useRouter } from "next/navigation";
 
-const loginScheme = z.object({
+const LoginScheme = z.object({
   email: z.email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  remember: z.boolean(),
 });
 
 const LoginForm = () => {
-  const form = useForm<z.infer<typeof loginScheme>>({
-    resolver: zodResolver(loginScheme),
+  const router = useRouter();
+  const form = useForm<z.infer<typeof LoginScheme>>({
+    resolver: zodResolver(LoginScheme),
     defaultValues: {
       email: "",
       password: "",
-      remember: false,
     },
   });
 
-  const onSubmit = (data: z.infer<typeof loginScheme>) => {
-    console.log(data);
+  const loginInState = useAuthStore((state) => state.login);
+
+  const { mutate, error } = useMutation({
+    mutationFn: (data: z.infer<typeof LoginScheme>) => userService.login(data),
+    onSuccess: (data) => {
+      loginInState(data.token, data.user_id);
+      router.push("/");
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof LoginScheme>) => {
+    mutate(data);
   };
   return (
     <Form {...form}>
@@ -64,7 +77,7 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="remember"
           render={({ field }) => (
@@ -82,7 +95,7 @@ const LoginForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <div className="text-center">
           <Button type="submit" className="px-10">
             Masuk

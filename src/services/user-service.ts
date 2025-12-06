@@ -1,5 +1,5 @@
-import { apiClient } from "@/lib/api-client";
-import { User, UserProfile } from "@/types/user";
+import { apiClient, internalApiClient } from "@/lib/api-client";
+import { User, UserProfile, UserProps } from "@/types/user";
 
 export const userService = {
   // Fetch all users
@@ -15,16 +15,16 @@ export const userService = {
   },
 
   // Create user (Mutation)
-  register: async (userData: Partial<User>) => {
-    return apiClient<User>("/users/register", {
+  register: async (userData: UserProps) => {
+    return internalApiClient<User>("/api/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
   },
 
   // Login (Mutation)
-  login: async (userData: Partial<User>) => {
-    return apiClient<User>("/users/login", {
+  login: async (userData: UserProps) => {
+    return internalApiClient<User>("/api/login", {
       method: "POST",
       body: JSON.stringify(userData),
     });

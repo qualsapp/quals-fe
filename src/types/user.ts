@@ -5,6 +5,11 @@ export interface User {
   message: string;
 }
 
+export interface UserProps {
+  email: string;
+  password: string;
+}
+
 export interface UserProfile {
   username: string;
   display_name: string;

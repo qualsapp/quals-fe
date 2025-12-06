@@ -25,6 +25,8 @@ import { userService } from "@/services/user-service";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const RegisterScheme = z
   .object({
@@ -52,6 +54,7 @@ const RegisterScheme = z
   });
 
 const RegisterForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof RegisterScheme>>({
     resolver: zodResolver(RegisterScheme),
     defaultValues: {
@@ -62,11 +65,14 @@ const RegisterForm = () => {
     },
   });
 
+  const loginInState = useAuthStore((state) => state.login);
+
   const { mutate, error } = useMutation({
     mutationFn: (data: z.infer<typeof RegisterScheme>) =>
       userService.register(data),
     onSuccess: (data) => {
-      console.log("Registration successful:", data);
+      loginInState(data.token, data.user_id);
+      router.push("/");
     },
   });
 

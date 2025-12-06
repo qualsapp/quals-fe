@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Footer, Header } from "@/components/layout";
-import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import ReactQueryProvider from "@/providers/react-query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
