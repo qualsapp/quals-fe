@@ -1,4 +1,4 @@
-import { ApiUrl } from "@/lib/env";
+import { ApiUrl, TokenExpirationDays } from "@/lib/env";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -19,7 +19,10 @@ export async function POST(request: Request) {
     if (res.ok) {
       cookieStore.set("token", json.data.token, {
         path: "/",
-        expires: new Date(json?.token_expires_at || Date.now() + 3600 * 1000),
+        expires: new Date(
+          json?.token_expires_at ||
+            Number(TokenExpirationDays) * 24 * 60 * 60 * 1000
+        ),
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
