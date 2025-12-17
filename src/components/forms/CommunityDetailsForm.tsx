@@ -15,34 +15,54 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { on } from "events";
 import { useRouter } from "next/navigation";
-
-const communityScheme = z.object({
-  name: z.string().min(1, "Name is required"),
-  location: z.string().min(1, "Location is required"),
-  sports: z.string().min(1, "Sports is required"),
-  description: z.string(),
-});
+import AvatarUpload from "../file-upload/avatar-upload";
+import { FileWithPreview } from "@/hooks/use-file-upload";
+import { useMutation } from "@tanstack/react-query";
+import { communityService } from "@/services/community-service";
+import { CommunityScheme } from "@/lib/validations/community";
+import { CommunityResponse } from "@/types/community";
 
 type CommunityDetailsFormProps = {
-  // onNext: (step: string) => void;
+  community?: CommunityResponse;
 };
 
-const CommunityDetailsForm = ({}: CommunityDetailsFormProps) => {
+const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof communityScheme>>({
-    resolver: zodResolver(communityScheme),
+  const form = useForm<z.infer<typeof CommunityScheme>>({
+    resolver: zodResolver(CommunityScheme),
     defaultValues: {
-      name: "",
-      location: "",
-      sports: "",
-      description: "",
+      name: community?.name || "",
+      address: community?.address || "",
+      sports: community?.sports || "",
+      description: community?.description || "",
+      image: community?.image_url ? undefined : undefined,
     },
   });
 
-  const onSubmit = (data: z.infer<typeof communityScheme>) => {
-    router.push("/community/create/community-schedule");
+  const onFileChange = (file: FileWithPreview | null) => {
+    if (file) {
+      form.setValue("image", file.file as File);
+    } else {
+      form.setValue("image", undefined);
+    }
+  };
+
+  const { mutate, error } = useMutation({
+    mutationFn: async (data: z.infer<typeof CommunityScheme>) => {
+      if (community && community.id) {
+        return await communityService.update(community.id, data);
+      }
+      return await communityService.create(data);
+    },
+    onSuccess: (data) => {
+      console.log("Registration successful:", data);
+      router.push(`/community/${data.id}`);
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof CommunityScheme>) => {
+    mutate(data);
   };
   return (
     <Form {...form}>
@@ -62,7 +82,7 @@ const CommunityDetailsForm = ({}: CommunityDetailsFormProps) => {
         />
         <FormField
           control={form.control}
-          name="location"
+          name="address"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Location</FormLabel>
@@ -108,6 +128,8 @@ const CommunityDetailsForm = ({}: CommunityDetailsFormProps) => {
             </FormItem>
           )}
         />
+
+        <AvatarUpload onFileChange={onFileChange} />
 
         <div className="text-right">
           <Button type="submit" className="px-10">

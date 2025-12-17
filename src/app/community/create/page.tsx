@@ -1,14 +1,22 @@
 "use client";
 import React from "react";
 
-import FormStep from "@/components/community/FormStep";
+import CommunityDetailsForm from "@/components/forms/CommunityDetailsForm";
+import Heading from "@/components/commons/heading";
 
 type Props = {};
 
 const page = (props: Props) => {
   return (
-    <div className="container py-10 lg:py-16 lg:w-1/2 space-y-8">
-      <FormStep />
+    <div className="container lg:py-16 py-8 space-y-10">
+      <Heading
+        title="Community Details"
+        description="Let's start with basic information about your community"
+      />
+
+      <div className="w-full sm:w-2/3 mx-auto ">
+        <CommunityDetailsForm />
+      </div>
     </div>
   );
 };

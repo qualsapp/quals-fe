@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import React from "react";
 import {
@@ -18,6 +19,9 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Button } from "../ui/button";
+import { useUser } from "@/context/UserContext";
 
 type MenuItem = {
   label: string;
@@ -32,11 +36,15 @@ const navItemHighlight =
   "hover:!bg-secondary hover:text-primary border-y-3 border-secondary px-6 my-4 lg:my-0 border font-semibold transition-all duration-200 lg:mx-4";
 
 const Header = () => {
-  const isLoggedIn = true; // Replace with actual authentication logic
-  const menuItems: MenuItem[] = [
+  const { user, isAuthenticated, loading, logout } = useUser();
+
+  const menuItems: (MenuItem | undefined)[] = [
     { label: "Komunitas", href: "/community", isHighlight: false },
-    { label: "Switch to Player", href: "/player", isHighlight: true },
+    isAuthenticated
+      ? { label: "Switch to Player", href: "/player", isHighlight: true }
+      : undefined,
   ];
+
   return (
     <header className="bg-primary sticky top-0 z-50 text-white">
       <nav className="flex justify-between items-center px-6 py-2 lg:py-0">
@@ -47,23 +55,26 @@ const Header = () => {
         </div>
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
-            {menuItems.map((item, index) => (
-              <NavigationMenuItem key={index}>
-                <NavigationMenuLink
-                  asChild
-                  key={index}
-                  className={
-                    item.isHighlight ? navItemHighlight : navItemClasses
-                  }
-                >
-                  <Link href={item.href} className="text-secondary">
-                    {item.label}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
+            {menuItems.map(
+              (item, index) =>
+                item && (
+                  <NavigationMenuItem key={index}>
+                    <NavigationMenuLink
+                      asChild
+                      key={index}
+                      className={
+                        item.isHighlight ? navItemHighlight : navItemClasses
+                      }
+                    >
+                      <Link href={item.href} className="text-secondary">
+                        {item.label}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )
+            )}
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
                   <Avatar className="size-6">
@@ -96,6 +107,20 @@ const Header = () => {
                       >
                         Settings
                       </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="rounded-none border-3 border-transparent hover:border-l-primary"
+                    >
+                      <Button
+                        onClick={logout}
+                        variant="text"
+                        className="h-auto w-full rounded-none py-4 px-6 hover:bg-destructive/10 font-bold border-3 border-transparent hover:border-l-destructive hover:text-destructive"
+                      >
+                        Logout
+                      </Button>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuContent>
@@ -133,23 +158,26 @@ const Header = () => {
               </SheetTitle>
               <NavigationMenu>
                 <NavigationMenuList className="flex flex-col items-start">
-                  {menuItems.map((item, index) => (
-                    <NavigationMenuItem key={index}>
-                      <NavigationMenuLink
-                        asChild
-                        key={index}
-                        className={
-                          item.label === "Daftar"
-                            ? navItemHighlight
-                            : navItemClasses
-                        }
-                      >
-                        <Link href={item.href} className="text-secondary">
-                          {item.label}
-                        </Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
+                  {menuItems.map(
+                    (item, index) =>
+                      item && (
+                        <NavigationMenuItem key={index}>
+                          <NavigationMenuLink
+                            asChild
+                            key={index}
+                            className={
+                              item.label === "Daftar"
+                                ? navItemHighlight
+                                : navItemClasses
+                            }
+                          >
+                            <Link href={item.href} className="text-secondary">
+                              {item.label}
+                            </Link>
+                          </NavigationMenuLink>
+                        </NavigationMenuItem>
+                      )
+                  )}
                 </NavigationMenuList>
               </NavigationMenu>
             </SheetHeader>

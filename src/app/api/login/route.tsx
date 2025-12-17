@@ -17,11 +17,11 @@ export async function POST(request: Request) {
     const json = await res.json();
 
     if (res.ok) {
-      cookieStore.set("token", json.data.token, {
+      cookieStore.set("token", json.token, {
         path: "/",
         expires: new Date(
           json?.token_expires_at ||
-            Number(TokenExpirationDays) * 24 * 60 * 60 * 1000
+            Date.now() + Number(TokenExpirationDays) * 24 * 60 * 60 * 1000
         ),
         httpOnly: true,
         sameSite: "lax",
@@ -36,8 +36,6 @@ export async function POST(request: Request) {
       //   secure: process.env.NODE_ENV === "production",
       // });
     }
-
-    console.log("Login response:", json);
 
     // Return the same response as the external backend.
     return NextResponse.json(json, { status: res.status });

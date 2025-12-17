@@ -1,5 +1,3 @@
-"use client";
-
 import { ApiUrl } from "./env";
 
 export async function apiClient<T>(
@@ -44,7 +42,6 @@ export async function internalApiClient<T>(
   };
 
   const response = await fetch(`${endpoint}`, config);
-  console.log("Internal API Response:", response);
 
   if (!response.ok) {
     throw new Error(`API Error: ${response.statusText}`);

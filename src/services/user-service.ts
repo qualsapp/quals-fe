@@ -26,7 +26,14 @@ export const userService = {
   login: async (userData: UserProps) => {
     return internalApiClient<User>("/api/login", {
       method: "POST",
-      body: JSON.stringify(userData),
+      body: JSON.stringify({ ...userData, user_type: "host" }),
+    });
+  },
+
+  // Login (Mutation)
+  logout: async () => {
+    return internalApiClient<{ success: boolean }>("/api/logout", {
+      method: "POST",
     });
   },
   // Edit Profile (Mutation)

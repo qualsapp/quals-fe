@@ -19,3 +19,10 @@ export interface UserProfile {
   bio?: string;
   image_url?: string;
 }
+
+export interface UserContextType {
+  user: UserProfile | null;
+  loading: boolean;
+  login: (userData: UserProfile) => void;
+  logout: () => void;
+}
