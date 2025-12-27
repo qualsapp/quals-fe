@@ -1,14 +1,16 @@
 import DashboardNav from "@/components/commons/dashboard-nav";
 import ProfileSection from "@/components/sections/ProfileSection";
+import { userService } from "@/services/user-service";
+import { cookies } from "next/headers";
 
 import React from "react";
 
 type Props = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 };
 
 const page = async (props: Props) => {
-  const { username } = props.params;
+  const { username } = await props.params;
 
   const menus = [
     { label: "My Communities", href: `/dashboard/my-communities` },
@@ -21,7 +23,7 @@ const page = async (props: Props) => {
       </div>
       <div className="bg-primary-50">
         <div className="container">
-          <DashboardNav menus={menus} currentMenu="My Communities" />
+          <DashboardNav menus={menus} />
         </div>
       </div>
     </div>

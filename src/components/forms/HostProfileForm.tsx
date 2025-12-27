@@ -13,7 +13,14 @@ import { Input } from "../ui/input";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { userService } from "@/services/user-service";
 import { Button } from "../ui/button";
 
@@ -22,49 +29,46 @@ import { MultiSelect } from "../ui/multi-select";
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
-import { ProfileScheme } from "@/lib/validations/user";
-import { sportList } from "@/lib/constants";
-import { UserModel } from "@/types/user";
+import { HostScheme } from "@/lib/validations/user";
+import { levelList, locationList, sportList } from "@/lib/constants";
+import { hostService } from "@/services/host-service";
+import { useRouter } from "next/navigation";
+import { HostModel } from "@/types/user";
 
-type ProfileFormProps = {
-  data?: UserModel;
+type HostProfileForm = {
+  data?: HostModel;
 };
 
-const ProfileForm = ({ data }: ProfileFormProps) => {
-  const form = useForm<z.infer<typeof ProfileScheme>>({
-    resolver: zodResolver(ProfileScheme),
+const HostProfileForm = ({ data }: HostProfileForm) => {
+  const router = useRouter();
+  const form = useForm<z.infer<typeof HostScheme>>({
+    resolver: zodResolver(HostScheme),
     defaultValues: {
       username: data?.username || "",
       display_name: data?.display_name || "",
-      sports: data?.sports || [],
       bio: data?.bio || "",
       file: undefined,
     },
   });
 
   const { mutate, error } = useMutation({
-    mutationFn: (formData: FormData) => {
-      if (data?.id) return userService.edit(formData);
-      return userService.create(formData);
-    },
+    mutationFn: async (data: FormData) => await hostService.create(data),
     onSuccess: (data) => {
-      console.log("Registration successful:", data);
+      router.push("/community");
     },
   });
 
-  const onSubmit = async (params: z.infer<typeof ProfileScheme>) => {
-    const formData = new FormData();
-    formData.append("username", params.username);
-    formData.append("display_name", params.display_name);
-    params.sports.forEach((sport) =>
-      formData.append("sports_type_ids[]", sport)
-    );
+  const onSubmit = async (data: z.infer<typeof HostScheme>) => {
+   
 
-    if (params.bio) {
-      formData.append("bio", params.bio);
+    const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("display_name", data.display_name);
+    if (data.bio) {
+      formData.append("bio", data.bio);
     }
-    if (params.file) {
-      formData.append("file", params.file);
+    if (data.file) {
+      formData.append("file", data.file);
     }
 
     mutate(formData);
@@ -106,24 +110,6 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="sports"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sports Preference</FormLabel>
-              <FormControl>
-                <MultiSelect
-                  options={sportList}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  placeholder="Choose sports..."
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
@@ -152,7 +138,7 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
           className="px-10"
           disabled={!form.formState.isValid}
         >
-          {data ? "Update Profile" : "Create Profile"}
+          Edit
         </Button>
 
         {error && <p className="text-red-500 text-center">{error.message}</p>}
@@ -161,4 +147,4 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
   );
 };
 
-export default ProfileForm;
+export default HostProfileForm;

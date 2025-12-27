@@ -9,7 +9,6 @@ export async function apiClient<T>(
   const config: RequestInit = {
     ...customConfig,
     headers: {
-      "Content-Type": "application/json",
       ...headers,
     },
     // Next.js 14+ caching strategy
@@ -34,7 +33,6 @@ export async function internalApiClient<T>(
   const config: RequestInit = {
     ...customConfig,
     headers: {
-      "Content-Type": "application/json",
       ...headers,
     },
     // Next.js 14+ caching strategy

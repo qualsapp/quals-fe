@@ -14,6 +14,11 @@ export const userService = {
     return apiClient<User>(`/users/${id}`);
   },
 
+  // Get single user
+  getByUsername: async (username: string) => {
+    return internalApiClient<User>(`/api/users/${username}`);
+  },
+
   // Create user (Mutation)
   register: async (userData: UserProps) => {
     return internalApiClient<User>("/api/register", {
@@ -36,11 +41,20 @@ export const userService = {
       method: "POST",
     });
   },
+
+  // Create Player Details (Mutation)
+  create: async (formData: FormData) => {
+    return internalApiClient<UserProfile>("/players", {
+      method: "POST",
+      body: formData,
+    });
+  },
+
   // Edit Profile (Mutation)
-  edit: async (userProfileData: Partial<UserProfile>) => {
+  edit: async (userProfileData: FormData) => {
     return apiClient<UserProfile>("/users/edit", {
       method: "PUT",
-      body: JSON.stringify(userProfileData),
+      body: userProfileData,
     });
   },
 };

@@ -72,7 +72,15 @@ const RegisterForm = () => {
       userService.register(data),
     onSuccess: (data) => {
       loginInState(data.token, data.user_id);
-      router.push("/");
+      if (data.user_type === "host") {
+        router.push("/host-details");
+        return;
+      }
+
+      if (data.user_type === "player") {
+        router.push("/player-details");
+        return;
+      }
     },
   });
 
