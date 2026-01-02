@@ -1,12 +1,12 @@
 export interface CommunityProps {
   name: string;
   address: string;
-  sports: string;
+  sports: string[];
   description?: string;
-  image?: File;
+  file?: File;
 }
 
-export interface CommunityResponse extends Omit<CommunityProps, "image"> {
+export interface CommunityResponse extends Omit<CommunityProps, "file"> {
   id: string;
-  image_url: string;
+  photo_url: string;
 }

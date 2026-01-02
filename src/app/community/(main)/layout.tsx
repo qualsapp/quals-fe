@@ -4,6 +4,7 @@ import DashboardNav from "@/components/commons/dashboard-nav";
 import { cookies } from "next/headers";
 import { communityService } from "@/services/community-service";
 import { MapPin } from "lucide-react";
+import { CommunityResponse } from "@/types/community";
 
 const menus = [
   { label: "Events", href: "/community/events" },
@@ -26,8 +27,13 @@ const Layout = async ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const community = await getCommunityById("9");
-  console.log("Community Layout:", community);
+  // const community = (await getCommunityById("9")) || ({} as CommunityResponse);
+  const community = {
+    name: "Community",
+    address: "Address",
+    description: "Description",
+  };
+  // console.log("Community Layout:", community);
 
   return (
     <>

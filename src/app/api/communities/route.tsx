@@ -2,16 +2,27 @@ import { ApiUrl } from "@/lib/env";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function GET(
   _: Request,
   { params }: { params: { communityId: string } }
 ) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  console.log("param:", params);
+
   const { communityId } = params;
 
   try {
-    const res = await fetch(ApiUrl + `/communities/${communityId}/events`, {
+    const res = await fetch(ApiUrl + `/communities/${communityId}`, {
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -26,25 +37,21 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { communityId: string } }
-) {
-  const { communityId } = params;
-
+export async function POST(request: Request) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  const payload = await request.formData();
 
-  const payload = await request.json();
+  console.log("POST Payload:", cookieStore);
+  console.log("Token:", token);
 
   try {
-    const res = await fetch(ApiUrl + `/communities/${communityId}/events`, {
+    const res = await fetch(ApiUrl + "/communities", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload),
+      body: payload,
     });
     const json = await res.json();
 
@@ -60,25 +67,21 @@ export async function POST(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { communityId: string; eventId: string } }
+  { params }: { params: { communityId: string } }
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  const payload = await request.json();
-  const { communityId, eventId } = params;
+  const payload = await request.formData();
+  const { communityId } = params;
 
   try {
-    const res = await fetch(
-      ApiUrl + `/communities/${communityId}/events/${eventId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const res = await fetch(ApiUrl + `/communities/${communityId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: payload,
+    });
     const json = await res.json();
 
     return NextResponse.json(json, { status: res.status });

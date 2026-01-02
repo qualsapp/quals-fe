@@ -1,12 +1,10 @@
 "use client";
-import { days } from "@/lib/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,29 +20,41 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import React from "react";
 import { DateRange } from "react-day-picker";
 import { Button } from "../ui/button";
-import { ChevronDownIcon } from "lucide-react";
-import { Calendar } from "../ui/calendar";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { time } from "console";
+import { TimePicker } from "../ui/time-picker";
+import DatePicker from "../date-picker";
+import { eventServices } from "@/services/event-services";
+import { useMutation } from "@tanstack/react-query";
+import { EventParams, EventResponse } from "@/types/events";
 
-type Props = {};
+type Props = {
+  event?: EventResponse;
+};
 
 const eventSchema = z.object({
-  type: z.enum(["weekly", "tournament", "friendly"]).or(z.string()),
+  type: z
+    .string()
+    .refine(
+      (value) =>
+        value === "weekly" || value === "tournament" || value === "friendly",
+      {
+        message: "Please select an event type",
+      }
+    ),
   name: z.string().min(1, "Name is required"),
   sport: z.string().min(1, "Sport is required"),
   location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
-  dates: z.string().optional(),
-  time: z.string().optional(),
+  dates: z
+    .any()
+    .refine((value) => value instanceof Date || value instanceof Object, {
+      message: "Please select a date and time",
+    }),
   isRepeat: z.boolean(),
-  // day: z.enum(days).or(z.string()),
-  // time: z.string(),
 });
 // .superRefine(({ day, time }, ctx) => {
 //   if (day === "") {
@@ -72,25 +82,77 @@ const eventSchema = z.object({
 //   }
 // });
 
-const EventForm = (props: Props) => {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  const [open, setOpen] = React.useState(false);
-
+const EventForm = ({ event }: Props) => {
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      type: "",
-      name: "",
+      type: event?.type || "",
+      name: event?.name || "",
+      sport: event?.sport || "",
+      location: event?.location || "",
+      description: event?.description || "",
+      dates: event
+        ? event.type === "weekly"
+          ? new Date(event.start_date)
+          : { from: new Date(event.start_date), to: new Date(event.end_date) }
+        : undefined,
+      isRepeat: event?.isRepeat || false,
+    },
+  });
+
+  const watchDates = form.watch("dates");
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (data: EventParams) => {
+      if (data.event_id) return await eventServices.update(data);
+      return await eventServices.create(data);
+    },
+    onSuccess: () => {
+      form.reset();
+    },
+    onError: () => {
+      console.log("Error creating event");
     },
   });
 
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
-    console.log(data);
-    // router.push("/community/create/community-members");
+    // add community_id from cookies
+    const params: EventParams = {
+      community_id: "",
+      ...data,
+    };
+
+    if (event?.id) {
+      params.event_id = event.id;
+    }
+
+    mutateAsync(params);
+  };
+
+  const handleTimeChange = (
+    type: "hour" | "minute" | "ampm",
+    value: string
+  ) => {
+    if (watchDates) {
+      const newDate = new Date(watchDates);
+      if (type === "hour") {
+        newDate.setHours(
+          (parseInt(value) % 12) + (newDate.getHours() >= 12 ? 12 : 0)
+        );
+      } else if (type === "minute") {
+        newDate.setMinutes(parseInt(value));
+      } else if (type === "ampm") {
+        const currentHours = newDate.getHours();
+        newDate.setHours(
+          value === "PM" ? currentHours + 12 : currentHours - 12
+        );
+      }
+      form.setValue("dates", newDate);
+    }
+  };
+
+  const handleDateChange = (date: Date | DateRange) => {
+    form.setValue("dates", date);
   };
 
   return (
@@ -106,6 +168,7 @@ const EventForm = (props: Props) => {
                 <Select
                   {...field}
                   onValueChange={(value) => {
+                    form.setValue("dates", undefined);
                     form.setValue("type", value);
                   }}
                 >
@@ -213,89 +276,52 @@ const EventForm = (props: Props) => {
         <div className="space-y-3">
           <Label>Schedule</Label>
 
-          <div className="flex items-start space-x-4">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date-picker"
-                  className="justify-between font-normal"
-                >
-                  {dateRange?.from && dateRange?.to
-                    ? dateRange.from?.toLocaleDateString() +
-                      "-" +
-                      dateRange.to?.toLocaleDateString()
-                    : "Select date"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                {form.watch("type") === "weekly" ? (
-                  <Calendar
-                    mode="single"
-                    className="rounded-lg border shadow-sm"
-                  />
-                ) : (
-                  <Calendar
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                    className="rounded-lg border shadow-sm"
-                  />
-                )}
-              </PopoverContent>
-            </Popover>
-
-            <FormField
-              control={form.control}
-              name="time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      placeholder="Time (e.g., 07:00, 14:00)"
-                      className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                      {...field}
-                    />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="grid grid-cols-2 gap-2">
+            <DatePicker
+              mode={form.watch("type") === "weekly" ? "single" : "range"}
+              selected={watchDates}
+              onSelect={handleDateChange}
+              disabled={form.watch("type") === ""}
             />
-          </div>
-          <FormDescription className="text-xs">
-            Time format (e.g., 07:00, 14:00)
-          </FormDescription>
 
-          <FormField
-            control={form.control}
-            name="isRepeat"
-            render={({ field }) => (
-              <FormItem className="flex items-center">
-                <FormControl>
-                  <Checkbox
-                    id="isRepeat"
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                    }}
-                  />
-                </FormControl>
-                <FormLabel htmlFor="isRepeat">Repeat event</FormLabel>
-                <FormMessage />
-              </FormItem>
+            <TimePicker
+              date={
+                form.watch("type") === "weekly" ? watchDates : watchDates?.from
+              }
+              handleTimeChange={handleTimeChange}
+              disabled={form.watch("type") === "" || !watchDates}
+            />
+
+            {form.formState.errors.dates && (
+              <FormMessage>
+                {String(form.formState.errors.dates.message)}
+              </FormMessage>
             )}
-          />
-
-          <Button>Create Event</Button>
+          </div>
         </div>
+
+        <FormField
+          control={form.control}
+          name="isRepeat"
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl>
+                <Checkbox
+                  id="isRepeat"
+                  checked={field.value}
+                  onCheckedChange={(checked) => {
+                    field.onChange(checked);
+                  }}
+                  disabled={form.watch("type") !== "weekly"}
+                />
+              </FormControl>
+              <FormLabel htmlFor="isRepeat">Repeat event</FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button>Create Event</Button>
       </form>
     </Form>
   );

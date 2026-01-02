@@ -20,7 +20,15 @@ const getCommunityById = async (id: string) => {
 };
 
 const page = async (props: Props) => {
-  const community = await getCommunityById("9");
+  // const community = await getCommunityById("9");
+  const community = {
+    name: "Sport Amature",
+    description: "Sport Amature",
+    photo_url: "https://via.placeholder.com/150",
+    address: "Sport Amature",
+    sports: ["badminton", "padel"],
+    id: "9",
+  };
 
   return (
     <div className="container lg:py-16 py-8 space-y-10">

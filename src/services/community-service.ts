@@ -16,17 +16,17 @@ export const communityService = {
   },
 
   // Create user (Mutation)
-  create: async (userData: CommunityProps) => {
-    return internalApiClient<CommunityResponse>("/api/community", {
+  create: async (userData: FormData) => {
+    return internalApiClient<CommunityResponse>("/api/communities", {
       method: "POST",
-      body: JSON.stringify(userData),
+      body: userData,
     });
   },
   // Update user (Mutation)
-  update: async (id: string, userData: CommunityProps) => {
-    return internalApiClient<CommunityResponse>(`/api/community/${id}`, {
+  update: async (id: string, userData: FormData) => {
+    return internalApiClient<CommunityResponse>(`/api/communities/${id}`, {
       method: "PUT",
-      body: JSON.stringify(userData),
+      body: userData,
     });
   },
 };
