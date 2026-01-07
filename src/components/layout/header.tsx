@@ -38,12 +38,12 @@ const navItemHighlight =
 const Header = () => {
   const { user, isAuthenticated, loading, logout } = useUser();
 
-  const menuItems: (MenuItem | undefined)[] = [
-    { label: "Komunitas", href: "/community", isHighlight: false },
-    isAuthenticated
-      ? { label: "Switch to Player", href: "/player", isHighlight: true }
-      : undefined,
-  ];
+  // const menuItems: (MenuItem | undefined)[] = [
+  //   { label: "Komunitas", href: "/community", isHighlight: false },
+  //   isAuthenticated
+  //     ? { label: "Switch to Player", href: "/player", isHighlight: true }
+  //     : undefined,
+  // ];
 
   return (
     <header className="bg-primary sticky top-0 z-50 text-white">
@@ -53,31 +53,12 @@ const Header = () => {
             QUALS
           </Link>
         </div>
-        <NavigationMenu className="hidden lg:flex">
+        <NavigationMenu className="hidden lg:flex h-[72px]">
           <NavigationMenuList>
-            {menuItems.map(
-              (item, index) =>
-                item && (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      asChild
-                      key={index}
-                      className={
-                        item.isHighlight ? navItemHighlight : navItemClasses
-                      }
-                    >
-                      <Link href={item.href} className="text-secondary">
-                        {item.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                )
-            )}
-
             {isAuthenticated ? (
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
-                  <Avatar className="size-6">
+                  <Avatar className="size-8">
                     <AvatarImage src="https://github.com/evilrabbit.png" />
                     <AvatarFallback>ER</AvatarFallback>
                   </Avatar>
@@ -147,7 +128,7 @@ const Header = () => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <Sheet>
+        {/* <Sheet>
           <SheetTrigger className="lg:hidden flex">
             <Menu size={32} className="text-secondary" />
           </SheetTrigger>
@@ -182,7 +163,7 @@ const Header = () => {
               </NavigationMenu>
             </SheetHeader>
           </SheetContent>
-        </Sheet>
+        </Sheet> */}
       </nav>
     </header>
   );

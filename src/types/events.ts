@@ -12,6 +12,15 @@ export type EventParams = {
   isRepeat: boolean;
 };
 
+export type RulesParams = {
+  game_mode: string;
+  seat_per_group: number;
+  score_type?: string;
+  total_sets?: string;
+  match_type?: string;
+  final_point?: string;
+};
+
 export interface EventResponse
   extends Omit<EventParams, "dates" | "community_id" | "event_id"> {
   id: string;
