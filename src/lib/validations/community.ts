@@ -5,5 +5,5 @@ export const CommunityScheme = z.object({
   address: z.string().min(1, "Location is required"),
   sports: z.array(z.string()).min(1, "At least one sport is required"),
   description: z.string(),
-  file: z.file().optional(),
+  image: z.file().optional(),
 });

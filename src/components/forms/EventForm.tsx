@@ -28,9 +28,10 @@ import { Label } from "../ui/label";
 import { TimePicker } from "../ui/time-picker";
 import DatePicker from "../date-picker";
 import { eventServices } from "@/services/event-services";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { EventParams, EventResponse } from "@/types/events";
 import { useRouter } from "next/navigation";
+import { sharedService } from "@/services/shared-service";
 
 type Props = {
   event?: EventResponse;
@@ -46,8 +47,8 @@ const eventSchema = z.object({
         message: "Please select an event type",
       }
     ),
-  name: z.string().min(1, "Name is required"),
-  sport: z.string().min(1, "Sport is required"),
+  title: z.string().min(1, "Name is required"),
+  sport_type_id: z.string().min(1, "Sport is required"),
   location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
   dates: z
@@ -88,13 +89,13 @@ const EventForm = ({ event }: Props) => {
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      type: event?.type || "",
-      name: event?.name || "",
-      sport: event?.sport || "",
+      type: event?.event_type || "",
+      title: event?.title || "",
+      sport_type_id: event?.sport_type.id || "",
       location: event?.location || "",
       description: event?.description || "",
       dates: event
-        ? event.type === "weekly"
+        ? event.event_type === "weekly"
           ? new Date(event.start_date)
           : { from: new Date(event.start_date), to: new Date(event.end_date) }
         : undefined,
@@ -104,13 +105,21 @@ const EventForm = ({ event }: Props) => {
 
   const watchDates = form.watch("dates");
 
+  const { data: sports } = useQuery({
+    queryKey: ["sports"],
+    queryFn: async () => await sharedService.getAllSports(),
+    select: (data) => data.sport_types,
+  });
+
   const { mutateAsync } = useMutation({
     mutationFn: async (data: EventParams) => {
       if (data.event_id) return await eventServices.update(data);
       return await eventServices.create(data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       form.reset();
+      const sport = sports?.find((sport) => sport.id === data.sport_type.id);
+      router.push(`/community/events/123/rules?type=${sport?.slug}`);
     },
     onError: () => {
       console.log("Error creating event");
@@ -119,24 +128,34 @@ const EventForm = ({ event }: Props) => {
 
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
     // add community_id from cookies
-    // const params: EventParams = {
-    //   community_id: "",
-    //   ...data,
-    // };
+    const params: EventParams = {
+      community_id: "11",
+      title: data.title,
+      event_type: data.type,
+      sport_type_id: data.sport_type_id,
+      location: data.location,
+      description: data.description,
+      // isRepeat: data.isRepeat,
+      start_time:
+        watchDates instanceof Object
+          ? watchDates.from.toISOString()
+          : watchDates,
+      end_time:
+        watchDates instanceof Object ? watchDates.to.toISOString() : watchDates,
+    };
 
-    // if (event?.id) {
-    //   params.event_id = event.id;
-    // }
+    if (event?.id) {
+      params.event_id = event.id;
+    }
 
-    // mutateAsync(params);
-    router.push(`/community/events/123/rules?type=${data.sport}`);
+    mutateAsync(params);
   };
 
   const handleTimeChange = (
     type: "hour" | "minute" | "ampm",
     value: string
   ) => {
-    if (watchDates) {
+    if (watchDates instanceof Date) {
       const newDate = new Date(watchDates);
       if (type === "hour") {
         newDate.setHours(
@@ -151,6 +170,29 @@ const EventForm = ({ event }: Props) => {
         );
       }
       form.setValue("dates", newDate);
+    }
+
+    if (watchDates instanceof Object && watchDates.from && watchDates.to) {
+      if (type === "hour") {
+        watchDates.from.setHours(
+          (parseInt(value) % 12) + (watchDates.from.getHours() >= 12 ? 12 : 0)
+        );
+        watchDates.to.setHours(
+          (parseInt(value) % 12) + (watchDates.to.getHours() >= 12 ? 12 : 0)
+        );
+      } else if (type === "minute") {
+        watchDates.from.setMinutes(parseInt(value));
+        watchDates.to.setMinutes(parseInt(value));
+      } else if (type === "ampm") {
+        const currentHours = watchDates.from.getHours();
+        watchDates.from.setHours(
+          value === "PM" ? currentHours + 12 : currentHours - 12
+        );
+        watchDates.to.setHours(
+          value === "PM" ? currentHours + 12 : currentHours - 12
+        );
+      }
+      form.setValue("dates", watchDates);
     }
   };
 
@@ -195,7 +237,7 @@ const EventForm = ({ event }: Props) => {
         />
         <FormField
           control={form.control}
-          name="name"
+          name="title"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Event Name</FormLabel>
@@ -208,7 +250,7 @@ const EventForm = ({ event }: Props) => {
         />
         <FormField
           control={form.control}
-          name="sport"
+          name="sport_type_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Sport</FormLabel>
@@ -216,7 +258,7 @@ const EventForm = ({ event }: Props) => {
                 <Select
                   {...field}
                   onValueChange={(value) => {
-                    form.setValue("sport", value);
+                    form.setValue("sport_type_id", value);
                   }}
                 >
                   <SelectTrigger className="w-full">
@@ -224,8 +266,11 @@ const EventForm = ({ event }: Props) => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="weekly">Badminton</SelectItem>
-                      <SelectItem value="tournament">Padel</SelectItem>
+                      {sports?.map((sport) => (
+                        <SelectItem key={sport.id} value={sport.id.toString()}>
+                          {sport.name}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

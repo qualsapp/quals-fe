@@ -18,12 +18,13 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { communityService } from "@/services/community-service";
 import { CommunityScheme } from "@/lib/validations/community";
 import { CommunityResponse } from "@/types/community";
 import { MultiSelect } from "../ui/multi-select";
 import { sportList } from "@/lib/constants";
+import { sharedService } from "@/services/shared-service";
 
 type CommunityDetailsFormProps = {
   community?: CommunityResponse;
@@ -38,17 +39,27 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
       address: community?.address || "",
       sports: community?.sports || [],
       description: community?.description || "",
-      file: undefined,
+      image: undefined,
     },
   });
 
   const onFileChange = (file: FileWithPreview | null) => {
     if (file) {
-      form.setValue("file", file.file as File);
+      form.setValue("image", file.file as File);
     } else {
-      form.setValue("file", undefined);
+      form.setValue("image", undefined);
     }
   };
+
+  const { data: sports } = useQuery({
+    queryKey: ["sports"],
+    queryFn: async () => await sharedService.getAllSports(),
+    select: (data) =>
+      data.sport_types.map((sport) => ({
+        label: sport.name,
+        value: sport.id.toString(),
+      })),
+  });
 
   const { mutate, error } = useMutation({
     mutationFn: async (data: FormData) => {
@@ -71,7 +82,7 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
       formData.append("sports_type_ids[]", sport)
     );
     formData.append("description", params.description);
-    formData.append("file", params.file as File);
+    formData.append("image", params.image as File);
     mutate(formData);
   };
   return (
@@ -114,7 +125,7 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
               <FormLabel>Sports Preference</FormLabel>
               <FormControl>
                 <MultiSelect
-                  options={sportList}
+                  options={sports || []}
                   value={field.value}
                   defaultValue={community?.sports}
                   onValueChange={field.onChange}

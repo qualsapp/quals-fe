@@ -9,7 +9,7 @@ export const eventServices = {
     });
   },
   create: async (params: EventParams) => {
-    return internalApiClient<EventResponse>("/events", {
+    return internalApiClient<EventResponse>("/api/events", {
       method: "POST",
       body: JSON.stringify(params),
     });

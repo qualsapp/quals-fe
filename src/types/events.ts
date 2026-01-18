@@ -1,15 +1,18 @@
 import { DateRange } from "react-day-picker";
+import { Sport } from "./global";
 
 export type EventParams = {
   community_id: string;
   event_id?: string;
-  type: string;
-  name: string;
-  sport: string;
+  event_type: string;
+  title: string;
+  sport_type_id: string;
   location: string;
   description: string;
-  dates: DateRange | Date;
-  isRepeat: boolean;
+  dates?: DateRange | Date;
+  start_time?: string;
+  end_time?: string;
+  isRepeat?: boolean;
 };
 
 export type RulesParams = {
@@ -22,10 +25,14 @@ export type RulesParams = {
 };
 
 export interface EventResponse
-  extends Omit<EventParams, "dates" | "community_id" | "event_id"> {
+  extends Omit<
+    EventParams,
+    "dates" | "community_id" | "event_id" | "sport_type_id"
+  > {
   id: string;
   start_date: string;
   end_date: string;
+  sport_type: Sport;
   createdAt: string;
   updatedAt: string;
 }

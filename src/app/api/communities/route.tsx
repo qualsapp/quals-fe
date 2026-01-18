@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   const token = cookieStore.get("token")?.value;
   const payload = await request.formData();
 
-  console.log("POST Payload:", cookieStore);
+  console.log("POST Payload:", payload);
   console.log("Token:", token);
 
   try {
@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
       body: payload,
     });
