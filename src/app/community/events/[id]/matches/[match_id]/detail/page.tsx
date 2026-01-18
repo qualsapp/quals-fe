@@ -3,9 +3,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import React from "react";
 
-type Props = {};
+type Props = {
+  params: Promise<{ id: string; match_id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-const page = (props: Props) => {
+const page = async ({ params, searchParams }: Props) => {
+  const { id, match_id } = await params;
+  const { type } = await searchParams;
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>

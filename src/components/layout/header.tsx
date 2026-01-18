@@ -55,6 +55,16 @@ const Header = () => {
         </div>
         <NavigationMenu className="hidden lg:flex h-[72px]">
           <NavigationMenuList>
+            <NavigationMenuItem className="rounded-none">
+              <NavigationMenuLink asChild className="rounded-none border-3">
+                <Link
+                  href="/community"
+                  className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
+                >
+                  Community
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             {isAuthenticated ? (
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
@@ -64,6 +74,19 @@ const Header = () => {
                   </Avatar>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="w-full p-0">
+                  <NavigationMenuItem className="rounded-none">
+                    <NavigationMenuLink
+                      asChild
+                      className="rounded-none border-3 border-transparent hover:border-l-primary"
+                    >
+                      <Link
+                        href="/community"
+                        className="block py-4 px-6 hover:bg-primary/10 hover:text-primary font-bold "
+                      >
+                        Community
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                   <NavigationMenuItem className="rounded-none">
                     <NavigationMenuLink
                       asChild

@@ -39,7 +39,7 @@ const LoginForm = () => {
     mutationFn: (data: z.infer<typeof LoginScheme>) => userService.login(data),
     onSuccess: (data) => {
       loginInState(data.token, data.user_id);
-      router.push("/");
+      router.push("/community");
     },
   });
 

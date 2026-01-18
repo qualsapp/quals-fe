@@ -30,6 +30,7 @@ import DatePicker from "../date-picker";
 import { eventServices } from "@/services/event-services";
 import { useMutation } from "@tanstack/react-query";
 import { EventParams, EventResponse } from "@/types/events";
+import { useRouter } from "next/navigation";
 
 type Props = {
   event?: EventResponse;
@@ -83,6 +84,7 @@ const eventSchema = z.object({
 // });
 
 const EventForm = ({ event }: Props) => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -117,16 +119,17 @@ const EventForm = ({ event }: Props) => {
 
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
     // add community_id from cookies
-    const params: EventParams = {
-      community_id: "",
-      ...data,
-    };
+    // const params: EventParams = {
+    //   community_id: "",
+    //   ...data,
+    // };
 
-    if (event?.id) {
-      params.event_id = event.id;
-    }
+    // if (event?.id) {
+    //   params.event_id = event.id;
+    // }
 
-    mutateAsync(params);
+    // mutateAsync(params);
+    router.push(`/community/events/123/rules?type=${data.sport}`);
   };
 
   const handleTimeChange = (

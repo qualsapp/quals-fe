@@ -3,11 +3,16 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { ArrowLeft } from "lucide-react";
-import TennisBoard from "@/components/score-boards/tennis";
+import FullScreenWrapper from "@/components/commons/full-screen";
 
-type Props = {};
+type Props = {
+  params: Promise<{ id: string; match_id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-const page = (props: Props) => {
+const page = async ({ params, searchParams }: Props) => {
+  const { id, match_id } = await params;
+  const { type } = await searchParams;
   const hasStareted = false;
 
   return (
@@ -18,9 +23,8 @@ const page = (props: Props) => {
             <ArrowLeft /> Back to Matches
           </Button>
         </Link>
-        <div className="">
-          <BadmintonBoard />
-        </div>
+
+        <BadmintonBoard />
 
         {/* <TennisBoard /> */}
       </div>
