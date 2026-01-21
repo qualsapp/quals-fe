@@ -16,8 +16,10 @@ export type EventParams = {
 };
 
 export type RulesParams = {
-  game_mode: string;
-  seat_per_group: number;
+  id?: string | number;
+  community_id?: string;
+  event_id?: string;
+  seat_per_group: number | string;
   score_type?: string;
   total_sets?: string;
   match_type?: string;
@@ -35,4 +37,29 @@ export interface EventResponse
   sport_type: Sport;
   createdAt: string;
   updatedAt: string;
+}
+
+export type MatchRule = {
+  id: number;
+  scoring_system: string;
+  max_point_per_set: number;
+  deuce: boolean;
+  max_deuce_point: number;
+  best_of_sets: number;
+  race_to: number;
+};
+
+export interface RuleParams extends Omit<MatchRule, "id"> {
+  format: string;
+  category: string;
+  total_participants: number;
+  groups_count: number;
+  seat_per_group: number;
+  top_advancing_group: number;
+}
+
+export interface RulesResponse extends RuleParams {
+  id: number;
+  event: EventResponse;
+  match_rule: MatchRule;
 }

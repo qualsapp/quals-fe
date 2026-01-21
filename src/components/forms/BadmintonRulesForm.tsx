@@ -19,60 +19,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Textarea } from "../ui/textarea";
+
 import React from "react";
-import { DateRange } from "react-day-picker";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
-import { TimePicker } from "../ui/time-picker";
-import DatePicker from "../date-picker";
 import { eventServices } from "@/services/event-services";
 import { useMutation } from "@tanstack/react-query";
-import { EventParams, EventResponse, RulesParams } from "@/types/events";
+import { RulesParams, RulesResponse } from "@/types/events";
 import { Switch } from "../ui/switch";
 import {
   badmintonFinalScore,
   badmintonScoreType,
   badmintonScoring,
   knockoutSeats,
-  padelScoreType,
-  padelSets,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  event?: EventResponse;
+  eventId: string;
+  communityId: string;
+  rule?: RulesResponse;
 };
 
 const RulesSchema = z.object({
-  knockout_seat: z.string().min(1, "Knockout Seat is required"),
+  total_participants: z.string().min(1, "Knockout Seat is required"),
   grouping: z.boolean(),
-  group_amount: z.string().min(1, "Group Amount is required"),
+  groups_count: z.string().min(1, "Group Amount is required"),
   seat_per_group: z.string().min(1, "Seat per Group is required"),
-  match_type: z.string().min(1, "Match Type is required"),
-  score_type: z.string().min(1, "Score Type is required"),
-  final_point: z.string().min(1, "Final Point is required"),
+  scoring_system: z.string().min(1, "Scoring System is required"),
+  // score_type: z.string().min(1, "Score Type is required"),
+  max_point_per_set: z.string().min(1, "Final Point is required"),
 });
 
-const RulesForm = ({ event }: Props) => {
+const RulesForm = ({ eventId, communityId, rule }: Props) => {
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
-      knockout_seat: "",
-      grouping: false,
-      group_amount: "",
-      seat_per_group: "",
-      match_type: "",
-      score_type: "",
-      final_point: "",
+      total_participants: rule?.total_participants?.toString() || "",
+      grouping: rule?.groups_count && rule?.groups_count > 0 ? true : false,
+      groups_count: rule?.groups_count?.toString() || "",
+      seat_per_group: rule?.seat_per_group?.toString() || "",
+      scoring_system: rule?.match_rule?.scoring_system || "",
+      // score_type: rule?.match_rule?.score_type || "",
+      max_point_per_set: rule?.match_rule?.max_point_per_set?.toString() || "",
     },
   });
 
   const { mutateAsync } = useMutation({
     mutationFn: async (data: RulesParams) => {
-      // if (data.event_id) return await eventServices.update(data);
-      // return await eventServices.create(data);
+      if (rule?.id) return await eventServices.updateRules(data);
+      return await eventServices.createRules(data);
     },
     onSuccess: () => {
       form.reset();
@@ -84,14 +79,16 @@ const RulesForm = ({ event }: Props) => {
 
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
     // add community_id from cookies
-    // const params: RulesParams = {
-    //   // community_id: "",
-    //   ...data,
-    // };
-    // if (event?.id) {
-    //   params.event_id = event.id;
-    // }
-    // mutateAsync(params);
+    const params: RulesParams = {
+      community_id: communityId,
+      event_id: eventId,
+      ...data,
+    };
+    if (rule?.id) {
+      params.id = rule.id;
+    }
+
+    mutateAsync(params);
   };
 
   return (
@@ -105,7 +102,7 @@ const RulesForm = ({ event }: Props) => {
           <div>
             <FormField
               control={form.control}
-              name="knockout_seat"
+              name="total_participants"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Knockout Seat</FormLabel>
@@ -113,7 +110,7 @@ const RulesForm = ({ event }: Props) => {
                     <Select
                       {...field}
                       onValueChange={(value) => {
-                        form.setValue("knockout_seat", value);
+                        form.setValue("total_participants", value);
                       }}
                     >
                       <SelectTrigger>
@@ -162,7 +159,7 @@ const RulesForm = ({ event }: Props) => {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="group_amount"
+              name="groups_count"
               disabled={!form.watch("grouping")}
               render={({ field }) => (
                 <FormItem>
@@ -210,19 +207,19 @@ const RulesForm = ({ event }: Props) => {
           <div className="grid md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
-              name="match_type"
+              name="scoring_system"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Match Type</FormLabel>
+                  <FormLabel>Scoring System</FormLabel>
                   <FormControl>
                     <Select
                       {...field}
                       onValueChange={(value) => {
-                        form.setValue("match_type", value);
+                        form.setValue("scoring_system", value);
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih match type" />
+                        <SelectValue placeholder="Pilih scoring system" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -239,7 +236,7 @@ const RulesForm = ({ event }: Props) => {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="score_type"
               render={({ field }) => (
@@ -269,10 +266,10 @@ const RulesForm = ({ event }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
-              name="final_point"
+              name="max_point_per_set"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Final Point</FormLabel>
@@ -280,7 +277,7 @@ const RulesForm = ({ event }: Props) => {
                     <Select
                       {...field}
                       onValueChange={(value) => {
-                        form.setValue("final_point", value);
+                        form.setValue("max_point_per_set", value);
                       }}
                     >
                       <SelectTrigger className="w-full">

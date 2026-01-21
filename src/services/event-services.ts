@@ -1,5 +1,10 @@
 import { apiClient, internalApiClient } from "@/lib/api-client";
-import { EventParams, EventResponse } from "@/types/events";
+import {
+  EventParams,
+  EventResponse,
+  RulesParams,
+  RulesResponse,
+} from "@/types/events";
 
 export const eventServices = {
   // Fetch all users
@@ -23,6 +28,18 @@ export const eventServices = {
     return internalApiClient<EventResponse>(`/events/${event_id}`, {
       method: "PUT",
       body: JSON.stringify(rest),
+    });
+  },
+  createRules: async (params: RulesParams) => {
+    return internalApiClient<RulesResponse>(`/api/tournament`, {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+  },
+  updateRules: async (params: RulesParams) => {
+    return internalApiClient<RulesResponse>(`/api/tournament/${params.id}`, {
+      method: "PUT",
+      body: JSON.stringify(params),
     });
   },
 };

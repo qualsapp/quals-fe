@@ -118,8 +118,10 @@ const EventForm = ({ event }: Props) => {
     },
     onSuccess: (data) => {
       form.reset();
-      const sport = sports?.find((sport) => sport.id === data.sport_type.id);
-      router.push(`/community/events/123/rules?type=${sport?.slug}`);
+      if (data.event_type === "tournament") {
+        const sport = sports?.find((sport) => sport.id === data.sport_type.id);
+        router.push(`/community/events/${data.id}/rules?type=${sport?.slug}`);
+      }
     },
     onError: () => {
       console.log("Error creating event");
