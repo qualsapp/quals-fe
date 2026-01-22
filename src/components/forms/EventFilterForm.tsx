@@ -73,7 +73,7 @@ const EventFilterForm = (props: Props) => {
     if (range?.from && range?.to) {
       form.setValue(
         "dates",
-        `${range.from.toISOString()} - ${range.to.toISOString()}`
+        `${range.from.toISOString()} - ${range.to.toISOString()}`,
       );
     } else {
       form.setValue("dates", "");
@@ -87,7 +87,10 @@ const EventFilterForm = (props: Props) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-3">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col md:flex-row gap-3"
+      >
         <FormField
           control={form.control}
           name="sports"
@@ -152,38 +155,40 @@ const EventFilterForm = (props: Props) => {
           control={form.control}
           name="type"
           render={({ field }) => (
-            <FormItem className="flex">
+            <FormItem className="flex flex-col md:flex-row gap-2">
               <FormLabel className="text-gray-400 font-semibold">
                 Event Type
               </FormLabel>
-              {typeOption.map((type) => (
-                <FormField
-                  key={type.value}
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem key={type.value}>
-                      <FormControl>
-                        <CheckboxCard
-                          checked={field.value?.includes(type.value)}
-                          key={type.value}
-                          option={type}
-                          disabled={type?.disabled}
-                          onCheckedChange={(checked) => {
-                            return checked
-                              ? field.onChange([...field.value, type.value])
-                              : field.onChange(
-                                  field.value?.filter(
-                                    (value: any) => value !== type.value
-                                  )
-                                );
-                          }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              ))}
+              <div className="flex gap-2">
+                {typeOption.map((type) => (
+                  <FormField
+                    key={type.value}
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem key={type.value}>
+                        <FormControl>
+                          <CheckboxCard
+                            checked={field.value?.includes(type.value)}
+                            key={type.value}
+                            option={type}
+                            disabled={type?.disabled}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, type.value])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value: any) => value !== type.value,
+                                    ),
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
             </FormItem>
           )}
         />
@@ -191,38 +196,40 @@ const EventFilterForm = (props: Props) => {
           control={form.control}
           name="status"
           render={({ field }) => (
-            <FormItem className="flex">
+            <FormItem className="flex flex-col md:flex-row gap-2">
               <FormLabel className="text-gray-400 font-semibold">
                 Status
               </FormLabel>
-              {statusOption.map((state) => (
-                <FormField
-                  key={state.value}
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem key={state.value}>
-                      <FormControl>
-                        <CheckboxCard
-                          checked={field.value?.includes(state.value)}
-                          key={state.value}
-                          option={state}
-                          disabled={state?.disabled}
-                          onCheckedChange={(checked) => {
-                            return checked
-                              ? field.onChange([...field.value, state.value])
-                              : field.onChange(
-                                  field.value?.filter(
-                                    (value: any) => value !== state.value
-                                  )
-                                );
-                          }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              ))}
+              <div className="flex gap-2">
+                {statusOption.map((state) => (
+                  <FormField
+                    key={state.value}
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem key={state.value}>
+                        <FormControl>
+                          <CheckboxCard
+                            checked={field.value?.includes(state.value)}
+                            key={state.value}
+                            option={state}
+                            disabled={state?.disabled}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, state.value])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value: any) => value !== state.value,
+                                    ),
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
             </FormItem>
           )}
         />

@@ -1,5 +1,6 @@
-import { internalApiClient } from "@/lib/api-client";
-import { HostModel } from "@/types/user";
+import { apiClient, internalApiClient } from "@/lib/api-client";
+import { CommunityProps, CommunityResponse } from "@/types/community";
+import { HostModel, HostProfileModel } from "@/types/user";
 
 export const hostService = {
   // Edit Profile (Mutation)
@@ -8,6 +9,15 @@ export const hostService = {
     return internalApiClient<HostModel>("/api/hosts", {
       method: "POST",
       body: formData,
+    });
+  },
+  // Get Profile (Query)
+  getProfile: async (token: string) => {
+    return await apiClient<HostProfileModel>("/hosts/profile", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
   },
 };

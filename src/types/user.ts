@@ -1,3 +1,5 @@
+import { CommunityResponse } from "./community";
+
 export interface User {
   user_id: string;
   user_type: string;
@@ -45,10 +47,16 @@ export interface HostParams {
 
 export interface HostModel {
   id: string;
+  host_id: string;
   user_id: string;
   username: string;
   display_name: string;
   bio: string;
   photo_url: string;
   message: string;
+}
+
+export interface HostProfileModel {
+  community: CommunityResponse;
+  host_detail: HostModel;
 }

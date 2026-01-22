@@ -28,7 +28,30 @@ export async function POST(request: Request) {
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  try {
+    const res = await fetch(ApiUrl + "/hosts/profile", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const json = await res.json();
+
+    return NextResponse.json(json, { status: res.status });
+  } catch (err) {
+    console.log("Error logging in:", err);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 },
     );
   }
 }

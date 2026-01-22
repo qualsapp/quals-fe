@@ -17,6 +17,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { userService } from "@/services/user-service";
 import { useRouter } from "next/navigation";
+import { hostService } from "@/services/host-service";
 
 const LoginScheme = z.object({
   email: z.email("Invalid email"),
@@ -34,12 +35,26 @@ const LoginForm = () => {
   });
 
   const loginInState = useAuthStore((state) => state.login);
+  const setCommunity = useAuthStore((state) => state.setCommunity);
+  const setUser = useAuthStore((state) => state.setUser);
 
-  const { mutate, error } = useMutation({
-    mutationFn: (data: z.infer<typeof LoginScheme>) => userService.login(data),
+  const { mutate: getProfile } = useMutation({
+    mutationFn: async () => await hostService.getProfile(),
     onSuccess: (data) => {
-      loginInState(data.token, data.user_id);
-      router.push("/community");
+      if (data.host_detail) {
+        setCommunity(data.community);
+        setUser(data.host_detail);
+        router.push("/community");
+      }
+    },
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: async (data: z.infer<typeof LoginScheme>) =>
+      await userService.login(data),
+    onSuccess: (data) => {
+      loginInState(data, data.token);
+      getProfile();
     },
   });
 

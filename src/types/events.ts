@@ -26,17 +26,20 @@ export type RulesParams = {
   final_point?: string;
 };
 
-export interface EventResponse
-  extends Omit<
-    EventParams,
-    "dates" | "community_id" | "event_id" | "sport_type_id"
-  > {
+export interface EventResponse extends Omit<
+  EventParams,
+  "dates" | "community_id" | "event_id" | "sport_type_id"
+> {
   id: string;
   start_date: string;
   end_date: string;
   sport_type: Sport;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface EventsResponse {
+  events: EventResponse[];
 }
 
 export type MatchRule = {

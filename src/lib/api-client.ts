@@ -2,7 +2,7 @@ import { ApiUrl } from "./env";
 
 export async function apiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const { headers, ...customConfig } = options;
 
@@ -26,7 +26,7 @@ export async function apiClient<T>(
 
 export async function internalApiClient<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const { headers, ...customConfig } = options;
 

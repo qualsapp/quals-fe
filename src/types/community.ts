@@ -1,12 +1,19 @@
+import { Sport } from "./global";
+
 export interface CommunityProps {
   name: string;
   address: string;
   sports: string[];
   description?: string;
-  file?: File;
+  image?: File;
 }
 
-export interface CommunityResponse extends Omit<CommunityProps, "file"> {
+export interface CommunityResponse extends Omit<
+  CommunityProps,
+  "image, sports"
+> {
   id: string;
-  photo_url: string;
+  image_url: string;
+  host_id: string;
+  sport_types: Sport[];
 }

@@ -2,16 +2,23 @@ import { apiClient, internalApiClient } from "@/lib/api-client";
 import {
   EventParams,
   EventResponse,
+  EventsResponse,
   RulesParams,
   RulesResponse,
 } from "@/types/events";
 
 export const eventServices = {
   // Fetch all users
-  getAll: async () => {
-    return apiClient<EventResponse>("/events", {
-      next: { revalidate: 3600 }, // Revalidate cache every hour
-    });
+  getAll: async (communityId: string, token: string) => {
+    return apiClient<EventsResponse>(
+      `/communities/${communityId}/events?page=1&page_size=10`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
   },
   create: async (params: EventParams) => {
     return internalApiClient<EventResponse>("/api/events", {

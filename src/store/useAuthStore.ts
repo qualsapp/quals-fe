@@ -1,11 +1,14 @@
+import { CommunityResponse } from "@/types/community";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface AuthState {
   user: any | null; // Replace 'any' with your actual User type
   token: string | null;
+  community: CommunityResponse | null;
   isAuthenticated: boolean;
   setUser: (user: any | null) => void;
+  setCommunity: (community: CommunityResponse) => void;
   setToken: (token: string | null) => void;
   login: (user: any, token: string) => void;
   logout: () => void;
@@ -18,8 +21,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      community: null,
       isAuthenticated: false,
       setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setCommunity: (community) => set({ community }),
       setToken: (token) => set({ token }),
       login: (user, token) => set({ user, token, isAuthenticated: true }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
@@ -29,6 +34,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage", // unique name for localStorage/sessionStorage key
       storage: createJSONStorage(() => localStorage), // or sessionStorage
-    }
-  )
+    },
+  ),
 );

@@ -1,10 +1,9 @@
 import React from "react";
-
 import DashboardNav from "@/components/commons/dashboard-nav";
 import { cookies } from "next/headers";
-import { communityService } from "@/services/community-service";
 import { MapPin } from "lucide-react";
-import { CommunityResponse } from "@/types/community";
+import { hostService } from "@/services/host-service";
+import { HostProfileModel } from "@/types/user";
 
 const menus = [
   { label: "Events", href: "/community/events" },
@@ -12,34 +11,23 @@ const menus = [
   { label: "Statistic", href: "/community/statistic" },
 ];
 
-const getCommunityById = async (id: string) => {
-  const cookieStore = await cookies();
-  return communityService.getById(id, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookieStore.get("token")?.value}`,
-    },
-  });
-};
-
 const Layout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  // const community = (await getCommunityById("9")) || ({} as CommunityResponse);
-  const community = {
-    name: "Community",
-    address: "Address",
-    description: "Description",
-  };
-  // console.log("Community Layout:", community);
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { community } = token
+    ? await hostService.getProfile(token)
+    : ({} as HostProfileModel);
 
   return (
     <>
       <div className="py-10 space-y-10">
         <div className="container flex flex-col gap-4">
-          <div className="border-y py-3 space-y-2">
+          <div className=" py-3 space-y-2">
             <h2 className="text-4xl">
               Welcome to <strong>{community.name}</strong>
             </h2>
@@ -50,7 +38,7 @@ const Layout = async ({
             <p className="text-gray-400">{community.description}</p>
           </div>
 
-          <div className=" flex justify-between">
+          {/* <div className=" flex justify-between">
             <div className="space-y-3">
               <h2 className="text-lg font-bold uppercase text-gray-300">
                 COMMUNITY INFO
@@ -69,7 +57,7 @@ const Layout = async ({
                 EVENTS
               </h2>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="bg-primary-50">
           <div className="container">
