@@ -1,6 +1,6 @@
 import DashboardNav from "@/components/commons/dashboard-nav";
 import ProfileSection from "@/components/sections/ProfileSection";
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { cookies } from "next/headers";
 
 import React from "react";

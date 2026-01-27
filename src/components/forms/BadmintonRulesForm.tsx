@@ -46,7 +46,6 @@ const RulesSchema = z.object({
   groups_count: z.string().min(1, "Group Amount is required"),
   seat_per_group: z.string().min(1, "Seat per Group is required"),
   scoring_system: z.string().min(1, "Scoring System is required"),
-  // score_type: z.string().min(1, "Score Type is required"),
   max_point_per_set: z.string().min(1, "Final Point is required"),
 });
 
@@ -59,7 +58,6 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
       groups_count: rule?.groups_count?.toString() || "",
       seat_per_group: rule?.seat_per_group?.toString() || "",
       scoring_system: rule?.match_rule?.scoring_system || "",
-      // score_type: rule?.match_rule?.score_type || "",
       max_point_per_set: rule?.match_rule?.max_point_per_set?.toString() || "",
     },
   });
@@ -165,7 +163,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                 <FormItem>
                   <FormLabel
                     className={cn(
-                      !form.watch("grouping") ? "text-gray-400" : ""
+                      !form.watch("grouping") ? "text-gray-400" : "",
                     )}
                   >
                     Group Amount
@@ -185,7 +183,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                 <FormItem>
                   <FormLabel
                     className={cn(
-                      !form.watch("grouping") ? "text-gray-400" : ""
+                      !form.watch("grouping") ? "text-gray-400" : "",
                     )}
                   >
                     Seat per Group

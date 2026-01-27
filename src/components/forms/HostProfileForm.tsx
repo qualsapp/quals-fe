@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
@@ -31,7 +31,7 @@ import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { HostScheme } from "@/lib/validations/user";
 import { levelList, locationList, sportList } from "@/lib/constants";
-import { hostService } from "@/services/host-service";
+import { hostService } from "@/services/host-services";
 import { useRouter } from "next/navigation";
 import { HostModel } from "@/types/user";
 
@@ -59,8 +59,6 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
   });
 
   const onSubmit = async (data: z.infer<typeof HostScheme>) => {
-   
-
     const formData = new FormData();
     formData.append("username", data.username);
     formData.append("display_name", data.display_name);

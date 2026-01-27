@@ -45,7 +45,7 @@ const eventSchema = z.object({
         value === "weekly" || value === "tournament" || value === "friendly",
       {
         message: "Please select an event type",
-      }
+      },
     ),
   title: z.string().min(1, "Name is required"),
   sport_type_id: z.string().min(1, "Sport is required"),
@@ -58,46 +58,26 @@ const eventSchema = z.object({
     }),
   isRepeat: z.boolean(),
 });
-// .superRefine(({ day, time }, ctx) => {
-//   if (day === "") {
-//     ctx.addIssue({
-//       path: ["day"],
-//       code: "custom",
-//       message: "Day is required",
-//     });
-//   }
-
-//   if (!days.includes(day)) {
-//     ctx.addIssue({
-//       path: ["day"],
-//       code: "custom",
-//       message: "Day must be a valid day of the week",
-//     });
-//   }
-
-//   if (time === "") {
-//     ctx.addIssue({
-//       path: ["time"],
-//       code: "custom",
-//       message: "Time is required",
-//     });
-//   }
-// });
 
 const EventForm = ({ event }: Props) => {
   const router = useRouter();
+
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       type: event?.event_type || "",
       title: event?.title || "",
-      sport_type_id: event?.sport_type.id || "",
+      sport_type_id: event?.sport_type.id.toString() || "",
       location: event?.location || "",
       description: event?.description || "",
       dates: event
-        ? event.event_type === "weekly"
-          ? new Date(event.start_date)
-          : { from: new Date(event.start_date), to: new Date(event.end_date) }
+        ? event.event_type === "weekly" && event.start_time
+          ? new Date(event.start_time)
+          : event.start_time &&
+            event.end_time && {
+              from: new Date(event.start_time),
+              to: new Date(event.end_time),
+            }
         : undefined,
       isRepeat: event?.isRepeat || false,
     },
@@ -155,20 +135,20 @@ const EventForm = ({ event }: Props) => {
 
   const handleTimeChange = (
     type: "hour" | "minute" | "ampm",
-    value: string
+    value: string,
   ) => {
     if (watchDates instanceof Date) {
       const newDate = new Date(watchDates);
       if (type === "hour") {
         newDate.setHours(
-          (parseInt(value) % 12) + (newDate.getHours() >= 12 ? 12 : 0)
+          (parseInt(value) % 12) + (newDate.getHours() >= 12 ? 12 : 0),
         );
       } else if (type === "minute") {
         newDate.setMinutes(parseInt(value));
       } else if (type === "ampm") {
         const currentHours = newDate.getHours();
         newDate.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12
+          value === "PM" ? currentHours + 12 : currentHours - 12,
         );
       }
       form.setValue("dates", newDate);
@@ -177,10 +157,10 @@ const EventForm = ({ event }: Props) => {
     if (watchDates instanceof Object && watchDates.from && watchDates.to) {
       if (type === "hour") {
         watchDates.from.setHours(
-          (parseInt(value) % 12) + (watchDates.from.getHours() >= 12 ? 12 : 0)
+          (parseInt(value) % 12) + (watchDates.from.getHours() >= 12 ? 12 : 0),
         );
         watchDates.to.setHours(
-          (parseInt(value) % 12) + (watchDates.to.getHours() >= 12 ? 12 : 0)
+          (parseInt(value) % 12) + (watchDates.to.getHours() >= 12 ? 12 : 0),
         );
       } else if (type === "minute") {
         watchDates.from.setMinutes(parseInt(value));
@@ -188,10 +168,10 @@ const EventForm = ({ event }: Props) => {
       } else if (type === "ampm") {
         const currentHours = watchDates.from.getHours();
         watchDates.from.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12
+          value === "PM" ? currentHours + 12 : currentHours - 12,
         );
         watchDates.to.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12
+          value === "PM" ? currentHours + 12 : currentHours - 12,
         );
       }
       form.setValue("dates", watchDates);
@@ -371,7 +351,9 @@ const EventForm = ({ event }: Props) => {
           )}
         />
 
-        <Button>Create Event</Button>
+        <div className="text-center">
+          <Button>{event ? "Update" : "Create"} Event</Button>
+        </div>
       </form>
     </Form>
   );

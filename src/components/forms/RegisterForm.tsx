@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";

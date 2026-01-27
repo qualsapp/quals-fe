@@ -53,9 +53,9 @@ const Header = () => {
             QUALS
           </Link>
         </div>
-        <NavigationMenu className="hidden lg:flex h-[72px]">
+        <NavigationMenu className="h-[72px]">
           <NavigationMenuList>
-            <NavigationMenuItem className="rounded-none">
+            <NavigationMenuItem className="rounded-none hidden md:flex">
               <NavigationMenuLink asChild className="rounded-none border-3">
                 <Link
                   href="/community"

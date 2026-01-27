@@ -1,8 +1,8 @@
 import { apiClient, internalApiClient } from "@/lib/api-client";
-import { CommunityProps, CommunityResponse } from "@/types/community";
+
 import { HostModel, HostProfileModel } from "@/types/user";
 
-export const hostService = {
+export const hostServices = {
   // Edit Profile (Mutation)
   create: async (formData: FormData) => {
     console.log("Host Service - Create called with FormData:", formData);

@@ -16,6 +16,7 @@ type Props = {
 
 const DashboardNav = ({ menus }: Props) => {
   const pathname = usePathname();
+  console.log(pathname.split("/"));
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -28,7 +29,7 @@ const DashboardNav = ({ menus }: Props) => {
                 "hover:bg-white focus:bg-white hover:border-y-3 hover:border-t-primary hover:text-primary rounded-none border-y-3 border-transparent py-3 lg:py-6 lg:px-4 transition-all duration-200 font-semibold",
                 pathname === item.href
                   ? "border-t-primary bg-white text-primary"
-                  : ""
+                  : "",
               )}
             >
               <Link href={item.href} className="text-primary">

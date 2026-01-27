@@ -7,11 +7,9 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { UserProfile } from "@/types/user";
+
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
-import { userService } from "@/services/user-service";
-import { hostService } from "@/services/host-service";
-import { useQuery } from "@tanstack/react-query";
+import { userServices } from "@/services/user-services";
 
 const UserContext = createContext<Partial<AuthState> | undefined>(undefined);
 
@@ -20,7 +18,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     useAuthStore();
 
   const handleLogout = useCallback(async () => {
-    const res = await userService.logout();
+    const res = await userServices.logout();
     if (res.success) {
       logout();
     }

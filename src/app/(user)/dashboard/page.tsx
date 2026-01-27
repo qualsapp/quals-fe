@@ -9,7 +9,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { useAuthStore } from "@/store/useAuthStore";
 import React from "react";
 

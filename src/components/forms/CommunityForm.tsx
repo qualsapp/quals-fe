@@ -14,7 +14,7 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { userService } from "@/services/user-service";
+import { userServices } from "@/services/user-services";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
@@ -54,7 +54,8 @@ const CommunityForm = () => {
   });
 
   const { mutate, error } = useMutation({
-    mutationFn: (data: z.infer<typeof ProfileScheme>) => userService.edit(data),
+    mutationFn: (data: z.infer<typeof ProfileScheme>) =>
+      userServices.edit(data),
     onSuccess: (data) => {
       console.log("Registration successful:", data);
     },

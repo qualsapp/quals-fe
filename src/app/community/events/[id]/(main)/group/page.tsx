@@ -36,33 +36,7 @@ const groupResult = [
 
 const page = (props: Props) => {
   return (
-    <div className=" py-10 md:py-16 space-y-10">
-      <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-        <div className="space-y-3">
-          <h2 className="text-lg font-bold">Quals OPEN 2025</h2>
-          <Badge variant="gray" className="font-bold ">
-            9 Oct - 12 Oct
-          </Badge>
-          <p>
-            It was popularised in the 1960s with the release of Letraset sheets
-            containing Lorem Ipsum passages, and more recently with desktop
-            publishing software like Aldus PageMaker including versions of Lorem
-            Ipsum
-          </p>
-
-          <p>Detail Event here</p>
-        </div>
-        <div className="flex gap-3 lg:flex-col">
-          <Button variant="outline">Edit Event</Button>
-          <Button variant="destructive">Delete Event</Button>
-        </div>
-      </div>
-      <div className="bg-primary-50">
-        <div className="container">
-          <DashboardNav menus={menus} currentMenu="group" />
-        </div>
-      </div>
-
+    <div className="py-10 md:py-16 space-y-10">
       <div className="container flex space-y-10 flex-col items-center">
         <h3 className="text-xl font-bold">Group A</h3>
         <div className="overflow-x-auto w-full">

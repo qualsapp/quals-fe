@@ -14,7 +14,7 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
     formData.append("username", params.username);
     formData.append("display_name", params.display_name);
     params.sports.forEach((sport) =>
-      formData.append("sports_type_ids[]", sport)
+      formData.append("sports_type_ids[]", sport),
     );
 
     if (params.bio) {

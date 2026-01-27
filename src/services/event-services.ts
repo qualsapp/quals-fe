@@ -20,6 +20,17 @@ export const eventServices = {
       },
     );
   },
+  getById: async (communityId: string, eventId: string, token: string) => {
+    return apiClient<EventResponse>(
+      `/communities/${communityId}/events/${eventId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
   create: async (params: EventParams) => {
     return internalApiClient<EventResponse>("/api/events", {
       method: "POST",

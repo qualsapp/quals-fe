@@ -1,7 +1,7 @@
 import { apiClient, internalApiClient } from "@/lib/api-client";
 import { User, UserProfile, UserProps } from "@/types/user";
 
-export const userService = {
+export const userServices = {
   // Fetch all users
   getAll: async () => {
     return apiClient<User[]>("/users", {

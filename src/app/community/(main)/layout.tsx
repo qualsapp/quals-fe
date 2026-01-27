@@ -2,7 +2,7 @@ import React from "react";
 import DashboardNav from "@/components/commons/dashboard-nav";
 import { cookies } from "next/headers";
 import { MapPin } from "lucide-react";
-import { hostService } from "@/services/host-service";
+import { hostServices } from "@/services/host-services";
 import { HostProfileModel } from "@/types/user";
 
 const menus = [
@@ -20,7 +20,7 @@ const Layout = async ({
   const token = cookieStore.get("token")?.value;
 
   const { community } = token
-    ? await hostService.getProfile(token)
+    ? await hostServices.getProfile(token)
     : ({} as HostProfileModel);
 
   return (

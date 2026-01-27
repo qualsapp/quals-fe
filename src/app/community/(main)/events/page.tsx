@@ -8,7 +8,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { eventServices } from "@/services/event-services";
-import { hostService } from "@/services/host-service";
+import { hostServices } from "@/services/host-services";
 import { EventsResponse } from "@/types/events";
 import { HostProfileModel } from "@/types/user";
 import { ChevronDownIcon } from "lucide-react";
@@ -25,12 +25,12 @@ const menus = [
   { label: "Statistic", href: "/community/statistic" },
 ];
 
-const page = async (props: Props) => {
+const Layout = async (props: Props) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
   const { community } = token
-    ? await hostService.getProfile(token)
+    ? await hostServices.getProfile(token)
     : ({} as HostProfileModel);
 
   const { events } = token
@@ -40,7 +40,7 @@ const page = async (props: Props) => {
   return (
     <div className="container space-y-10">
       <div className="flex flex-col md:flex-row justify-between gap-4">
-        <Card className="mx-auto w-full max-w-sm py-3 md:py-2 md:hidden">
+        <Card className="mx-auto w-full max-w-sm py- md:py-2 md:hidden">
           <CardContent className="px-3 md:px-2">
             <Collapsible className="rounded-md">
               <CollapsibleTrigger asChild>
@@ -80,4 +80,4 @@ const page = async (props: Props) => {
   );
 };
 
-export default page;
+export default Layout;

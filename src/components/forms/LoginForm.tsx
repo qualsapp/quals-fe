@@ -15,9 +15,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { userService } from "@/services/user-service";
+import { userService } from "@/services/user-services";
 import { useRouter } from "next/navigation";
-import { hostService } from "@/services/host-service";
+import { hostService } from "@/services/host-services";
 
 const LoginScheme = z.object({
   email: z.email("Invalid email"),
