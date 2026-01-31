@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _: Request,
-  { params }: { params: { communityId: string } }
+  { params }: { params: { communityId: string } },
 ) {
   const { communityId } = params;
 
@@ -21,7 +21,7 @@ export async function GET(
   } catch {
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
   const token = cookieStore.get("token")?.value;
 
   const { community_id, ...rest } = await request.json();
+  console.log(rest);
 
   try {
     const res = await fetch(ApiUrl + `/communities/${community_id}/events`, {
@@ -42,19 +43,21 @@ export async function POST(request: Request) {
     });
     const json = await res.json();
 
+    console.log(json);
+
     return NextResponse.json(json, { status: res.status });
   } catch (err) {
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { eventId: string } }
+  { params }: { params: { eventId: string } },
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -71,7 +74,7 @@ export async function PUT(
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
     const json = await res.json();
 
@@ -80,7 +83,7 @@ export async function PUT(
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -39,7 +39,7 @@ export const padelSets: Option[] = [
 ];
 
 export const badmintonScoreType: Option[] = [
-  { label: "Rally Point", value: "rally_point" },
+  { label: "Rally Point", value: "rally" },
   { label: "Traditional", value: "traditional" },
 ];
 
@@ -48,10 +48,14 @@ export const badmintonScoring: Option[] = [
   { label: "Follow Through", value: "follow_through" },
 ];
 
-export const badmintonFinalScore: Option[] = [
+export const badmintonMaxPointPerSet: Option[] = [
+  { label: "15", value: "15" },
   { label: "21", value: "21" },
-  { label: "30", value: "30" },
-  { label: "42", value: "42" },
+];
+
+export const badmintonMatchSetType: Option[] = [
+  { label: "Best of set", value: "best_of_set" },
+  { label: "Race to", value: "race_to" },
 ];
 export const knockoutSeats: Option[] = [
   { label: "16", value: "16" },

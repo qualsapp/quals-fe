@@ -23,6 +23,10 @@ const Layout = async ({
     ? await hostServices.getProfile(token)
     : ({} as HostProfileModel);
 
+  if (!community) {
+    return <div>Community not found</div>;
+  }
+
   return (
     <>
       <div className="py-10 space-y-10">

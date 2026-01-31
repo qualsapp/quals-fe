@@ -15,9 +15,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
-import { userService } from "@/services/user-services";
+import { userServices } from "@/services/user-services";
 import { useRouter } from "next/navigation";
-import { hostService } from "@/services/host-services";
+import { hostServices } from "@/services/host-services";
 
 const LoginScheme = z.object({
   email: z.email("Invalid email"),
@@ -38,23 +38,24 @@ const LoginForm = () => {
   const setCommunity = useAuthStore((state) => state.setCommunity);
   const setUser = useAuthStore((state) => state.setUser);
 
-  const { mutate: getProfile } = useMutation({
-    mutationFn: async () => await hostService.getProfile(),
-    onSuccess: (data) => {
-      if (data.host_detail) {
-        setCommunity(data.community);
-        setUser(data.host_detail);
-        router.push("/community");
-      }
-    },
-  });
+  // const { mutate: getProfile } = useMutation({
+  //   mutationFn: async () => await hostServices.getProfile(),
+  //   onSuccess: (data) => {
+  //     if (data.host_detail) {
+  //       setCommunity(data.community);
+  //       setUser(data.host_detail);
+  //       router.push("/community");
+  //     }
+  //   },
+  // });
 
   const { mutate } = useMutation({
     mutationFn: async (data: z.infer<typeof LoginScheme>) =>
-      await userService.login(data),
+      await userServices.login(data),
     onSuccess: (data) => {
       loginInState(data, data.token);
-      getProfile();
+      router.push("/community");
+      // getProfile();
     },
   });
 

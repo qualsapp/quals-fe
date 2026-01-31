@@ -8,18 +8,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { hostServices } from "@/services/host-services";
+import { HostProfileModel } from "@/types/user";
+import { cookies } from "next/headers";
 
 import Link from "next/link";
 
 import React from "react";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const params = await searchParams;
-  const type = typeof params.type === "string" ? params.type : undefined;
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ type: string }>;
+};
+
+const page = async ({ params, searchParams }: Props) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { id } = await params;
+
+  const { community } = token
+    ? await hostServices.getProfile(token)
+    : ({} as HostProfileModel);
+
+  const search = await searchParams;
+  const type = typeof search.type === "string" ? search.type : undefined;
+
+  if (!id) {
+    return <div>Event not found</div>;
+  }
 
   return (
     <div className="container lg:py-16 py-8 space-y-10">
@@ -28,8 +45,12 @@ export default async function Page({
         <p className="text-center">Define the rules for your event</p>
       </div>
       <div className="w-full sm:w-2/3 mx-auto">
-        {type === "badminton" && <BadmintonRulesForm />}
-        {type === "padel" && <PadelRulesForm />}
+        {type === "badminton" && (
+          <BadmintonRulesForm communityId={community.id} eventId={id} />
+        )}
+        {type === "padel" && (
+          <PadelRulesForm communityId={community.id} eventId={id} />
+        )}
         {!type && (
           <div className="text-center py-10 space-y-4 border rounded-md p-4">
             <p className="text-muted-foreground">
@@ -55,4 +76,6 @@ export default async function Page({
       </div>
     </div>
   );
-}
+};
+
+export default page;

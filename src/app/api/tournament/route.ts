@@ -10,14 +10,14 @@ export async function POST(request: Request) {
 
   try {
     const res = await fetch(
-      ApiUrl + `/communities/${community_id}/events/${event_id}/tournament`,
+      ApiUrl + `/communities/${community_id}/events/${event_id}/tournaments`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(rest),
-      }
+      },
     );
     const json = await res.json();
 
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

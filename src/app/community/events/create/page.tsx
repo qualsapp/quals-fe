@@ -1,9 +1,18 @@
 import EventForm from "@/components/forms/EventForm";
+import { hostServices } from "@/services/host-services";
+import { HostProfileModel } from "@/types/user";
+import { cookies } from "next/headers";
 import React from "react";
 
 type Props = {};
 
-const page = (props: Props) => {
+const page = async (props: Props) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { community } = token
+    ? await hostServices.getProfile(token)
+    : ({} as HostProfileModel);
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>
@@ -14,7 +23,7 @@ const page = (props: Props) => {
       </div>
       <div className="">
         <div className="w-full sm:w-2/3 mx-auto ">
-          <EventForm />
+          <EventForm communityId={community.id} />
         </div>
       </div>
     </div>

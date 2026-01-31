@@ -2,11 +2,11 @@ import { DateRange } from "react-day-picker";
 import { Sport } from "./global";
 
 export type EventParams = {
-  community_id: string;
+  community_id?: string;
   event_id?: string;
   event_type: string;
   title: string;
-  sport_type_id: string;
+  sport_type_id: number;
   location: string;
   description: string;
   dates?: DateRange | Date;
@@ -19,11 +19,20 @@ export type RulesParams = {
   id?: string | number;
   community_id?: string;
   event_id?: string;
-  seat_per_group: number | string;
-  score_type?: string;
-  total_sets?: string;
-  match_type?: string;
-  final_point?: string;
+  format?: string;
+  courts_count: number;
+  category: string;
+  participants_count: number;
+  grouping?: boolean;
+  groups_count?: number;
+  seat_per_group?: number;
+  top_advancing_group?: number;
+  deuce: boolean;
+  max_deuce_point?: number;
+  scoring_system?: string;
+  max_point_per_set?: number;
+  best_of_sets?: number;
+  race_to?: number;
 };
 
 export interface EventResponse extends Omit<
@@ -44,21 +53,22 @@ export interface EventsResponse {
 
 export type MatchRule = {
   id: number;
+  max_deuce_point: number;
   scoring_system: string;
   max_point_per_set: number;
-  deuce: boolean;
-  max_deuce_point: number;
   best_of_sets: number;
   race_to: number;
 };
 
 export interface RuleParams extends Omit<MatchRule, "id"> {
-  format: string;
+  courts_count: number;
   category: string;
-  total_participants: number;
+  participants_count: number;
+  grouping: boolean;
   groups_count: number;
   seat_per_group: number;
   top_advancing_group: number;
+  deuce: boolean;
 }
 
 export interface RulesResponse extends RuleParams {

@@ -26,13 +26,9 @@ import { eventServices } from "@/services/event-services";
 import { useMutation } from "@tanstack/react-query";
 import { RulesParams, RulesResponse } from "@/types/events";
 import { Switch } from "../ui/switch";
-import {
-  badmintonFinalScore,
-  badmintonScoreType,
-  badmintonScoring,
-  knockoutSeats,
-} from "@/lib/constants";
+import { badmintonMaxPointPerSet, badmintonScoreType } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 type Props = {
   eventId: string;
@@ -40,29 +36,62 @@ type Props = {
   rule?: RulesResponse;
 };
 
-const RulesSchema = z.object({
-  total_participants: z.string().min(1, "Knockout Seat is required"),
-  grouping: z.boolean(),
-  groups_count: z.string().min(1, "Group Amount is required"),
-  seat_per_group: z.string().min(1, "Seat per Group is required"),
-  scoring_system: z.string().min(1, "Scoring System is required"),
-  max_point_per_set: z.string().min(1, "Final Point is required"),
-});
+const RulesSchema = z
+  .object({
+    courts_count: z.string().min(1, "Number of Court is required"),
+    category: z.string().min(1, "Category is required"),
+    participants_count: z.string().min(1, "Knockout Seat is required"),
+    grouping: z.boolean(),
+    groups_count: z.string(),
+    seat_per_group: z.string(),
+    top_advancing_group: z.string(),
+    deuce: z.boolean(),
+    scoring_system: z.string(),
+    max_deuce_point: z.string().optional(),
+    max_point_per_set: z.string().min(1, "Final Point is required"),
+    best_of_sets: z.string().optional(),
+    race_to: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // if (data.grouping) {
+    //   ctx.addIssue({
+    //     path: ["groups_count", "seat_per_group", "top_advancing_group"],
+    //     code: z.ZodIssueCode.custom,
+    //     message: "This field is required",
+    //   });
+    // }
+
+    if (data.deuce && !data.max_deuce_point) {
+      ctx.addIssue({
+        path: ["max_deuce_point"],
+        code: z.ZodIssueCode.custom,
+        message: "This field is required",
+      });
+    }
+  });
 
 const RulesForm = ({ eventId, communityId, rule }: Props) => {
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
-      total_participants: rule?.total_participants?.toString() || "",
-      grouping: rule?.groups_count && rule?.groups_count > 0 ? true : false,
+      courts_count: rule?.courts_count?.toString() || "",
+      category: rule?.category || "",
+      participants_count: rule?.participants_count?.toString() || "",
+      grouping:
+        rule?.groups_count && Number(rule?.groups_count) > 0 ? true : false,
       groups_count: rule?.groups_count?.toString() || "",
       seat_per_group: rule?.seat_per_group?.toString() || "",
-      scoring_system: rule?.match_rule?.scoring_system || "",
+      top_advancing_group: rule?.top_advancing_group?.toString() || "",
+      scoring_system: rule?.scoring_system || "",
+      deuce: rule?.deuce || false,
+      max_deuce_point: rule?.match_rule?.max_deuce_point?.toString() || "",
       max_point_per_set: rule?.match_rule?.max_point_per_set?.toString() || "",
+      best_of_sets: rule?.match_rule?.best_of_sets?.toString() || "",
+      race_to: rule?.match_rule?.race_to?.toString() || "",
     },
   });
 
-  const { mutateAsync } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: async (data: RulesParams) => {
       if (rule?.id) return await eventServices.updateRules(data);
       return await eventServices.createRules(data);
@@ -76,60 +105,93 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
   });
 
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
+    console.log(data);
     // add community_id from cookies
     const params: RulesParams = {
       community_id: communityId,
       event_id: eventId,
-      ...data,
+      format: data.grouping ? "group_stage" : "single_elimination",
+      courts_count: Number(data.courts_count),
+      category: data.category,
+      participants_count: Number(data.participants_count),
+      max_point_per_set: Number(data.max_point_per_set),
+      scoring_system: data.scoring_system,
+      best_of_sets: Number(data.best_of_sets),
+      // race_to: Number(data.race_to),
+      deuce: data.deuce,
+      max_deuce_point: Number(data.max_deuce_point),
     };
+    console.log(params);
     if (rule?.id) {
       params.id = rule.id;
     }
 
-    mutateAsync(params);
+    mutate(params);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-3 border rounded-md p-3">
+        <div className="space-y-3 border rounded-md flex flex-col gap-4  p-3">
           <FormLabel className="text-lg font-semibold text-gray-400">
-            Knockout Settings
+            General Settings
           </FormLabel>
+          <FormField
+            control={form.control}
+            name="courts_count"
+            render={({ field }) => (
+              <FormItem className="md:max-w-[300px]">
+                <FormLabel>Number of Court</FormLabel>
+                <FormControl>
+                  <Input placeholder="Input number of court" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div>
-            <FormField
-              control={form.control}
-              name="total_participants"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Knockout Seat</FormLabel>
-                  <FormControl>
-                    <Select
-                      {...field}
-                      onValueChange={(value) => {
-                        form.setValue("total_participants", value);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih knockout seat" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {knockoutSeats.map((item) => (
-                            <SelectItem key={item.value} value={item.value}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem className="md:max-w-[300px]">
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Select
+                    {...field}
+                    onValueChange={(value) => {
+                      form.setValue("category", value);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="single">Single</SelectItem>
+                        <SelectItem value="double">Double</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="participants_count"
+            render={({ field }) => (
+              <FormItem className="md:max-w-[300px]">
+                <FormLabel>Total Participants</FormLabel>
+                <FormControl>
+                  <Input placeholder="Input total participants" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="space-y-3 border rounded-md p-3">
@@ -142,7 +204,6 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
             name="grouping"
             render={({ field }) => (
               <FormItem className="flex gap-3">
-                <FormLabel>Is grouping?</FormLabel>
                 <FormControl>
                   <Switch
                     id="grouping"
@@ -150,11 +211,12 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
+                <FormLabel htmlFor="grouping">Is grouping?</FormLabel>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:max-w-[300px] gap-4">
             <FormField
               control={form.control}
               name="groups_count"
@@ -169,7 +231,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                     Group Amount
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="1-4 max" {...field} />
+                    <Input placeholder="Input group amount" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -189,7 +251,27 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                     Seat per Group
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="1-4 max" {...field} />
+                    <Input placeholder="Input seat per group" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="top_advancing_group"
+              disabled={!form.watch("grouping")}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel
+                    className={cn(
+                      !form.watch("grouping") ? "text-gray-400" : "",
+                    )}
+                  >
+                    Top Advancing Group
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Input top advancing group" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -200,9 +282,77 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
 
         <div className="space-y-3 border rounded-md p-3">
           <FormLabel className="text-lg font-semibold text-gray-400">
-            Scoring Setting
+            Match Rules
           </FormLabel>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="flex flex-col md:max-w-[300px] gap-4">
+            <FormField
+              control={form.control}
+              name="deuce"
+              render={({ field }) => (
+                <FormItem className="flex gap-3">
+                  <FormControl>
+                    <Switch
+                      id="deuce"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel htmlFor="deuce">Enable Deuce?</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="max_deuce_point"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Deuce Point</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Input max deuce point" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Tabs defaultValue="best_of" className="w-[400px]">
+              <TabsList>
+                <TabsTrigger value="best_of">Best of</TabsTrigger>
+                <TabsTrigger value="race_to">Race to</TabsTrigger>
+              </TabsList>
+              <TabsContent value="best_of">
+                <FormField
+                  control={form.control}
+                  name="best_of_sets"
+                  render={({ field }) => (
+                    <FormItem>
+                      {/* <FormLabel>Best of</FormLabel> */}
+                      <FormControl>
+                        <Input placeholder="Input best of point" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+              <TabsContent value="race_to">
+                <FormField
+                  control={form.control}
+                  name="race_to"
+                  render={({ field }) => (
+                    <FormItem>
+                      {/* <FormLabel>Race to</FormLabel> */}
+                      <FormControl>
+                        <Input placeholder="Input race to point" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+            </Tabs>
+
             <FormField
               control={form.control}
               name="scoring_system"
@@ -217,7 +367,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih scoring system" />
+                        <SelectValue placeholder="Pilih final point" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -234,43 +384,12 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                 </FormItem>
               )}
             />
-            {/* <FormField
-              control={form.control}
-              name="score_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Score Type</FormLabel>
-                  <FormControl>
-                    <Select
-                      {...field}
-                      onValueChange={(value) => {
-                        form.setValue("score_type", value);
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih score type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {badmintonScoring.map((item) => (
-                            <SelectItem key={item.value} value={item.value}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <FormField
               control={form.control}
               name="max_point_per_set"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Final Point</FormLabel>
+                  <FormLabel>Max Point per Set</FormLabel>
                   <FormControl>
                     <Select
                       {...field}
@@ -283,7 +402,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {badmintonFinalScore.map((item) => (
+                          {badmintonMaxPointPerSet.map((item) => (
                             <SelectItem key={item.value} value={item.value}>
                               {item.label}
                             </SelectItem>

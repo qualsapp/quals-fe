@@ -35,6 +35,7 @@ import { sharedService } from "@/services/shared-service";
 
 type Props = {
   event?: EventResponse;
+  communityId: string;
 };
 
 const eventSchema = z.object({
@@ -59,7 +60,7 @@ const eventSchema = z.object({
   isRepeat: z.boolean(),
 });
 
-const EventForm = ({ event }: Props) => {
+const EventForm = ({ event, communityId }: Props) => {
   const router = useRouter();
 
   const form = useForm<z.infer<typeof eventSchema>>({
@@ -111,10 +112,10 @@ const EventForm = ({ event }: Props) => {
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
     // add community_id from cookies
     const params: EventParams = {
-      community_id: "11",
+      community_id: communityId,
       title: data.title,
       event_type: data.type,
-      sport_type_id: data.sport_type_id,
+      sport_type_id: Number(data.sport_type_id),
       location: data.location,
       description: data.description,
       // isRepeat: data.isRepeat,

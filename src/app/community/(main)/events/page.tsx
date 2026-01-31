@@ -25,9 +25,10 @@ const menus = [
   { label: "Statistic", href: "/community/statistic" },
 ];
 
-const Layout = async (props: Props) => {
+const page = async (props: Props) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  console.log("community", token);
 
   const { community } = token
     ? await hostServices.getProfile(token)
@@ -80,4 +81,4 @@ const Layout = async (props: Props) => {
   );
 };
 
-export default Layout;
+export default page;
