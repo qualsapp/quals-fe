@@ -88,7 +88,7 @@ const DatePicker = ({
             id="date-picker"
             className={cn(
               "w-full justify-start text-left font-normal",
-              !selected && "text-muted-foreground"
+              !selected && "text-muted-foreground",
             )}
             disabled={disabled}
           >
@@ -103,6 +103,7 @@ const DatePicker = ({
             selected={selected as any}
             onSelect={onSelect}
             numberOfMonths={mode === "range" ? 2 : 1}
+            disabled={(date) => date < new Date()}
           />
         </PopoverContent>
       </Popover>

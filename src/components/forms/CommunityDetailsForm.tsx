@@ -79,7 +79,7 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
     formData.append("name", params.name);
     formData.append("address", params.address);
     params.sports.forEach((sport) =>
-      formData.append("sports_type_ids[]", sport)
+      formData.append("sports_type_ids[]", sport),
     );
     formData.append("description", params.description);
     formData.append("image", params.image as File);
@@ -155,7 +155,7 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
 
         <AvatarUpload
           onFileChange={onFileChange}
-          defaultAvatar={community?.photo_url || ""}
+          defaultAvatar={community?.image_url || ""}
         />
 
         <div className="text-right">

@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { CircleX } from "lucide-react";
+import UpdateGroupParticipantForm from "../forms/UpdateGroupParticipantForm";
 
 type Props = {
   players: string[];
@@ -8,11 +10,12 @@ type Props = {
 };
 
 const GroupTable = ({ players, results }: Props) => {
+  const [open, setOpen] = React.useState(false);
   return (
     <div
       className={cn(
         "grid gap-[2px] w-auto",
-        `grid-cols-[repeat(6,minmax(150px,1fr))]`
+        `grid-cols-[repeat(6,minmax(150px,1fr))]`,
       )}
     >
       <p className="font-bold border p-3 text-center bg-primary text-secondary border-primary rounded-tl-md ">
@@ -22,9 +25,10 @@ const GroupTable = ({ players, results }: Props) => {
         <p
           key={index}
           className={cn(
-            "font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
-            index === players.length - 1 ? "rounded-tr-md" : ""
+            "hover:cursor-pointer hover:bg-primary/90 font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
+            index === players.length - 1 ? "rounded-tr-md" : "",
           )}
+          onClick={() => setOpen(true)}
         >
           {player}
         </p>
@@ -35,7 +39,7 @@ const GroupTable = ({ players, results }: Props) => {
           <p
             className={cn(
               "font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
-              rowIndex === players.length - 1 ? "rounded-bl-md" : ""
+              rowIndex === players.length - 1 ? "rounded-bl-md" : "",
             )}
           >
             {players[rowIndex]}
@@ -45,7 +49,7 @@ const GroupTable = ({ players, results }: Props) => {
               key={colIndex}
               className={cn(
                 "border text-center p-3 border-primary",
-                result === "-" ? "text-destructive font-extrabold" : ""
+                result === "-" ? "text-destructive font-extrabold" : "",
               )}
             >
               {result === "-" ? <CircleX className="mx-auto" /> : result}
@@ -53,6 +57,8 @@ const GroupTable = ({ players, results }: Props) => {
           ))}
         </>
       ))}
+
+      <UpdateGroupParticipantForm open={open} setOpen={setOpen} />
     </div>
   );
 };

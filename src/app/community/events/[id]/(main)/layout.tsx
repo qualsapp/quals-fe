@@ -51,6 +51,11 @@ const page = async ({ params, children }: LayoutProps) => {
           <Link href={`/community/events/${id}/edit`}>
             <Button variant="outline">Edit Event</Button>
           </Link>
+          <Link
+            href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
+          >
+            <Button variant="outline">Edit Rules</Button>
+          </Link>
           <Button variant="destructive">Delete Event</Button>
         </div>
       </div>

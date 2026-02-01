@@ -316,7 +316,7 @@ const RulesForm = ({ eventId, communityId, rule }: Props) => {
               )}
             />
 
-            <Tabs defaultValue="best_of" className="w-[400px]">
+            <Tabs defaultValue="best_of" className="w-full">
               <TabsList>
                 <TabsTrigger value="best_of">Best of</TabsTrigger>
                 <TabsTrigger value="race_to">Race to</TabsTrigger>

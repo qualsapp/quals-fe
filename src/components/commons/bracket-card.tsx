@@ -4,6 +4,11 @@ import { Item, ItemContent, ItemMedia, ItemTitle } from "../ui/item";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { cn } from "@/lib/utils";
 
+interface BracketCardProps extends MatchComponentProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
 function BracketCard({
   bottomHovered,
   bottomParty,
@@ -18,9 +23,11 @@ function BracketCard({
   topParty,
   topText,
   topWon,
-}: MatchComponentProps) {
+  open,
+  setOpen,
+}: BracketCardProps) {
   return (
-    <div>
+    <div onClick={() => setOpen(true)}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         {(match.href || typeof onMatchClick === "function") && (
           <a
@@ -38,11 +45,13 @@ function BracketCard({
           className={cn(
             "p-2 flex flex-nowrap rounded-t-md rounded-b-none",
             topHovered ? "bg-gray-100" : "",
-            topWon ? "bg-primary text-secondary" : ""
+            topWon ? "bg-primary text-secondary" : "",
           )}
           onMouseEnter={() => onMouseEnter(topParty.id)}
           onMouseLeave={onMouseLeave}
-          onClick={() => onPartyClick?.(topParty, topWon)}
+          onClick={() => {
+            onPartyClick?.(topParty, topWon);
+          }}
         >
           {topParty?.name && (
             <ItemMedia>
@@ -66,7 +75,7 @@ function BracketCard({
           className={cn(
             "p-2 flex flex-nowrap rounded-b-md rounded-t-none",
             bottomHovered ? "bg-gray-100" : "",
-            bottomWon ? "bg-primary text-secondary" : ""
+            bottomWon ? "bg-primary text-secondary" : "",
           )}
           onMouseEnter={() => onMouseEnter(bottomParty.id)}
           onMouseLeave={onMouseLeave}

@@ -31,7 +31,6 @@ export async function POST(request: Request) {
   const token = cookieStore.get("token")?.value;
 
   const { community_id, ...rest } = await request.json();
-  console.log(rest);
 
   try {
     const res = await fetch(ApiUrl + `/communities/${community_id}/events`, {
@@ -42,8 +41,6 @@ export async function POST(request: Request) {
       body: JSON.stringify(rest),
     });
     const json = await res.json();
-
-    console.log(json);
 
     return NextResponse.json(json, { status: res.status });
   } catch (err) {

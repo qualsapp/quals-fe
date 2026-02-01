@@ -36,54 +36,33 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { Timer } from "lucide-react";
 
-type Props = {};
+type Props = {
+  type: "live" | "order_of_play";
+  court_number: string | number;
+  event_id: string | number;
+  match_id: string | number;
+};
 
-const MatchCard = (props: Props) => {
+const MatchCard = ({ type, court_number, event_id, match_id }: Props) => {
   const hasStarted = false;
   return (
     <Card className="w-full max-w-sm p-0">
       <CardHeader className="bg-primary rounded-t-lg pt-2 pb-1">
         <CardTitle className="mb-0">
-          {hasStarted ? (
-            <Link
-              href={`/community/events/123/matches/1`}
-              className="underline text-center block text-secondary"
+          <Link
+            href={`/community/events/${event_id}/matches/${match_id}`}
+            className="underline text-center block text-secondary"
+          >
+            <Button
+              variant="link"
+              className="text-secondary w-full text-center underline"
+              size="sm"
             >
-              <Button
-                variant="link"
-                className="text-secondary w-full text-center underline"
-                size="sm"
-              >
-                Match 1
-              </Button>
-            </Link>
-          ) : (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="link"
-                  className="text-secondary w-full text-center underline"
-                  size="sm"
-                >
-                  Match 1
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle className="text-center">Match 1</DialogTitle>
-                  <DialogDescription className="text-center">
-                    Do you want to start this match?
-                  </DialogDescription>
-                </DialogHeader>
-
-                <DialogFooter className="flex mx-auto">
-                  <Link href={`/community/events/123/matches/1`}>
-                    <Button>Start Match</Button>
-                  </Link>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+              {type === "live"
+                ? `Court ${court_number}`
+                : `Match ${court_number}`}
+            </Button>
+          </Link>
         </CardTitle>
       </CardHeader>
 
@@ -141,7 +120,12 @@ const MatchCard = (props: Props) => {
       </CardContent>
 
       <CardFooter className="bg-primary-100 rounded-b-lg py-2 flex justify-between items-center">
-        <p className="font-bold">Final . Court 1</p>
+        <p className="font-bold">
+          Final .{" "}
+          {type === "order_of_play"
+            ? `Court ${court_number}`
+            : `Match ${court_number}`}
+        </p>
         <p className="font-semibold flex items-center gap-1">
           <Timer /> 20:00
         </p>

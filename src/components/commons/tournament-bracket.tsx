@@ -16,6 +16,7 @@ import { useWindowSize } from "@uidotdev/usehooks";
 import { Match } from "@/types/match";
 import KnockOffCard from "./knock-off-card";
 import BracketCard from "./bracket-card";
+import UpdatePlayerForm from "../forms/UpdatePlayerForm";
 
 type Props = {
   matches: any;
@@ -23,28 +24,34 @@ type Props = {
 
 const TournamentBracket = ({ matches }: Props) => {
   const { height, width } = useWindowSize();
+  const [open, setOpen] = React.useState(false);
   const finalWidth = width ? Math.max(width - 50, 500) : 0;
   const finalHeight = height ? Math.max(height - 100, 500) : 0;
   return (
-    <SingleEliminationBracket
-      matches={matches}
-      matchComponent={BracketCard}
-      options={{
-        style: {
-          roundHeader: {
-            backgroundColor: "#7f0d0d",
-            fontColor: "#f3ec19",
+    <>
+      <SingleEliminationBracket
+        matches={matches}
+        matchComponent={(props: any) => (
+          <BracketCard {...props} open={open} setOpen={setOpen} />
+        )}
+        options={{
+          style: {
+            roundHeader: {
+              backgroundColor: "#7f0d0d",
+              fontColor: "#f3ec19",
+            },
+            connectorColor: "#ccc",
+            connectorColorHighlight: "#123C67",
           },
-          connectorColor: "#ccc",
-          connectorColorHighlight: "#123C67",
-        },
-      }}
-      svgWrapper={({ children, ...props }: any) => (
-        <SVGViewer width={finalWidth} height={finalHeight} {...props}>
-          {children}
-        </SVGViewer>
-      )}
-    />
+        }}
+        svgWrapper={({ children, ...props }: any) => (
+          <SVGViewer width={finalWidth} height={finalHeight} {...props}>
+            {children}
+          </SVGViewer>
+        )}
+      />
+      <UpdatePlayerForm open={open} setOpen={setOpen} />
+    </>
   );
 };
 

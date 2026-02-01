@@ -10,11 +10,10 @@ export const config = {
 
 export async function GET(
   _: Request,
-  { params }: { params: { communityId: string } }
+  { params }: { params: { communityId: string } },
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  console.log("param:", params);
 
   const { communityId } = params;
 
@@ -32,7 +31,7 @@ export async function GET(
   } catch {
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -41,9 +40,6 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const payload = await request.formData();
-
-  console.log("POST Payload:", payload);
-  console.log("Token:", token);
 
   try {
     const res = await fetch(ApiUrl + "/communities", {
@@ -61,14 +57,14 @@ export async function POST(request: Request) {
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: { communityId: string } }
+  { params }: { params: { communityId: string } },
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -90,7 +86,7 @@ export async function PUT(
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

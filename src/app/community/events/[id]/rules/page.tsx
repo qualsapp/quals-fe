@@ -8,7 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { eventServices } from "@/services/event-services";
 import { hostServices } from "@/services/host-services";
+import { EventResponse } from "@/types/events";
 import { HostProfileModel } from "@/types/user";
 import { cookies } from "next/headers";
 
@@ -30,6 +32,10 @@ const page = async ({ params, searchParams }: Props) => {
   const { community } = token
     ? await hostServices.getProfile(token)
     : ({} as HostProfileModel);
+
+  const event = token
+    ? await eventServices.getById(community.id, id, token)
+    : ({} as EventResponse);
 
   const search = await searchParams;
   const type = typeof search.type === "string" ? search.type : undefined;
@@ -62,10 +68,10 @@ const page = async ({ params, searchParams }: Props) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="center">
                 <DropdownMenuGroup>
-                  <Link href="/community/events/123/rules?type=badminton">
+                  <Link href={`/community/events/${id}/rules?type=badminton`}>
                     <DropdownMenuItem>Badminton</DropdownMenuItem>
                   </Link>
-                  <Link href="/community/events/123/rules?type=padel">
+                  <Link href={`/community/events/${id}/rules?type=padel`}>
                     <DropdownMenuItem>Padel</DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>

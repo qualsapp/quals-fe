@@ -19,16 +19,9 @@ import React from "react";
 
 type Props = {};
 
-const menus = [
-  { label: "Event", href: "/community/events" },
-  { label: "Members", href: "/community/members" },
-  { label: "Statistic", href: "/community/statistic" },
-];
-
 const page = async (props: Props) => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  console.log("community", token);
 
   const { community } = token
     ? await hostServices.getProfile(token)

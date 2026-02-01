@@ -16,7 +16,7 @@ type Props = {
 
 const DashboardNav = ({ menus }: Props) => {
   const pathname = usePathname();
-  console.log(pathname.split("/"));
+
   return (
     <NavigationMenu>
       <NavigationMenuList>
