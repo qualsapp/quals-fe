@@ -63,7 +63,7 @@ export type Options = {
     fontFamily?: string;
     roundTextGenerator?: (
       currentRoundNumber: number,
-      roundsTotalNumber: number
+      roundsTotalNumber: number,
     ) => string | undefined;
   };
 
@@ -142,4 +142,29 @@ export type MatchComponentProps = {
   teamNameFallback: string;
 
   resultFallback: (participant: Participant) => string;
+};
+
+export type ParticipantParams = {
+  id: number;
+  name: string;
+  type: string;
+};
+
+export type MatchParams = {
+  id: number;
+  tournament_bracket_id: number;
+  tournament_group_id: number;
+  match_rule_id: number;
+  participant_a: ParticipantParams;
+  participant_b: ParticipantParams;
+  status: string;
+  court_number: number;
+  match_sets: string | null;
+};
+
+export type MatchesResponse = {
+  matches: MatchParams[];
+  page: number;
+  page_size: number;
+  total: number;
 };

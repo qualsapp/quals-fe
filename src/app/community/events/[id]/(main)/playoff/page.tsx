@@ -14,8 +14,17 @@ import {
 } from "@g-loot/react-tournament-brackets";
 import TournamentBracket from "@/components/commons/tournament-bracket";
 import { walkOverData } from "@/mock-data/simple-data";
+import { cookies } from "next/headers";
+import { hostServices } from "@/services/host-services";
+import { HostProfileModel } from "@/types/user";
+import { eventServices } from "@/services/event-services";
+import { EventResponse } from "@/types/events";
+import { matchServices } from "@/services/match-services";
+import { MatchesResponse } from "@/types/match";
 
-type Props = {};
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
 const menus = [
   { label: "Matches", href: `/community/events/123/matches` },
@@ -39,7 +48,23 @@ const groupResult = [
   ["1-4", "4-1", "2-3", "3-2", "-"],
 ];
 
-const page = (props: Props) => {
+const page = async ({ params }: Props) => {
+  const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { community } = token
+    ? await hostServices.getProfile(token)
+    : ({} as HostProfileModel);
+
+  const event = token
+    ? await eventServices.getById(community.id, id, token)
+    : ({} as EventResponse);
+
+  const list = token
+    ? await matchServices.getAll(community.id, id, event.tournament.id, token)
+    : ({} as MatchesResponse);
+
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container flex-col space-y-10">

@@ -34,6 +34,47 @@ const page = async ({ params, children }: LayoutProps) => {
     { label: "Group", href: `/community/events/${id}/group` },
     { label: "Playoff", href: `/community/events/${id}/playoff` },
   ];
+
+  if (
+    String(event.tournament?.id) === "0" &&
+    event.event_type === "tournament"
+  ) {
+    return (
+      <div className=" py-10 md:py-16 space-y-10">
+        <div className="container flex flex-col lg:flex-row gap-5 justify-between">
+          <div className="space-y-3">
+            <h2 className="text-lg font-bold">{event.title}</h2>
+
+            <Badge variant="gray" className="font-bold ">
+              {dayjs(event.start_time).format("DD MMM")} -{" "}
+              {dayjs(event.end_time).format("DD MMM")}
+            </Badge>
+
+            <p>{event.description}</p>
+          </div>
+          <div className="flex gap-3 lg:flex-col">
+            <Link href={`/community/events/${id}/edit`}>
+              <Button variant="outline">Edit Event</Button>
+            </Link>
+            <Link
+              href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
+            >
+              <Button variant="outline">Edit Rules</Button>
+            </Link>
+            <Button variant="destructive">Delete Event</Button>
+          </div>
+        </div>
+
+        <p>No Tournament found</p>
+        <Link
+          href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
+        >
+          <Button variant="outline">Create Tournament Rules</Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container flex flex-col lg:flex-row gap-5 justify-between">

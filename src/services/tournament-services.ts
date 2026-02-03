@@ -1,8 +1,8 @@
 import { apiClient, internalApiClient } from "@/lib/api-client";
-import { EventParams, EventResponse, EventsResponse } from "@/types/events";
+import { EventsResponse } from "@/types/events";
 import { TournamentParams, TournamentResponse } from "@/types/tournament";
 
-export const eventServices = {
+export const tournamentServices = {
   // Fetch all users
   getAll: async (communityId: string, token: string) => {
     return apiClient<EventsResponse>(
@@ -15,9 +15,14 @@ export const eventServices = {
       },
     );
   },
-  getById: async (communityId: string, eventId: string, token: string) => {
-    return apiClient<EventResponse>(
-      `/communities/${communityId}/events/${eventId}`,
+  getById: async (
+    communityId: string,
+    eventId: string,
+    tournamentId: string,
+    token: string,
+  ) => {
+    return apiClient<TournamentResponse>(
+      `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -26,30 +31,13 @@ export const eventServices = {
       },
     );
   },
-  create: async (params: EventParams) => {
-    return internalApiClient<EventResponse>("/api/events", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
-  },
-  update: async (params: EventParams) => {
-    if (!params.event_id) {
-      throw new Error("Event ID is required");
-    }
-
-    const { event_id, ...rest } = params;
-    return internalApiClient<EventResponse>(`/events/${event_id}`, {
-      method: "PUT",
-      body: JSON.stringify(rest),
-    });
-  },
-  createRules: async (params: TournamentParams) => {
+  create: async (params: TournamentParams) => {
     return internalApiClient<TournamentResponse>(`/api/tournament`, {
       method: "POST",
       body: JSON.stringify(params),
     });
   },
-  updateRules: async (params: TournamentParams) => {
+  update: async (params: TournamentParams) => {
     return internalApiClient<TournamentResponse>(
       `/api/tournament/${params.id}`,
       {

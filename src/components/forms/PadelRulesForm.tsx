@@ -22,16 +22,17 @@ import {
 import React from "react";
 import { Button } from "../ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { RulesParams, RulesResponse } from "@/types/events";
+
 import { Switch } from "../ui/switch";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { eventServices } from "@/services/event-services";
+import { TournamentParams, TournamentResponse } from "@/types/tournament";
 
 type Props = {
   eventId: string;
   communityId: string;
-  rule?: RulesResponse;
+  tournament?: TournamentResponse;
 };
 
 const RulesSchema = z
@@ -57,27 +58,29 @@ const RulesSchema = z
     }
   });
 
-const RulesForm = ({ rule, eventId, communityId }: Props) => {
+const RulesForm = ({ tournament, eventId, communityId }: Props) => {
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
-      courts_count: rule?.courts_count?.toString() || "",
-      category: rule?.category || "",
-      participants_count: rule?.participants_count?.toString() || "",
+      courts_count: tournament?.courts_count?.toString() || "",
+      category: tournament?.category || "",
+      participants_count: tournament?.participants_count?.toString() || "",
       grouping:
-        rule?.groups_count && Number(rule?.groups_count) > 0 ? true : false,
-      groups_count: rule?.groups_count?.toString() || "",
-      seat_per_group: rule?.seat_per_group?.toString() || "",
-      top_advancing_group: rule?.top_advancing_group?.toString() || "",
-      deuce: rule?.deuce || false,
-      best_of_sets: rule?.match_rule?.best_of_sets?.toString() || "",
-      race_to: rule?.match_rule?.race_to?.toString() || "",
+        tournament?.groups_count && Number(tournament?.groups_count) > 0
+          ? true
+          : false,
+      groups_count: tournament?.groups_count?.toString() || "",
+      seat_per_group: tournament?.seat_per_group?.toString() || "",
+      top_advancing_group: tournament?.top_advancing_group?.toString() || "",
+      deuce: tournament?.match_rule?.deuce || false,
+      best_of_sets: tournament?.match_rule?.best_of_sets?.toString() || "",
+      race_to: tournament?.match_rule?.race_to?.toString() || "",
     },
   });
 
   const { mutate } = useMutation({
-    mutationFn: async (data: RulesParams) => {
-      if (rule?.id) return await eventServices.updateRules(data);
+    mutationFn: async (data: TournamentParams) => {
+      if (tournament?.id) return await eventServices.updateRules(data);
       return await eventServices.createRules(data);
     },
     onSuccess: () => {
@@ -90,7 +93,7 @@ const RulesForm = ({ rule, eventId, communityId }: Props) => {
 
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
     // add community_id from cookies
-    const params: RulesParams = {
+    const params: TournamentParams = {
       community_id: communityId,
       event_id: eventId,
       format: data.grouping ? "group_stage" : "single_elimination",
@@ -101,9 +104,9 @@ const RulesForm = ({ rule, eventId, communityId }: Props) => {
       ...(data.race_to && { race_to: Number(data.race_to) }),
       deuce: data.deuce,
     };
-    console.log(params);
-    if (rule?.id) {
-      params.id = rule.id;
+
+    if (tournament?.id) {
+      params.id = tournament.id;
     }
 
     mutate(params);

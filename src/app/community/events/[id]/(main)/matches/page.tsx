@@ -3,6 +3,13 @@ import MatchCard from "@/components/commons/match-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { eventServices } from "@/services/event-services";
+import { hostServices } from "@/services/host-services";
+import { matchServices } from "@/services/match-services";
+import { EventResponse } from "@/types/events";
+import { MatchesResponse } from "@/types/match";
+import { HostProfileModel } from "@/types/user";
+import { cookies } from "next/headers";
 
 import React from "react";
 
@@ -12,6 +19,31 @@ type Props = {
 
 const page = async ({ params }: Props) => {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { community } = token
+    ? await hostServices.getProfile(token)
+    : ({} as HostProfileModel);
+
+  const event = token
+    ? await eventServices.getById(community.id, id, token)
+    : ({} as EventResponse);
+
+  const list = token
+    ? await matchServices.getAll(community.id, id, event.tournament.id, token)
+    : ({} as MatchesResponse);
+
+  if (list.matches === null) {
+    return (
+      <div className="py-8 md:py-10 space-y-10">
+        <div className="container flex flex-col items-center">
+          <p>No matches found</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-8 md:py-10 space-y-10">
       <div className="container flex flex-col items-center">

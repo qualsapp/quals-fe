@@ -33,7 +33,7 @@ const page = async ({ params, searchParams }: Props) => {
     ? await hostServices.getProfile(token)
     : ({} as HostProfileModel);
 
-  const event = token
+  const { tournament } = token
     ? await eventServices.getById(community.id, id, token)
     : ({} as EventResponse);
 
@@ -52,10 +52,18 @@ const page = async ({ params, searchParams }: Props) => {
       </div>
       <div className="w-full sm:w-2/3 mx-auto">
         {type === "badminton" && (
-          <BadmintonRulesForm communityId={community.id} eventId={id} />
+          <BadmintonRulesForm
+            communityId={community.id}
+            eventId={id}
+            tournament={tournament}
+          />
         )}
         {type === "padel" && (
-          <PadelRulesForm communityId={community.id} eventId={id} />
+          <PadelRulesForm
+            communityId={community.id}
+            eventId={id}
+            tournament={tournament}
+          />
         )}
         {!type && (
           <div className="text-center py-10 space-y-4 border rounded-md p-4">

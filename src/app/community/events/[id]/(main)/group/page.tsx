@@ -4,19 +4,20 @@ import MatchCard from "@/components/commons/match-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { eventServices } from "@/services/event-services";
+import { hostServices } from "@/services/host-services";
+import { EventResponse } from "@/types/events";
+import { HostProfileModel } from "@/types/user";
 import { group } from "console";
 import { pl, ro } from "date-fns/locale";
 import { CircleX } from "lucide-react";
+import { cookies } from "next/headers";
 
 import React from "react";
 
-type Props = {};
-
-const menus = [
-  { label: "Matches", href: `/community/events/123/matches` },
-  { label: "Group", href: `/community/events/123/group` },
-  { label: "Playoff", href: `/community/events/123/playoff` },
-];
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
 const players = [
   "Evil Rabbit",
@@ -34,7 +35,29 @@ const groupResult = [
   ["1-4", "4-1", "2-3", "3-2", "-"],
 ];
 
-const page = (props: Props) => {
+const page = async ({ params }: Props) => {
+  const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const { community } = token
+    ? await hostServices.getProfile(token)
+    : ({} as HostProfileModel);
+
+  const event = token
+    ? await eventServices.getById(community.id, id, token)
+    : ({} as EventResponse);
+
+  if (event.tournament.format !== "group_stage") {
+    return (
+      <div className="py-10 md:py-16 space-y-10">
+        <div className="container flex space-y-10 flex-col items-center">
+          Event is not in group stage format
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-10 md:py-16 space-y-10">
       <div className="container flex space-y-10 flex-col items-center">
