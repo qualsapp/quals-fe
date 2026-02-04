@@ -31,7 +31,7 @@ export const userServices = {
   login: async (userData: UserProps) => {
     return internalApiClient<User>("/api/login", {
       method: "POST",
-      body: JSON.stringify({ ...userData, user_type: "host" }),
+      body: JSON.stringify(userData),
     });
   },
 
@@ -44,7 +44,7 @@ export const userServices = {
 
   // Create Player Details (Mutation)
   create: async (formData: FormData) => {
-    return internalApiClient<UserProfile>("/players", {
+    return internalApiClient<UserProfile>("/api/players", {
       method: "POST",
       body: formData,
     });
@@ -55,6 +55,13 @@ export const userServices = {
     return apiClient<UserProfile>("/users/edit", {
       method: "PUT",
       body: userProfileData,
+    });
+  },
+
+  // Join Community (Mutation)
+  joinCommunity: async (id: string) => {
+    return internalApiClient<UserProfile>(`/api/communities/${id}/join`, {
+      method: "POST",
     });
   },
 };

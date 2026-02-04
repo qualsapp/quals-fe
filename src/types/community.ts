@@ -17,3 +17,9 @@ export interface CommunityResponse extends Omit<
   host_id: string;
   sport_types: Sport[];
 }
+export interface CommunityListResponse {
+  communities: CommunityResponse[];
+  page: number;
+  page_size: number;
+  total: number;
+}

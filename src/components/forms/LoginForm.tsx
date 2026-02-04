@@ -18,10 +18,19 @@ import { useMutation } from "@tanstack/react-query";
 import { userServices } from "@/services/user-services";
 import { useRouter } from "next/navigation";
 import { hostServices } from "@/services/host-services";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const LoginScheme = z.object({
   email: z.email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
+  user_type: z.string().nonempty("Role is required"),
 });
 
 const LoginForm = () => {
@@ -31,6 +40,7 @@ const LoginForm = () => {
     defaultValues: {
       email: "",
       password: "",
+      user_type: "",
     },
   });
 
@@ -91,25 +101,29 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
-        {/* <FormField
+        <FormField
           control={form.control}
-          name="remember"
+          name="user_type"
           render={({ field }) => (
-            <FormItem className="flex items-center">
+            <FormItem>
+              <FormLabel>Role</FormLabel>
               <FormControl>
-                <Checkbox
-                  id="remember"
-                  checked={field.value}
-                  onCheckedChange={(checked) => {
-                    field.onChange(checked);
-                  }}
-                />
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="player">Player</SelectItem>
+                      <SelectItem value="host">Host</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormControl>
-              <FormLabel htmlFor="remember">Ingat saya</FormLabel>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
         <div className="text-center">
           <Button type="submit" className="px-10">
             Masuk

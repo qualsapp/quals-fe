@@ -2,23 +2,22 @@ import { ApiUrl } from "@/lib/env";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-
-  const { community_id, event_id, ...rest } = await request.json();
+  const { id } = params;
 
   try {
-    const res = await fetch(
-      ApiUrl + `/communities/${community_id}/events/${event_id}/tournaments`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(rest),
+    const res = await fetch(ApiUrl + `/players/communities/${id}/join`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
     const json = await res.json();
 
     return NextResponse.json(json, { status: res.status });

@@ -1,11 +1,18 @@
 import { apiClient, internalApiClient } from "@/lib/api-client";
-import { CommunityProps, CommunityResponse } from "@/types/community";
+import {
+  CommunityListResponse,
+  CommunityProps,
+  CommunityResponse,
+} from "@/types/community";
 import { User, UserProfile, UserProps } from "@/types/user";
 
 export const communityService = {
   // Fetch all users
-  getAll: async () => {
-    return apiClient<User[]>("/users", {
+  getAll: async (token: string) => {
+    return apiClient<CommunityListResponse>("/communities", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       next: { revalidate: 3600 }, // Revalidate cache every hour
     });
   },

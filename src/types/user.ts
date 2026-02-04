@@ -10,6 +10,7 @@ export interface User {
 export interface UserProps {
   email: string;
   password: string;
+  user_type: string;
 }
 
 export interface UserProfile {
@@ -26,6 +27,7 @@ export type UserModel = {
   id: string;
   username: string;
   display_name: string;
+  phone_number: string;
   sports: string[];
   bio?: string;
   photo_url?: string;

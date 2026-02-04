@@ -28,7 +28,7 @@ export async function GET(_: Request) {
   } catch {
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -39,10 +39,11 @@ export async function POST(request: Request) {
   const formData = await request.formData();
 
   try {
-    const res = await fetch(ApiUrl + "/players/details", {
+    const res = await fetch(ApiUrl + "/players", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
       body: formData,
     });
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
     console.log("Error logging in:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

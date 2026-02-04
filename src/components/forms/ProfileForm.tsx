@@ -14,10 +14,10 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { userService } from "@/services/user-services";
+import { userServices } from "@/services/user-services";
 import { Button } from "../ui/button";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { MultiSelect } from "../ui/multi-select";
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
@@ -25,6 +25,7 @@ import { FileWithPreview } from "@/hooks/use-file-upload";
 import { ProfileScheme } from "@/lib/validations/user";
 import { sportList } from "@/lib/constants";
 import { UserModel } from "@/types/user";
+import { sharedService } from "@/services/shared-service";
 
 type ProfileFormProps = {
   data?: UserModel;
@@ -36,16 +37,23 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
     defaultValues: {
       username: data?.username || "",
       display_name: data?.display_name || "",
+      phone_number: data?.phone_number || "",
       sports: data?.sports || [],
       bio: data?.bio || "",
       file: undefined,
     },
   });
 
+  const { data: sports } = useQuery({
+    queryKey: ["sports"],
+    queryFn: async () => await sharedService.getAllSports(),
+    select: (data) => data.sport_types,
+  });
+
   const { mutate, error } = useMutation({
     mutationFn: (formData: FormData) => {
-      if (data?.id) return userService.edit(formData);
-      return userService.create(formData);
+      if (data?.id) return userServices.edit(formData);
+      return userServices.create(formData);
     },
     onSuccess: (data) => {
       console.log("Registration successful:", data);
@@ -56,9 +64,11 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
     const formData = new FormData();
     formData.append("username", params.username);
     formData.append("display_name", params.display_name);
-    params.sports.forEach((sport) =>
-      formData.append("sports_type_ids[]", sport),
-    );
+    formData.append("phone_number", params.phone_number);
+    // params.sports.forEach((sport) =>
+    //   formData.append("sport_type_ids[]", sport),
+    // );
+    formData.append("sport_type_ids[]", "1");
 
     if (params.bio) {
       formData.append("bio", params.bio);
@@ -101,6 +111,19 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
               <FormLabel>Display Name</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., PlayerOne" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., 08123456789" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

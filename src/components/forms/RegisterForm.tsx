@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { userService } from "@/services/user-services";
+import { userServices } from "@/services/user-services";
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
@@ -69,7 +69,7 @@ const RegisterForm = () => {
 
   const { mutate, error } = useMutation({
     mutationFn: (data: z.infer<typeof RegisterScheme>) =>
-      userService.register(data),
+      userServices.register(data),
     onSuccess: (data) => {
       loginInState(data.token, data.user_id);
       if (data.user_type === "host") {
