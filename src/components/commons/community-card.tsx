@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
 
 type Props = {
   community: CommunityResponse;
@@ -42,6 +43,11 @@ const CommunityCard = ({ community, onJoin }: Props) => {
           >
             Join Community
           </Button>
+          <Link href={`/communities/${community.id}`}>
+            <Button variant="outline" size="sm">
+              View Community
+            </Button>
+          </Link>
         </CardAction>
       </CardHeader>
       <CardFooter className="flex gap-2 flex-wrap">

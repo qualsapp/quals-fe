@@ -4,12 +4,18 @@ import { TournamentParams, TournamentResponse } from "@/types/tournament";
 
 export const eventServices = {
   // Fetch all users
+  getAllPublic: async (token: string) => {
+    return apiClient<EventsResponse>(`/events`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
   getAll: async (communityId: string, token: string) => {
     return apiClient<EventsResponse>(
       `/communities/${communityId}/events?page=1&page_size=10`,
       {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       },
@@ -20,7 +26,6 @@ export const eventServices = {
       `/communities/${communityId}/events/${eventId}`,
       {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       },

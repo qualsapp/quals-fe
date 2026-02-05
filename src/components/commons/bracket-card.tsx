@@ -26,8 +26,15 @@ function BracketCard({
   open,
   setOpen,
 }: BracketCardProps) {
+  const isFirstRound = String(match.tournamentRoundText) === "1";
   return (
-    <div onClick={() => setOpen(true)}>
+    <div
+      onClick={() => setOpen(isFirstRound)}
+      className={cn(
+        isFirstRound ? "cursor-pointer" : "",
+        open ? "border-primary" : "",
+      )}
+    >
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         {(match.href || typeof onMatchClick === "function") && (
           <a

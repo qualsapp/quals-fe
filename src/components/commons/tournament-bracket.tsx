@@ -20,11 +20,29 @@ import UpdatePlayerForm from "../forms/UpdatePlayerForm";
 
 type Props = {
   matches: any;
+  communityId: string;
+  eventId: string;
+  tournamentId: string;
+  token: string;
 };
 
-const TournamentBracket = ({ matches }: Props) => {
+const TournamentBracket = ({
+  matches,
+  communityId,
+  eventId,
+  tournamentId,
+  token,
+}: Props) => {
   const { height, width } = useWindowSize();
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const finalWidth = width ? Math.max(width - 50, 500) : 0;
   const finalHeight = height ? Math.max(height - 100, 500) : 0;
   return (
@@ -40,6 +58,7 @@ const TournamentBracket = ({ matches }: Props) => {
               backgroundColor: "#7f0d0d",
               fontColor: "#f3ec19",
             },
+
             connectorColor: "#ccc",
             connectorColorHighlight: "#123C67",
           },
@@ -50,7 +69,14 @@ const TournamentBracket = ({ matches }: Props) => {
           </SVGViewer>
         )}
       />
-      <UpdatePlayerForm open={open} setOpen={setOpen} />
+      <UpdatePlayerForm
+        open={open}
+        setOpen={setOpen}
+        communityId={communityId}
+        eventId={eventId}
+        tournamentId={tournamentId}
+        token={token}
+      />
     </>
   );
 };

@@ -23,7 +23,7 @@ import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { ProfileScheme } from "@/lib/validations/user";
-import { sportList } from "@/lib/constants";
+
 import { UserModel } from "@/types/user";
 import { sharedService } from "@/services/shared-service";
 
@@ -47,7 +47,11 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
   const { data: sports } = useQuery({
     queryKey: ["sports"],
     queryFn: async () => await sharedService.getAllSports(),
-    select: (data) => data.sport_types,
+    select: (data) =>
+      data.sport_types.map((sport) => ({
+        label: sport.name,
+        value: sport.id.toString(),
+      })),
   });
 
   const { mutate, error } = useMutation({
@@ -65,10 +69,9 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
     formData.append("username", params.username);
     formData.append("display_name", params.display_name);
     formData.append("phone_number", params.phone_number);
-    // params.sports.forEach((sport) =>
-    //   formData.append("sport_type_ids[]", sport),
-    // );
-    formData.append("sport_type_ids[]", "1");
+    params.sports.forEach((sport) =>
+      formData.append("sport_type_ids[]", sport),
+    );
 
     if (params.bio) {
       formData.append("bio", params.bio);
@@ -137,7 +140,7 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
               <FormLabel>Sports Preference</FormLabel>
               <FormControl>
                 <MultiSelect
-                  options={sportList}
+                  options={sports || []}
                   value={field.value}
                   onValueChange={field.onChange}
                   placeholder="Choose sports..."

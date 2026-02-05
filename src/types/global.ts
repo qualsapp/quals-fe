@@ -12,3 +12,9 @@ export type Sport = {
 export type SportResponse = {
   sport_types: Sport[];
 };
+
+export type Filter = {
+  search: string;
+  page: number;
+  page_size: number;
+};

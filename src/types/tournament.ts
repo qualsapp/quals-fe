@@ -32,3 +32,16 @@ export type MatchRule = {
   best_of_sets?: number;
   race_to?: number;
 };
+
+export interface ParticipantsResponse {
+  participants: Participant[];
+  page: number;
+  page_size: number;
+  total: number;
+}
+
+export interface Participant {
+  id: number;
+  name: string;
+  type: string;
+}
