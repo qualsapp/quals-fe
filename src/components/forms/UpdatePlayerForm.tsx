@@ -26,6 +26,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { dummyParticipantsResponse } from "@/mock-data/participant";
 import { useMutation } from "@tanstack/react-query";
 import { matchServices } from "@/services/match-services";
+import { Input } from "../ui/input";
 
 type Props = {
   open: boolean;
@@ -34,11 +35,16 @@ type Props = {
   eventId: string;
   tournamentId: string;
   token: string;
+  tournamentBracketId: string;
+  match_rule_id: string;
 };
 
 const PlayerScheme = z.object({
   participant_a: z.array(z.string()).min(1),
   participant_b: z.array(z.string()).min(1),
+  tournament_bracket_id: z.string(),
+  court_number: z.string(),
+  match_rule_id: z.string(),
 });
 
 const UpdatePlayerForm = ({
@@ -47,6 +53,8 @@ const UpdatePlayerForm = ({
   communityId,
   eventId,
   tournamentId,
+  tournamentBracketId,
+  match_rule_id,
   token,
 }: Props) => {
   const [options, setOptions] = React.useState<MultiSelectOption[]>([]);
@@ -58,6 +66,9 @@ const UpdatePlayerForm = ({
     defaultValues: {
       participant_a: [],
       participant_b: [],
+      tournament_bracket_id: tournamentBracketId || "",
+      court_number: "",
+      match_rule_id: match_rule_id || "",
     },
   });
 
@@ -65,19 +76,19 @@ const UpdatePlayerForm = ({
     async (searchValue: string) => {
       if (!token || !communityId || !eventId || !tournamentId) return;
       try {
-        // const response = await tournamentServices.getParticipants(
-        //   communityId,
-        //   eventId,
-        //   tournamentId,
-        //   token,
-        //   {
-        //     search: searchValue,
-        //     page: 1,
-        //     page_size: 20,
-        //   },
-        // );
+        const response = await tournamentServices.getParticipants(
+          communityId,
+          eventId,
+          tournamentId,
+          token,
+          {
+            search: searchValue,
+            page: 1,
+            page_size: 20,
+          },
+        );
 
-        const response = await Promise.resolve(dummyParticipantsResponse);
+        // const response = await Promise.resolve(dummyParticipantsResponse);
 
         if (response.participants) {
           const participantOptions = response.participants.map((p: any) => ({
@@ -95,14 +106,18 @@ const UpdatePlayerForm = ({
   );
 
   const { mutateAsync: updateParticipant } = useMutation({
-    mutationFn: (data: { participant_a: number; participant_b: number }) => {
+    mutationFn: (params: {
+      participant_a_id: number;
+      participant_b_id: number;
+      tournament_bracket_id: number;
+      court_number: number;
+      match_rule_id: number;
+    }) => {
       return matchServices.updateParticipant(
         communityId,
         eventId,
         tournamentId,
-        token,
-        data.participant_a,
-        data.participant_b,
+        params,
       );
     },
   });
@@ -121,12 +136,15 @@ const UpdatePlayerForm = ({
 
   const onSubmit = (data: z.infer<typeof PlayerScheme>) => {
     try {
-      const participant_a = data.participant_a[0];
-      const participant_b = data.participant_b[0];
-      updateParticipant({
-        participant_a: Number(participant_a),
-        participant_b: Number(participant_b),
-      });
+      const params = {
+        participant_a_id: Number(data.participant_a[0]),
+        participant_b_id: Number(data.participant_b[0]),
+        tournament_bracket_id: Number(tournamentBracketId),
+        court_number: Number(data.court_number),
+        match_rule_id: Number(data.match_rule_id),
+      };
+
+      updateParticipant(params);
     } catch (error) {
       console.error("Failed to update participant:", error);
     }
@@ -192,6 +210,47 @@ const UpdatePlayerForm = ({
                       onSearchValueChange={setSearch}
                       placeholder="Choose participants..."
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="court_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} placeholder="Court number..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tournament_bracket_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      hidden
+                      {...field}
+                      placeholder="Choose participants..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="match_rule_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input hidden {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

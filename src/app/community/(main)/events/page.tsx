@@ -12,14 +12,20 @@ import { hostServices } from "@/services/host-services";
 import { EventsResponse } from "@/types/events";
 import { HostProfileModel } from "@/types/user";
 import { ChevronDownIcon } from "lucide-react";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
 import React from "react";
+import Modal from "@/components/commons/state-modal";
+import Image from "next/image";
 
-type Props = {};
+type Props = {
+  searchParams: Promise<{ welcome: boolean }>;
+};
 
-const page = async (props: Props) => {
+const page = async ({ searchParams }: Props) => {
+  const { welcome } = await searchParams;
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -70,6 +76,14 @@ const page = async (props: Props) => {
           </Link>
         ))}
       </div>
+      {/* <Modal isOpen={welcome}>
+        <Image
+          width={1920}
+          height={1080}
+          src="/images/welcome.jpeg"
+          alt="welcome"
+        />
+      </Modal> */}
     </div>
   );
 };

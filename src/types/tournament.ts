@@ -2,6 +2,15 @@ export interface TournamentResponse extends GeneralRuleParams {
   id: string;
   event_id: string;
   match_rule: MatchRuleResponse;
+  tournament_brackets: TournamentBracketsResponse[];
+}
+
+export interface TournamentBracketsResponse {
+  id: number;
+  round: number;
+  match_number: number;
+  next_bracket_id: number;
+  participants: Participant[];
 }
 
 export interface MatchRuleResponse extends MatchRule {
@@ -44,4 +53,7 @@ export interface Participant {
   id: number;
   name: string;
   type: string;
+  score: number;
+  seed: number;
+  isWinner: boolean;
 }

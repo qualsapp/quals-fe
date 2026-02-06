@@ -33,22 +33,21 @@ export const matchServices = {
     communityId: string,
     eventId: string,
     tournamentId: string,
-    token: string,
-    participant_a: number,
-    participant_b: number,
+    params: {
+      participant_a_id: number;
+      participant_b_id: number;
+      tournament_bracket_id: number;
+      court_number: number;
+      match_rule_id: number;
+    },
   ) => {
-    return internalApiClient<MatchesResponse>(`/matches`, {
+    return await internalApiClient<MatchesResponse>(`/api/matches`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify({
-        community_id: communityId,
-        event_id: eventId,
-        tournament_id: tournamentId,
-        participant_a: participant_a,
-        participant_b: participant_b,
+        community_id: Number(communityId),
+        event_id: Number(eventId),
+        tournament_id: Number(tournamentId),
+        params,
       }),
     });
   },

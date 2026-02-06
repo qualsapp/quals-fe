@@ -1,5 +1,6 @@
 import DashboardNav from "@/components/commons/dashboard-nav";
 import MatchCard from "@/components/commons/match-card";
+import Modal from "@/components/commons/state-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,15 +11,18 @@ import { EventResponse } from "@/types/events";
 import { MatchesResponse } from "@/types/match";
 import { HostProfileModel } from "@/types/user";
 import { cookies } from "next/headers";
+import Image from "next/image";
 
 import React from "react";
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ welcome: boolean }>;
 };
 
-const page = async ({ params }: Props) => {
+const page = async ({ params, searchParams }: Props) => {
   const { id } = await params;
+  const searchParamsData = await searchParams;
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -27,7 +31,7 @@ const page = async ({ params }: Props) => {
     : ({} as HostProfileModel);
 
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
   const list = token
@@ -107,6 +111,14 @@ const page = async ({ params }: Props) => {
           </TabsContent>
         </Tabs>
       </div>
+      {/* <Modal isOpen={searchParamsData.welcome || false}>
+        <Image
+          width={1920}
+          height={1080}
+          src="/images/welcome.jpeg"
+          alt="welcome"
+        />
+      </Modal> */}
     </div>
   );
 };

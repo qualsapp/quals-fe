@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { eventServices } from "@/services/event-services";
 import { TournamentParams, TournamentResponse } from "@/types/tournament";
+import { useRouter } from "next/navigation";
 
 type Props = {
   eventId: string;
@@ -59,6 +60,7 @@ const RulesSchema = z
   });
 
 const RulesForm = ({ tournament, eventId, communityId }: Props) => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
@@ -85,6 +87,7 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
     },
     onSuccess: () => {
       form.reset();
+      router.push(`/community/events/${eventId}?welcome=true`);
     },
     onError: () => {
       console.log("Error creating event");

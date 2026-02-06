@@ -25,7 +25,6 @@ export const tournamentServices = {
     communityId: string,
     eventId: string,
     tournamentId: string,
-
     token: string,
   ) => {
     return apiClient<TournamentResponse>(

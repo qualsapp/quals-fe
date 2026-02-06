@@ -64,7 +64,7 @@ const LoginForm = () => {
       await userServices.login(data),
     onSuccess: (data) => {
       loginInState(data, data.token);
-      router.push("/community");
+      router.push("/community/events?welcome=true");
       // getProfile();
     },
   });

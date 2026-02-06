@@ -45,7 +45,7 @@ const page = async ({ params }: Props) => {
     : ({} as HostProfileModel);
 
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
   if (event.tournament.format !== "group_stage") {

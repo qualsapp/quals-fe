@@ -21,15 +21,12 @@ export const eventServices = {
       },
     );
   },
-  getById: async (communityId: string, eventId: string, token: string) => {
-    return apiClient<EventResponse>(
-      `/communities/${communityId}/events/${eventId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  getById: async (eventId: string, token: string) => {
+    return apiClient<EventResponse>(`/events/${eventId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
   },
   create: async (params: EventParams) => {
     return internalApiClient<EventResponse>("/api/events", {

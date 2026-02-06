@@ -23,7 +23,7 @@ const page = async ({ params }: Props) => {
     : ({} as HostProfileModel);
 
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
   return (
@@ -43,7 +43,10 @@ const page = async ({ params }: Props) => {
           <h2 className="capitalize text-2xl font-bold text-center">Events</h2>
           <p className="text-center">Update your event's details</p>
         </div>
-        <EventForm event={{ ...event, event_type: "tournament" }} />
+        <EventForm
+          communityId={community.id}
+          event={{ ...event, event_type: "tournament" }}
+        />
       </div>
     </div>
   );

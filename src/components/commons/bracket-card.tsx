@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface BracketCardProps extends MatchComponentProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  handleOpen: (matchId: number | string) => void;
 }
 
 function BracketCard({
@@ -24,12 +24,12 @@ function BracketCard({
   topText,
   topWon,
   open,
-  setOpen,
+  handleOpen,
 }: BracketCardProps) {
   const isFirstRound = String(match.tournamentRoundText) === "1";
   return (
     <div
-      onClick={() => setOpen(isFirstRound)}
+      onClick={() => handleOpen(match.id)}
       className={cn(
         isFirstRound ? "cursor-pointer" : "",
         open ? "border-primary" : "",

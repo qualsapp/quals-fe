@@ -21,6 +21,7 @@ import { eventServices } from "@/services/event-services";
 import { EventResponse } from "@/types/events";
 import { matchServices } from "@/services/match-services";
 import { MatchesResponse } from "@/types/match";
+import { tournamentServices } from "@/services/tournament-services";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -58,17 +59,22 @@ const page = async ({ params }: Props) => {
     : ({} as HostProfileModel);
 
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
-  const list = token
-    ? await matchServices.getAll(community.id, id, event.tournament.id, token)
+  const tournament = token
+    ? await tournamentServices.getById(
+        community.id,
+        id,
+        event.tournament.id,
+        token,
+      )
     : ({} as MatchesResponse);
 
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container flex-col space-y-10">
-        <TournamentBracket matches={walkOverData} />
+        {/* <TournamentBracket matches={walkOverData} /> */}
       </div>
       {/* <div className="container flex-col space-y-10">
         <div className="overflow-x-auto">

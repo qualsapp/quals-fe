@@ -19,8 +19,8 @@ import { hostServices } from "@/services/host-services";
 import { HostProfileModel } from "@/types/user";
 import { eventServices } from "@/services/event-services";
 import { EventResponse } from "@/types/events";
-import { matchServices } from "@/services/match-services";
-import { MatchesResponse } from "@/types/match";
+import { tournamentServices } from "@/services/tournament-services";
+import { TournamentResponse } from "@/types/tournament";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -36,205 +36,21 @@ const page = async ({ params }: Props) => {
     : ({} as HostProfileModel);
 
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
-  console.log(event);
+  const tournament = token
+    ? await tournamentServices.getById(
+        community.id,
+        id,
+        event.tournament.id,
+        token,
+      )
+    : ({} as TournamentResponse);
 
-  const list = token
-    ? await matchServices.getAll(community.id, id, event.tournament.id, token)
-    : ({} as MatchesResponse);
+  console.log("tournament", tournament);
 
-  const tournamentBrackets = [
-    {
-      id: 140,
-      round: 5,
-      match_number: 1,
-      next_bracket_id: null,
-    },
-    {
-      id: 141,
-      round: 4,
-      match_number: 1,
-      next_bracket_id: 140,
-    },
-    {
-      id: 142,
-      round: 4,
-      match_number: 2,
-      next_bracket_id: 140,
-    },
-    {
-      id: 143,
-      round: 3,
-      match_number: 1,
-      next_bracket_id: 141,
-    },
-    {
-      id: 144,
-      round: 3,
-      match_number: 2,
-      next_bracket_id: 141,
-    },
-    {
-      id: 145,
-      round: 3,
-      match_number: 3,
-      next_bracket_id: 142,
-    },
-    {
-      id: 146,
-      round: 3,
-      match_number: 4,
-      next_bracket_id: 142,
-    },
-    {
-      id: 147,
-      round: 2,
-      match_number: 1,
-      next_bracket_id: 143,
-    },
-    {
-      id: 148,
-      round: 2,
-      match_number: 2,
-      next_bracket_id: 143,
-    },
-    {
-      id: 149,
-      round: 2,
-      match_number: 3,
-      next_bracket_id: 144,
-    },
-    {
-      id: 150,
-      round: 2,
-      match_number: 4,
-      next_bracket_id: 144,
-    },
-    {
-      id: 151,
-      round: 2,
-      match_number: 5,
-      next_bracket_id: 145,
-    },
-    {
-      id: 152,
-      round: 2,
-      match_number: 6,
-      next_bracket_id: 145,
-    },
-    {
-      id: 153,
-      round: 2,
-      match_number: 7,
-      next_bracket_id: 146,
-    },
-    {
-      id: 154,
-      round: 2,
-      match_number: 8,
-      next_bracket_id: 146,
-    },
-    {
-      id: 155,
-      round: 1,
-      match_number: 1,
-      next_bracket_id: 147,
-    },
-    {
-      id: 156,
-      round: 1,
-      match_number: 2,
-      next_bracket_id: 147,
-    },
-    {
-      id: 157,
-      round: 1,
-      match_number: 3,
-      next_bracket_id: 148,
-    },
-    {
-      id: 158,
-      round: 1,
-      match_number: 4,
-      next_bracket_id: 148,
-    },
-    {
-      id: 159,
-      round: 1,
-      match_number: 5,
-      next_bracket_id: 149,
-    },
-    {
-      id: 160,
-      round: 1,
-      match_number: 6,
-      next_bracket_id: 149,
-    },
-    {
-      id: 161,
-      round: 1,
-      match_number: 7,
-      next_bracket_id: 150,
-    },
-    {
-      id: 162,
-      round: 1,
-      match_number: 8,
-      next_bracket_id: 150,
-    },
-    {
-      id: 163,
-      round: 1,
-      match_number: 9,
-      next_bracket_id: 151,
-    },
-    {
-      id: 164,
-      round: 1,
-      match_number: 10,
-      next_bracket_id: 151,
-    },
-    {
-      id: 165,
-      round: 1,
-      match_number: 11,
-      next_bracket_id: 152,
-    },
-    {
-      id: 166,
-      round: 1,
-      match_number: 12,
-      next_bracket_id: 152,
-    },
-    {
-      id: 167,
-      round: 1,
-      match_number: 13,
-      next_bracket_id: 153,
-    },
-    {
-      id: 168,
-      round: 1,
-      match_number: 14,
-      next_bracket_id: 153,
-    },
-    {
-      id: 169,
-      round: 1,
-      match_number: 15,
-      next_bracket_id: 154,
-    },
-    {
-      id: 170,
-      round: 1,
-      match_number: 16,
-      next_bracket_id: 154,
-    },
-  ];
-
-  const matchData = tournamentBrackets.map((match) => {
+  const matchData = tournament.tournament_brackets.map((match) => {
     return {
       id: match.id,
       round: match.round,
@@ -244,7 +60,18 @@ const page = async ({ params }: Props) => {
       nextMatchId: match.next_bracket_id,
       nextLooserMatchId: null,
       state: "SCHEDULED",
-      participants: [],
+      participants:
+        match.participants?.length > 0
+          ? match.participants.map((participant) => {
+              return {
+                id: participant.id,
+                name: participant.name,
+                score: participant?.score || null,
+                seed: participant?.seed || null,
+                isWinner: participant?.isWinner || null,
+              };
+            })
+          : [],
       startTime: "",
     };
   });
@@ -258,6 +85,7 @@ const page = async ({ params }: Props) => {
           eventId={id}
           tournamentId={event.tournament.id}
           token={token || ""}
+          match_rule_id={event.tournament.match_rule.id}
         />
       </div>
       {/* <div className="container flex-col space-y-10">

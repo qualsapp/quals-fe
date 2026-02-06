@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 
 import { useWindowSize } from "@uidotdev/usehooks";
-import { Match } from "@/types/match";
+import { Match, MatchComponentProps } from "@/types/match";
 import KnockOffCard from "./knock-off-card";
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
@@ -23,6 +23,7 @@ type Props = {
   communityId: string;
   eventId: string;
   tournamentId: string;
+  match_rule_id: number;
   token: string;
 };
 
@@ -31,11 +32,13 @@ const TournamentBracket = ({
   communityId,
   eventId,
   tournamentId,
+  match_rule_id,
   token,
 }: Props) => {
   const { height, width } = useWindowSize();
   const [open, setOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [selectedMatchId, setSelectedMatchId] = React.useState<any>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -45,12 +48,18 @@ const TournamentBracket = ({
 
   const finalWidth = width ? Math.max(width - 50, 500) : 0;
   const finalHeight = height ? Math.max(height - 100, 500) : 0;
+
+  const handleMatchClick = (matchId: number) => {
+    setSelectedMatchId(matchId);
+    setOpen(true);
+  };
+
   return (
     <>
       <SingleEliminationBracket
         matches={matches}
         matchComponent={(props: any) => (
-          <BracketCard {...props} open={open} setOpen={setOpen} />
+          <BracketCard {...props} open={open} handleOpen={handleMatchClick} />
         )}
         options={{
           style: {
@@ -76,6 +85,8 @@ const TournamentBracket = ({
         eventId={eventId}
         tournamentId={tournamentId}
         token={token}
+        match_rule_id={String(match_rule_id)}
+        tournamentBracketId={selectedMatchId}
       />
     </>
   );

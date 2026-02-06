@@ -75,6 +75,7 @@ export async function internalApiClient<T>(
   };
 
   const response = await fetch(`${endpoint}${queryString}`, config);
+  console.log("response", response);
 
   if (!response.ok) {
     throw new Error(`API Error: ${response.statusText}`);

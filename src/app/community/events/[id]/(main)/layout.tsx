@@ -1,4 +1,5 @@
 import DashboardNav from "@/components/commons/dashboard-nav";
+import Modal from "@/components/commons/state-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { eventServices } from "@/services/event-services";
@@ -7,6 +8,7 @@ import { EventResponse } from "@/types/events";
 import { HostProfileModel } from "@/types/user";
 import dayjs from "dayjs";
 import { cookies } from "next/headers";
+import Image from "next/image";
 import Link from "next/link";
 
 import React from "react";
@@ -14,19 +16,17 @@ import React from "react";
 type LayoutProps = {
   params: Promise<{ id: string }>;
   children: React.ReactNode;
+  searchParams: Promise<{ welcome: boolean }>;
 };
 
-const page = async ({ params, children }: LayoutProps) => {
+const page = async ({ params, children, searchParams }: LayoutProps) => {
   const { id } = await params;
+
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
-
   const event = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
   const menus = [

@@ -27,7 +27,7 @@ const page = async ({ params }: Props) => {
     : ({} as EventResponse);
 
   const list = token
-    ? await matchServices.getAll(id, event.tournament.id, token)
+    ? await matchServices.getAll(id, event.id, event.tournament.id, token)
     : ({} as MatchesResponse);
 
   if (list.matches === null) {

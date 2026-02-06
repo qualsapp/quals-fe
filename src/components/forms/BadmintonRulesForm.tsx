@@ -35,6 +35,7 @@ import { Switch } from "../ui/switch";
 import { badmintonMaxPointPerSet, badmintonScoreType } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useRouter } from "next/navigation";
 
 type Props = {
   eventId: string;
@@ -77,6 +78,7 @@ const RulesSchema = z
   });
 
 const RulesForm = ({ eventId, communityId, tournament }: Props) => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
@@ -108,6 +110,7 @@ const RulesForm = ({ eventId, communityId, tournament }: Props) => {
     },
     onSuccess: () => {
       form.reset();
+      router.push(`/community/events/${eventId}?welcome=true`);
     },
     onError: () => {
       console.log("Error creating event");

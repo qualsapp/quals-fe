@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { MapPin } from "lucide-react";
 import { hostServices } from "@/services/host-services";
 import { HostProfileModel } from "@/types/user";
+import Modal from "@/components/commons/state-modal";
+import Image from "next/image";
 
 const menus = [
   { label: "Events", href: "/community/events" },

@@ -34,7 +34,7 @@ const page = async ({ params, searchParams }: Props) => {
     : ({} as HostProfileModel);
 
   const { tournament } = token
-    ? await eventServices.getById(community.id, id, token)
+    ? await eventServices.getById(id, token)
     : ({} as EventResponse);
 
   const search = await searchParams;
