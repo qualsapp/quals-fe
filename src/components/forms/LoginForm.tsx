@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import { z } from "zod";
 import {
   Form,
@@ -14,10 +14,7 @@ import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useMutation } from "@tanstack/react-query";
-import { userServices } from "@/services/user-services";
 import { useRouter } from "next/navigation";
-import { hostServices } from "@/services/host-services";
 import {
   Select,
   SelectContent,
@@ -26,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { login } from "@/actions/auth";
 
 const LoginScheme = z.object({
   email: z.email("Invalid email"),
@@ -33,8 +31,14 @@ const LoginScheme = z.object({
   user_type: z.string().nonempty("Role is required"),
 });
 
-const LoginForm = () => {
+type Props = {};
+
+const LoginForm = ({}: Props) => {
   const router = useRouter();
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [isPending, startTransition] = useTransition();
+  const loginInState = useAuthStore((state) => state.login);
+
   const form = useForm<z.infer<typeof LoginScheme>>({
     resolver: zodResolver(LoginScheme),
     defaultValues: {
@@ -44,33 +48,20 @@ const LoginForm = () => {
     },
   });
 
-  const loginInState = useAuthStore((state) => state.login);
-  const setCommunity = useAuthStore((state) => state.setCommunity);
-  const setUser = useAuthStore((state) => state.setUser);
-
-  // const { mutate: getProfile } = useMutation({
-  //   mutationFn: async () => await hostServices.getProfile(),
-  //   onSuccess: (data) => {
-  //     if (data.host_detail) {
-  //       setCommunity(data.community);
-  //       setUser(data.host_detail);
-  //       router.push("/community");
-  //     }
-  //   },
-  // });
-
-  const { mutate } = useMutation({
-    mutationFn: async (data: z.infer<typeof LoginScheme>) =>
-      await userServices.login(data),
-    onSuccess: (data) => {
-      loginInState(data, data.token);
-      router.push("/community/events?welcome=true");
-      // getProfile();
-    },
-  });
-
   const onSubmit = (data: z.infer<typeof LoginScheme>) => {
-    mutate(data);
+    startTransition(async () => {
+      const { error, token } = await login(data);
+
+      setError(error);
+      if (token) {
+        loginInState(data, token);
+        if (data.user_type === "player") {
+          router.push("/dashboard?welcome=true");
+        } else if (data.user_type === "host") {
+          router.push("/community/events?welcome=true");
+        }
+      }
+    });
   };
   return (
     <Form {...form}>
@@ -125,10 +116,12 @@ const LoginForm = () => {
           )}
         />
         <div className="text-center">
-          <Button type="submit" className="px-10">
-            Masuk
+          <Button disabled={isPending} type="submit" className="px-10">
+            {isPending ? "Loading..." : "Masuk"}
           </Button>
         </div>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
     </Form>
   );

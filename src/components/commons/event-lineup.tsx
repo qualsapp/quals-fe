@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "../ui/badge";
 import { cn, eventState } from "@/lib/utils";
-import { EventResponse } from "@/types/events";
+import { EventResponse } from "@/types/event";
 import dayjs from "dayjs";
 import {
   eventBadgeVariants,

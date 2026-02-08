@@ -1,5 +1,39 @@
 import { ReactElement } from "react";
 
+export type MatchParams = {
+  tournament_bracket_id: number;
+  match_rule_id: number;
+  participant_a: string;
+  participant_b: string;
+  court_number: number;
+};
+
+export type GroupParticipantParams = {
+  tournament_group_id: number;
+  participant_ids: number[];
+};
+
+export type MatchResponse = Omit<
+  MatchParams,
+  "participant_a" | "participant_b"
+> & {
+  id: number;
+  participant_a: Participant;
+  participant_b: Participant;
+  status: string;
+  error?: string;
+};
+
+export type MatchesResponse = {
+  matches: MatchResponse[];
+  page: number;
+  page_size: number;
+  total: number;
+  error?: string;
+};
+
+// old
+
 export type Participant = {
   id: string | number;
 
@@ -150,21 +184,21 @@ export type ParticipantParams = {
   type: string;
 };
 
-export type MatchParams = {
-  id: number;
-  tournament_bracket_id: number;
-  tournament_group_id: number;
-  match_rule_id: number;
-  participant_a: ParticipantParams;
-  participant_b: ParticipantParams;
-  status: string;
-  court_number: number;
-  match_sets: string | null;
-};
+// export type MatchParams = {
+//   id: number;
+//   tournament_bracket_id: number;
+//   tournament_group_id: number;
+//   match_rule_id: number;
+//   participant_a: ParticipantParams;
+//   participant_b: ParticipantParams;
+//   status: string;
+//   court_number: number;
+//   match_sets: string | null;
+// };
 
-export type MatchesResponse = {
-  matches: MatchParams[];
-  page: number;
-  page_size: number;
-  total: number;
-};
+// export type MatchesResponse = {
+//   matches: MatchParams[];
+//   page: number;
+//   page_size: number;
+//   total: number;
+// };

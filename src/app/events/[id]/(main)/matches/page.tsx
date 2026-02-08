@@ -1,36 +1,57 @@
-import DashboardNav from "@/components/commons/dashboard-nav";
-import MatchCard from "@/components/commons/match-card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { eventServices } from "@/services/event-services";
-import { hostServices } from "@/services/host-services";
-import { matchServices } from "@/services/match-services";
-import { EventResponse } from "@/types/events";
-import { MatchesResponse } from "@/types/match";
-import { HostProfileModel } from "@/types/user";
-import { cookies } from "next/headers";
-
 import React from "react";
+import Image from "next/image";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MatchCard from "@/components/commons/match-card";
+import Modal from "@/components/commons/state-modal";
+
+import { getEvent } from "@/actions/event";
+import { getHostProfile } from "@/actions/host";
+import { getMatches } from "@/actions/match";
+
+import { FilterParams } from "@/types/global";
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<FilterParams>;
 };
 
-const page = async ({ params }: Props) => {
+const page = async ({ params, searchParams }: Props) => {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const searchParamsData = await searchParams;
 
-  const event = token
-    ? await eventServices.getById(id, token)
-    : ({} as EventResponse);
+  const { community } = await getHostProfile();
 
-  const list = token
-    ? await matchServices.getAll(id, event.id, event.tournament.id, token)
-    : ({} as MatchesResponse);
+  if (!community) {
+    return (
+      <div className="py-8 md:py-10 space-y-10">
+        <div className="container flex flex-col items-center">
+          <p>No community found</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (list.matches === null) {
+  const event = await getEvent(id);
+
+  if (!event) {
+    return (
+      <div className="py-8 md:py-10 space-y-10">
+        <div className="container flex flex-col items-center">
+          <p>No event found</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { matches } = await getMatches(
+    community.id,
+    id,
+    event.tournament?.id || "",
+    searchParamsData,
+  );
+
+  if (!matches || matches?.length === 0) {
     return (
       <div className="py-8 md:py-10 space-y-10">
         <div className="container flex flex-col items-center">
@@ -103,6 +124,17 @@ const page = async ({ params }: Props) => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {searchParamsData.welcome && (
+        <Modal isOpen={searchParamsData.welcome || false}>
+          <Image
+            width={1920}
+            height={1080}
+            src="/images/welcome.jpeg"
+            alt="welcome"
+          />
+        </Modal>
+      )}
     </div>
   );
 };

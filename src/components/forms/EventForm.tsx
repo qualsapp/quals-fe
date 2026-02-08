@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -29,13 +29,15 @@ import { TimePicker } from "../ui/time-picker";
 import DatePicker from "../date-picker";
 import { eventServices } from "@/services/event-services";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { EventParams, EventResponse } from "@/types/events";
+import { EventParams, EventResponse } from "@/types/event";
 import { useRouter } from "next/navigation";
 import { sharedService } from "@/services/shared-service";
+import { SportResponse } from "@/types/global";
+import { createEvent, updateEvent } from "@/actions/event";
 
 type Props = {
   event?: EventResponse;
-  communityId: string;
+  sports: SportResponse["sport_types"];
 };
 
 const eventSchema = z.object({
@@ -60,7 +62,9 @@ const eventSchema = z.object({
   isRepeat: z.boolean(),
 });
 
-const EventForm = ({ event, communityId }: Props) => {
+const EventForm = ({ event }: Props) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof eventSchema>>({
@@ -92,27 +96,9 @@ const EventForm = ({ event, communityId }: Props) => {
     select: (data) => data.sport_types,
   });
 
-  const { mutateAsync } = useMutation({
-    mutationFn: async (data: EventParams) => {
-      if (data.event_id) return await eventServices.update(data);
-      return await eventServices.create(data);
-    },
-    onSuccess: (data) => {
-      form.reset();
-      if (data.event_type === "tournament") {
-        const sport = sports?.find((sport) => sport.id === data.sport_type.id);
-        router.push(`/community/events/${data.id}/rules?type=${sport?.slug}`);
-      }
-    },
-    onError: () => {
-      console.log("Error creating event");
-    },
-  });
-
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
     // add community_id from cookies
     const params: EventParams = {
-      community_id: communityId,
       title: data.title,
       event_type: data.type,
       sport_type_id: Number(data.sport_type_id),
@@ -127,11 +113,21 @@ const EventForm = ({ event, communityId }: Props) => {
         watchDates instanceof Object ? watchDates.to.toISOString() : watchDates,
     };
 
-    if (event?.id) {
-      params.event_id = event.id;
-    }
+    startTransition(async () => {
+      const { error, ...res } = event?.id
+        ? await updateEvent(params, event.id)
+        : await createEvent(params);
 
-    mutateAsync(params);
+      if (error) {
+        setError(error);
+      } else {
+        form.reset();
+        if (res.event_type === "tournament") {
+          const sport = sports?.find((sport) => sport.id === res.sport_type.id);
+          router.push(`/community/events/${res.id}/rules?type=${sport?.slug}`);
+        }
+      }
+    });
   };
 
   const handleTimeChange = (
@@ -352,8 +348,12 @@ const EventForm = ({ event, communityId }: Props) => {
           )}
         />
 
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <div className="text-center">
-          <Button>{event ? "Update" : "Create"} Event</Button>
+          <Button disabled={isPending}>
+            {isPending ? "Loading..." : event ? "Update" : "Create"} Event
+          </Button>
         </div>
       </form>
     </Form>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { eventServices } from "@/services/event-services";
 import { hostServices } from "@/services/host-services";
-import { EventResponse } from "@/types/events";
+import { EventResponse } from "@/types/event";
 import { HostProfileModel } from "@/types/user";
 import { group } from "console";
 import { pl, ro } from "date-fns/locale";

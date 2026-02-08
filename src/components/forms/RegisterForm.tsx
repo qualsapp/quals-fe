@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import z from "zod";
 import {
   Form,
@@ -21,12 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { userServices } from "@/services/user-services";
 import { Button } from "../ui/button";
-
-import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { register } from "@/actions/auth";
 
 const RegisterScheme = z
   .object({
@@ -54,6 +52,8 @@ const RegisterScheme = z
   });
 
 const RegisterForm = () => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
   const form = useForm<z.infer<typeof RegisterScheme>>({
     resolver: zodResolver(RegisterScheme),
@@ -67,25 +67,20 @@ const RegisterForm = () => {
 
   const loginInState = useAuthStore((state) => state.login);
 
-  const { mutate, error } = useMutation({
-    mutationFn: (data: z.infer<typeof RegisterScheme>) =>
-      userServices.register(data),
-    onSuccess: (data) => {
-      loginInState(data.token, data.user_id);
-      if (data.user_type === "host") {
-        router.push("/host-details");
-        return;
-      }
+  const onSubmit = (data: z.infer<typeof RegisterScheme>) => {
+    startTransition(async () => {
+      const { error, token } = await register(data);
 
-      if (data.user_type === "player") {
-        router.push("/player-details");
-        return;
+      setError(error);
+      if (token) {
+        loginInState(data, token);
+        if (data.user_type === "player") {
+          router.push("/player-details");
+        } else if (data.user_type === "host") {
+          router.push("/host-details");
+        }
       }
-    },
-  });
-
-  const onSubmit = async (data: z.infer<typeof RegisterScheme>) => {
-    mutate(data);
+    });
   };
   return (
     <Form {...form}>
@@ -158,12 +153,12 @@ const RegisterForm = () => {
         <Button
           type="submit"
           className="px-10"
-          disabled={!form.formState.isValid}
+          disabled={!form.formState.isValid || isPending}
         >
-          Daftar
+          {isPending ? "Loading..." : "Daftar"}
         </Button>
 
-        {error && <p className="text-red-500 text-center">{error.message}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
     </Form>
   );

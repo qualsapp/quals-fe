@@ -1,3 +1,5 @@
+import { getEvent } from "@/actions/event";
+import { getHostProfile } from "@/actions/host";
 import BadmintonRulesForm from "@/components/forms/BadmintonRulesForm";
 import PadelRulesForm from "@/components/forms/PadelRulesForm";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { eventServices } from "@/services/event-services";
 import { hostServices } from "@/services/host-services";
-import { EventResponse } from "@/types/events";
+import { EventResponse } from "@/types/event";
 import { HostProfileModel } from "@/types/user";
 import { cookies } from "next/headers";
 
@@ -24,25 +26,18 @@ type Props = {
 };
 
 const page = async ({ params, searchParams }: Props) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
   const { id } = await params;
-
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
-
-  const { tournament } = token
-    ? await eventServices.getById(id, token)
-    : ({} as EventResponse);
 
   const search = await searchParams;
   const type = typeof search.type === "string" ? search.type : undefined;
 
-  if (!id) {
-    return <div>Event not found</div>;
+  const { community } = await getHostProfile();
+
+  if (!community) {
+    return <div>Community not found</div>;
   }
+
+  const event = await getEvent(id);
 
   return (
     <div className="container lg:py-16 py-8 space-y-10">
@@ -55,14 +50,14 @@ const page = async ({ params, searchParams }: Props) => {
           <BadmintonRulesForm
             communityId={community.id}
             eventId={id}
-            tournament={tournament}
+            tournament={event.tournament}
           />
         )}
         {type === "padel" && (
           <PadelRulesForm
             communityId={community.id}
             eventId={id}
-            tournament={tournament}
+            tournament={event.tournament}
           />
         )}
         {!type && (

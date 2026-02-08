@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import { z } from "zod";
 import {
   Form,
@@ -18,20 +18,25 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { communityService } from "@/services/community-service";
 import { CommunityScheme } from "@/lib/validations/community";
 import { CommunityResponse } from "@/types/community";
 import { MultiSelect } from "../ui/multi-select";
-import { sportList } from "@/lib/constants";
-import { sharedService } from "@/services/shared-service";
+import { SportResponse } from "@/types/global";
+import { createCommunity, updateCommunity } from "@/actions/community";
 
 type CommunityDetailsFormProps = {
   community?: CommunityResponse;
+  sports: SportResponse["sport_types"];
 };
 
-const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
+const CommunityDetailsForm = ({
+  community,
+  sports,
+}: CommunityDetailsFormProps) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
+
   const form = useForm<z.infer<typeof CommunityScheme>>({
     resolver: zodResolver(CommunityScheme),
     defaultValues: {
@@ -51,30 +56,7 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
     }
   };
 
-  const { data: sports } = useQuery({
-    queryKey: ["sports"],
-    queryFn: async () => await sharedService.getAllSports(),
-    select: (data) =>
-      data.sport_types.map((sport) => ({
-        label: sport.name,
-        value: sport.id.toString(),
-      })),
-  });
-
-  const { mutate, error } = useMutation({
-    mutationFn: async (data: FormData) => {
-      if (community && community.id) {
-        return await communityService.update(community.id, data);
-      }
-      return await communityService.create(data);
-    },
-    onSuccess: (data) => {
-      console.log("Registration successful:", data);
-      router.push(`/community/${data.id}`);
-    },
-  });
-
-  const onSubmit = (params: z.infer<typeof CommunityScheme>) => {
+  const onSubmit = async (params: z.infer<typeof CommunityScheme>) => {
     const formData = new FormData();
     formData.append("name", params.name);
     formData.append("address", params.address);
@@ -83,7 +65,18 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
     );
     formData.append("description", params.description);
     formData.append("image", params.image as File);
-    mutate(formData);
+
+    startTransition(async () => {
+      const { error } = community?.id
+        ? await updateCommunity(formData, community.id)
+        : await createCommunity(formData);
+
+      if (error) {
+        setError(error);
+      } else {
+        router.push(`/community/${community?.id}`);
+      }
+    });
   };
   return (
     <Form {...form}>
@@ -125,7 +118,10 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
               <FormLabel>Sports Preference</FormLabel>
               <FormControl>
                 <MultiSelect
-                  options={sports || []}
+                  options={sports.map((sport) => ({
+                    label: sport.name,
+                    value: sport.id.toString(),
+                  }))}
                   value={field.value}
                   defaultValue={community?.sports}
                   onValueChange={field.onChange}
@@ -158,9 +154,15 @@ const CommunityDetailsForm = ({ community }: CommunityDetailsFormProps) => {
           defaultAvatar={community?.image_url || ""}
         />
 
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <div className="text-right">
-          <Button type="submit" className="px-10">
-            {community ? "Update Community" : "Create Community"}
+          <Button type="submit" className="px-10" disabled={isPending}>
+            {isPending
+              ? "Loading..."
+              : community
+                ? "Update Community"
+                : "Create Community"}
           </Button>
         </div>
       </form>

@@ -1,5 +1,5 @@
 "use client";
-import { EventsResponse } from "@/types/events";
+import { EventsResponse } from "@/types/event";
 import React from "react";
 import EventLineup from "../commons/event-lineup";
 import { Button } from "../ui/button";

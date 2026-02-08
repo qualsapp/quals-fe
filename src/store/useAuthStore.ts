@@ -1,16 +1,22 @@
-import { CommunityResponse } from "@/types/community";
+import {
+  AuthResponse,
+  HostDetailResponse,
+  PlayerDetailResponse,
+} from "@/types/user";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface AuthState {
-  user: any | null; // Replace 'any' with your actual User type
+  user: AuthResponse | null;
+  player: PlayerDetailResponse | null;
+  host: HostDetailResponse | null;
   token: string | null;
-  community: CommunityResponse | null;
   isAuthenticated: boolean;
-  setUser: (user: any | null) => void;
-  setCommunity: (community: CommunityResponse) => void;
+  setUser: (user: AuthResponse) => void;
+  setPlayer: (player: PlayerDetailResponse) => void;
+  setHost: (host: HostDetailResponse) => void;
   setToken: (token: string | null) => void;
-  login: (user: any, token: string) => void;
+  login: (user: AuthResponse, token: string) => void;
   logout: () => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
@@ -20,14 +26,23 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      player: null,
+      host: null,
       token: null,
-      community: null,
       isAuthenticated: false,
       setUser: (user) => set({ user, isAuthenticated: !!user }),
-      setCommunity: (community) => set({ community }),
+      setPlayer: (player) => set({ player }),
+      setHost: (host) => set({ host }),
       setToken: (token) => set({ token }),
       login: (user, token) => set({ user, token, isAuthenticated: true }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      logout: () =>
+        set({
+          player: null,
+          host: null,
+          user: null,
+          token: null,
+          isAuthenticated: false,
+        }),
       loading: false,
       setLoading: (loading) => set({ loading }),
     }),

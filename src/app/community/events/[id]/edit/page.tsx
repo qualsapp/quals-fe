@@ -1,11 +1,8 @@
+import { getEvent } from "@/actions/event";
+import { getSports } from "@/actions/sport";
 import EventForm from "@/components/forms/EventForm";
 import { Button } from "@/components/ui/button";
-import { eventServices } from "@/services/event-services";
-import { hostServices } from "@/services/host-services";
-import { EventResponse } from "@/types/events";
-import { HostProfileModel } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
@@ -15,16 +12,9 @@ type Props = {
 
 const page = async ({ params }: Props) => {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const { sport_types } = await getSports();
 
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
-
-  const event = token
-    ? await eventServices.getById(id, token)
-    : ({} as EventResponse);
+  const event = await getEvent(id);
 
   return (
     <div className="container lg:py-16 py-8 space-y-10">
@@ -43,10 +33,11 @@ const page = async ({ params }: Props) => {
           <h2 className="capitalize text-2xl font-bold text-center">Events</h2>
           <p className="text-center">Update your event's details</p>
         </div>
-        <EventForm
-          communityId={community.id}
-          event={{ ...event, event_type: "tournament" }}
-        />
+        {event ? (
+          <EventForm event={event} sports={sport_types} />
+        ) : (
+          <p>Event not found</p>
+        )}
       </div>
     </div>
   );

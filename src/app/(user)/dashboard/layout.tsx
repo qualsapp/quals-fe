@@ -8,53 +8,43 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
+import ProfileHeader from "@/components/user/profile-header";
 import { cn } from "@/lib/utils";
+import { userServices } from "@/services/user-services";
+import { PlayerDetailResponse } from "@/types/user";
+import { cookies } from "next/headers";
 
 import React from "react";
 
-type Props = {};
+type Props = {
+  children: React.ReactNode;
+};
 
-const layout = (props: Props) => {
-  const username = "test";
+const layout = async ({ children }: Props) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const player = token
+    ? await userServices.getDetail(token)
+    : ({} as PlayerDetailResponse);
+
+  console.log(player);
+
   const menus = [
-    { label: "My Communities", href: `/dashboard/my-communities` },
     { label: "Events", href: `/dashboard/events` },
+    { label: "My Communities", href: `/dashboard/my-communities` },
   ];
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container space-y-6">
-        <Item
-          className={cn("p-2 flex flex-nowrap rounded-t-md rounded-b-none")}
-        >
-          <ItemMedia>
-            <Avatar className="size-32">
-              <AvatarImage src="https://github.com/evilrabbit.png" />
-              <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
-                {username}
-              </AvatarFallback>
-            </Avatar>
-          </ItemMedia>
-
-          <ItemContent>
-            <ItemTitle className="text-2xl capitalize">{username}</ItemTitle>
-            <ItemDescription>@{username}</ItemDescription>
-            <ItemDescription>Beginner</ItemDescription>
-          </ItemContent>
-        </Item>
-        <div className="flex space-x-4">
-          <Button variant="outline" className="inline">
-            Edit Profile
-          </Button>
-          <Button variant="outline" className="inline">
-            Share Profile
-          </Button>
-        </div>
+        <ProfileHeader player={player} />
       </div>
       <div className="bg-primary-50">
         <div className="container">
           <DashboardNav menus={menus} />
         </div>
       </div>
+
+      {children}
     </div>
   );
 };

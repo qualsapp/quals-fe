@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { startTransition, useState, useTransition } from "react";
 import z from "zod";
 import {
   Form,
@@ -13,34 +13,30 @@ import { Input } from "../ui/input";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { userService } from "@/services/user-services";
+
 import { Button } from "../ui/button";
 
 import { useMutation } from "@tanstack/react-query";
-import { MultiSelect } from "../ui/multi-select";
+
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { HostScheme } from "@/lib/validations/user";
-import { levelList, locationList, sportList } from "@/lib/constants";
-import { hostService } from "@/services/host-services";
+
+import { hostServices } from "@/services/host-services";
 import { useRouter } from "next/navigation";
 import { HostModel } from "@/types/user";
+import { createHostDetails } from "@/actions/host";
 
 type HostProfileForm = {
   data?: HostModel;
 };
 
 const HostProfileForm = ({ data }: HostProfileForm) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
+
   const form = useForm<z.infer<typeof HostScheme>>({
     resolver: zodResolver(HostScheme),
     defaultValues: {
@@ -48,13 +44,6 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
       display_name: data?.display_name || "",
       bio: data?.bio || "",
       file: undefined,
-    },
-  });
-
-  const { mutate, error } = useMutation({
-    mutationFn: async (data: FormData) => await hostService.create(data),
-    onSuccess: (data) => {
-      router.push("/community");
     },
   });
 
@@ -69,7 +58,14 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
       formData.append("file", data.file);
     }
 
-    mutate(formData);
+    startTransition(async () => {
+      const { error } = await createHostDetails(formData);
+      if (error) {
+        setError(error);
+      } else {
+        router.push("/community");
+      }
+    });
   };
 
   const onFileChange = (file: FileWithPreview | null) => {
@@ -131,15 +127,17 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
           defaultAvatar={data?.photo_url || ""}
         />
 
-        <Button
-          type="submit"
-          className="px-10"
-          disabled={!form.formState.isValid}
-        >
-          Edit
-        </Button>
+        <div className="text-center">
+          <Button
+            type="submit"
+            className="px-10 "
+            disabled={!form.formState.isValid || isPending}
+          >
+            {isPending ? "Loading..." : "Submit"}
+          </Button>
+        </div>
 
-        {error && <p className="text-red-500 text-center">{error.message}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
     </Form>
   );

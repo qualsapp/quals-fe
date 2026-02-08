@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState, useTransition } from "react";
 import {
   Form,
   FormControl,
@@ -21,12 +21,9 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { tournamentServices } from "@/services/tournament-services";
 import { useDebounce } from "@uidotdev/usehooks";
-import { dummyParticipantsResponse } from "@/mock-data/participant";
-import { useMutation } from "@tanstack/react-query";
-import { matchServices } from "@/services/match-services";
 import { Input } from "../ui/input";
+import { getTournamentParticipants } from "@/actions/tournament";
 
 type Props = {
   open: boolean;
@@ -34,7 +31,6 @@ type Props = {
   communityId: string;
   eventId: string;
   tournamentId: string;
-  token: string;
   tournamentBracketId: string;
   match_rule_id: string;
 };
@@ -55,10 +51,10 @@ const UpdatePlayerForm = ({
   tournamentId,
   tournamentBracketId,
   match_rule_id,
-  token,
 }: Props) => {
-  const [options, setOptions] = React.useState<MultiSelectOption[]>([]);
-  const [search, setSearch] = React.useState("");
+  const [isPending, startTransition] = useTransition();
+  const [options, setOptions] = useState<MultiSelectOption[]>([]);
+  const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const form = useForm({
@@ -72,23 +68,20 @@ const UpdatePlayerForm = ({
     },
   });
 
-  const fetchParticipants = React.useCallback(
+  const fetchParticipants = useCallback(
     async (searchValue: string) => {
-      if (!token || !communityId || !eventId || !tournamentId) return;
+      if (!communityId || !eventId || !tournamentId) return;
       try {
-        const response = await tournamentServices.getParticipants(
+        const response = await getTournamentParticipants(
           communityId,
           eventId,
           tournamentId,
-          token,
           {
             search: searchValue,
             page: 1,
             page_size: 20,
           },
         );
-
-        // const response = await Promise.resolve(dummyParticipantsResponse);
 
         if (response.participants) {
           const participantOptions = response.participants.map((p: any) => ({
@@ -102,25 +95,8 @@ const UpdatePlayerForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [communityId, eventId, tournamentId, token],
+    [communityId, eventId, tournamentId],
   );
-
-  const { mutateAsync: updateParticipant } = useMutation({
-    mutationFn: (params: {
-      participant_a_id: number;
-      participant_b_id: number;
-      tournament_bracket_id: number;
-      court_number: number;
-      match_rule_id: number;
-    }) => {
-      return matchServices.updateParticipant(
-        communityId,
-        eventId,
-        tournamentId,
-        params,
-      );
-    },
-  });
 
   const [mounted, setMounted] = React.useState(false);
 
@@ -144,7 +120,9 @@ const UpdatePlayerForm = ({
         match_rule_id: Number(data.match_rule_id),
       };
 
-      updateParticipant(params);
+      startTransition(() => {
+        // to do: update participant
+      });
     } catch (error) {
       console.error("Failed to update participant:", error);
     }
@@ -257,7 +235,9 @@ const UpdatePlayerForm = ({
               )}
             />
             <div className="flex justify-center">
-              <Button type="submit">Update</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Updating..." : "Update"}
+              </Button>
             </div>
           </form>
         </Form>

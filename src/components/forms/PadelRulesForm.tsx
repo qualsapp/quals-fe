@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import { Button } from "../ui/button";
 import { useMutation } from "@tanstack/react-query";
 
@@ -27,8 +27,13 @@ import { Switch } from "../ui/switch";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { eventServices } from "@/services/event-services";
-import { TournamentParams, TournamentResponse } from "@/types/tournament";
+import {
+  MatchRuleParams,
+  TournamentParams,
+  TournamentResponse,
+} from "@/types/tournament";
 import { useRouter } from "next/navigation";
+import { createTournament, updateTournament } from "@/actions/tournament";
 
 type Props = {
   eventId: string;
@@ -60,6 +65,8 @@ const RulesSchema = z
   });
 
 const RulesForm = ({ tournament, eventId, communityId }: Props) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
@@ -80,25 +87,9 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
     },
   });
 
-  const { mutate } = useMutation({
-    mutationFn: async (data: TournamentParams) => {
-      if (tournament?.id) return await eventServices.updateRules(data);
-      return await eventServices.createRules(data);
-    },
-    onSuccess: () => {
-      form.reset();
-      router.push(`/community/events/${eventId}?welcome=true`);
-    },
-    onError: () => {
-      console.log("Error creating event");
-    },
-  });
-
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
     // add community_id from cookies
-    const params: TournamentParams = {
-      community_id: communityId,
-      event_id: eventId,
+    const params: TournamentParams & MatchRuleParams = {
       format: data.grouping ? "group_stage" : "single_elimination",
       courts_count: Number(data.courts_count),
       category: data.category,
@@ -108,11 +99,38 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
       deuce: data.deuce,
     };
 
-    if (tournament?.id) {
-      params.id = tournament.id;
-    }
-
-    mutate(params);
+    startTransition(async () => {
+      try {
+        if (tournament?.id) {
+          const { error } = await updateTournament(
+            communityId,
+            eventId,
+            tournament.id,
+            params,
+          );
+          if (error) {
+            setError(error);
+          } else {
+            form.reset();
+            router.push(`/community/events/${eventId}?welcome=true`);
+          }
+        } else {
+          const { error } = await createTournament(
+            communityId,
+            eventId,
+            params,
+          );
+          if (error) {
+            setError(error);
+            return;
+          }
+        }
+        form.reset();
+        router.push(`/community/events/${eventId}?welcome=true`);
+      } catch (error) {
+        setError("Failed to create event");
+      }
+    });
   };
 
   return (
@@ -300,7 +318,6 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
                   name="best_of_sets"
                   render={({ field }) => (
                     <FormItem>
-                      {/* <FormLabel>Best of</FormLabel> */}
                       <FormControl>
                         <Input placeholder="Input best of point" {...field} />
                       </FormControl>
@@ -315,7 +332,6 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
                   name="race_to"
                   render={({ field }) => (
                     <FormItem>
-                      {/* <FormLabel>Race to</FormLabel> */}
                       <FormControl>
                         <Input placeholder="Input race to point" {...field} />
                       </FormControl>
@@ -328,8 +344,16 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
           </div>
         </div>
 
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
         <div className="text-center">
-          <Button>Submit Rules</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending
+              ? "Loading..."
+              : tournament?.id
+                ? "Update Rules"
+                : "Submit Rules"}
+          </Button>
         </div>
       </form>
     </Form>

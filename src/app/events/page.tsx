@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { communityService } from "@/services/community-service";
 import { eventServices } from "@/services/event-services";
-import { EventsResponse } from "@/types/events";
+import { EventsResponse } from "@/types/event";
 import { ChevronDownIcon } from "lucide-react";
 
 import { cookies } from "next/headers";

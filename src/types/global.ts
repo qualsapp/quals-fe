@@ -13,8 +13,10 @@ export type SportResponse = {
   sport_types: Sport[];
 };
 
-export type Filter = {
-  search: string;
-  page: number;
-  page_size: number;
+export type FilterParams = {
+  search?: string;
+  status?: string;
+  page?: number;
+  page_size?: number;
+  welcome?: boolean;
 };

@@ -1,15 +1,13 @@
-"use client";
 import React from "react";
 
 import CommunityDetailsForm from "@/components/forms/CommunityDetailsForm";
 import Heading from "@/components/commons/heading";
-import { cookies } from "next/headers";
-import { hostServices } from "@/services/host-services";
-import { HostProfileModel } from "@/types/user";
+import { getSports } from "@/actions/sport";
 
 type Props = {};
 
 const page = async (props: Props) => {
+  const sports = await getSports();
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <Heading
@@ -18,7 +16,7 @@ const page = async (props: Props) => {
       />
 
       <div className="w-full sm:w-2/3 mx-auto ">
-        <CommunityDetailsForm />
+        <CommunityDetailsForm sports={sports.sport_types} />
       </div>
     </div>
   );

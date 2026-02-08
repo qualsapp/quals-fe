@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import z from "zod";
 import {
   Form,
@@ -14,10 +14,9 @@ import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { userServices } from "@/services/user-services";
 import { Button } from "../ui/button";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { MultiSelect } from "../ui/multi-select";
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
@@ -26,19 +25,25 @@ import { ProfileScheme } from "@/lib/validations/user";
 
 import { UserModel } from "@/types/user";
 import { sharedService } from "@/services/shared-service";
+import { createPlayerDetails } from "@/actions/player";
+import { useRouter } from "next/navigation";
 
 type ProfileFormProps = {
   data?: UserModel;
 };
 
 const ProfileForm = ({ data }: ProfileFormProps) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>(undefined);
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof ProfileScheme>>({
     resolver: zodResolver(ProfileScheme),
     defaultValues: {
       username: data?.username || "",
       display_name: data?.display_name || "",
       phone_number: data?.phone_number || "",
-      sports: data?.sports || [],
+      sports: data?.sport_types?.map((sport) => sport.id.toString()) || [],
       bio: data?.bio || "",
       file: undefined,
     },
@@ -52,16 +57,6 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
         label: sport.name,
         value: sport.id.toString(),
       })),
-  });
-
-  const { mutate, error } = useMutation({
-    mutationFn: (formData: FormData) => {
-      if (data?.id) return userServices.edit(formData);
-      return userServices.create(formData);
-    },
-    onSuccess: (data) => {
-      console.log("Registration successful:", data);
-    },
   });
 
   const onSubmit = async (params: z.infer<typeof ProfileScheme>) => {
@@ -80,7 +75,14 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
       formData.append("file", params.file);
     }
 
-    mutate(formData);
+    startTransition(async () => {
+      const { error } = await createPlayerDetails(formData);
+      if (error) {
+        setError(error);
+      } else {
+        router.push("/dashboard");
+      }
+    });
   };
 
   const onFileChange = (file: FileWithPreview | null) => {
@@ -176,12 +178,16 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
         <Button
           type="submit"
           className="px-10"
-          disabled={!form.formState.isValid}
+          disabled={!form.formState.isValid || isPending}
         >
-          {data ? "Update Profile" : "Create Profile"}
+          {isPending
+            ? "Loading..."
+            : data
+              ? "Update Profile"
+              : "Create Profile"}
         </Button>
 
-        {error && <p className="text-red-500 text-center">{error.message}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
     </Form>
   );

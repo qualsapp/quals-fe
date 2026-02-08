@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/collapsible";
 import { eventServices } from "@/services/event-services";
 import { hostServices } from "@/services/host-services";
-import { EventsResponse } from "@/types/events";
+import { EventsResponse } from "@/types/event";
 import { HostProfileModel } from "@/types/user";
 import { ChevronDownIcon } from "lucide-react";
 import { redirect } from "next/navigation";

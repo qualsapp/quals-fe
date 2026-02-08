@@ -11,6 +11,8 @@ type Props = {
 const page = async ({ params, searchParams }: Props) => {
   const { id, match_id } = await params;
   const { type } = await searchParams;
+
+  // to do: need match detail api
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>

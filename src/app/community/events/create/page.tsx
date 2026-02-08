@@ -1,3 +1,4 @@
+import { getSports } from "@/actions/sport";
 import EventForm from "@/components/forms/EventForm";
 import { hostServices } from "@/services/host-services";
 import { HostProfileModel } from "@/types/user";
@@ -7,12 +8,7 @@ import React from "react";
 type Props = {};
 
 const page = async (props: Props) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
+  const { sport_types } = await getSports();
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>
@@ -23,7 +19,7 @@ const page = async (props: Props) => {
       </div>
       <div className="">
         <div className="w-full sm:w-2/3 mx-auto ">
-          <EventForm communityId={community.id} />
+          <EventForm sports={sport_types} />
         </div>
       </div>
     </div>

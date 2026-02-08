@@ -21,6 +21,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const res = await userServices.logout();
     if (res.success) {
       logout();
+      window.location.href = "/login";
     }
   }, []);
 

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import {
   Form,
   FormControl,
@@ -7,32 +7,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MultiSelect } from "../ui/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   communityId: string;
   eventId: string;
   tournamentId: string;
-  token: string;
 };
 
-import { tournamentServices } from "@/services/tournament-services";
 import { MultiSelectOption } from "../ui/multi-select";
 import { useDebounce } from "@uidotdev/usehooks";
+import { getTournamentParticipants } from "@/actions/tournament";
+import { GroupParticipantParams } from "@/types/match";
 
 const PlayerScheme = z.object({
   participant_a: z.array(z.string()).min(1),
@@ -44,10 +45,10 @@ const UpdateGroupParticipantForm = ({
   communityId,
   eventId,
   tournamentId,
-  token,
 }: Props) => {
-  const [options, setOptions] = React.useState<MultiSelectOption[]>([]);
-  const [search, setSearch] = React.useState("");
+  const [isPending, startTransition] = useTransition();
+  const [options, setOptions] = useState<MultiSelectOption[]>([]);
+  const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const form = useForm({
@@ -59,13 +60,13 @@ const UpdateGroupParticipantForm = ({
 
   const fetchParticipants = React.useCallback(
     async (searchValue: string) => {
-      if (!token || !communityId || !eventId || !tournamentId) return;
+      if (!communityId || !eventId || !tournamentId) return;
       try {
-        const response = await tournamentServices.getParticipants(
+        const response = await getTournamentParticipants(
           communityId,
           eventId,
           tournamentId,
-          token,
+
           {
             search: searchValue,
             page: 1,
@@ -84,17 +85,30 @@ const UpdateGroupParticipantForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [communityId, eventId, tournamentId, token],
+    [communityId, eventId, tournamentId],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       fetchParticipants(debouncedSearch);
     }
   }, [debouncedSearch, open, fetchParticipants]);
 
   const onSubmit = (data: z.infer<typeof PlayerScheme>) => {
-    console.log(data);
+    try {
+      const params: GroupParticipantParams = {
+        tournament_group_id: Number(0),
+        participant_ids: data.participant_a.map((id) => Number(id)),
+      };
+
+      console.log(params);
+
+      startTransition(() => {
+        // to do: update participant
+      });
+    } catch (error) {
+      console.error("Failed to update participant:", error);
+    }
   };
 
   return (
@@ -130,7 +144,9 @@ const UpdateGroupParticipantForm = ({
             />
 
             <div className="flex justify-center">
-              <Button type="submit">Update</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Updating..." : "Update"}
+              </Button>
             </div>
           </form>
         </Form>

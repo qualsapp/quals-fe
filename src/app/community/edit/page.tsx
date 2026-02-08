@@ -3,32 +3,35 @@ import React from "react";
 
 import CommunityDetailsForm from "@/components/forms/CommunityDetailsForm";
 import Heading from "@/components/commons/heading";
-import { communityService } from "@/services/community-service";
-
-import { cookies } from "next/headers";
+import { getSports } from "@/actions/sport";
+import { getCommunity } from "@/actions/community";
+import { getHostProfile } from "@/actions/host";
+import { redirect } from "next/navigation";
 
 type Props = {};
 
-const getCommunityById = async (id: string) => {
-  const cookieStore = await cookies();
-  return communityService.getById(id, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookieStore.get("token")?.value}`,
-    },
-  });
-};
-
 const page = async (props: Props) => {
-  // const community = await getCommunityById("9");
-  const community = {
-    name: "Sport Amature",
-    description: "Sport Amature",
-    photo_url: "https://via.placeholder.com/150",
-    address: "Sport Amature",
-    sports: ["badminton", "padel"],
-    id: "9",
-  };
+  const host = await getHostProfile();
+
+  if (!host.community) {
+    redirect("/community/create");
+  }
+
+  const community = await getCommunity(host.community.id);
+
+  if (!community) {
+    return (
+      <div className="container lg:py-16 py-8 space-y-10">
+        <p>Community not found</p>
+      </div>
+    );
+  }
+
+  const sports = await getSports();
+
+  if (!sports) {
+    redirect("/community/create");
+  }
 
   return (
     <div className="container lg:py-16 py-8 space-y-10">
@@ -38,7 +41,10 @@ const page = async (props: Props) => {
       />
 
       <div className="w-full sm:w-2/3 mx-auto ">
-        <CommunityDetailsForm community={community} />
+        <CommunityDetailsForm
+          community={community}
+          sports={sports.sport_types}
+        />
       </div>
     </div>
   );

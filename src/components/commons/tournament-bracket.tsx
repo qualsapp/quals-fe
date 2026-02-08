@@ -1,46 +1,34 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SingleEliminationBracket,
-  DoubleEliminationBracket,
-  // Match,
-  MATCH_STATES,
   SVGViewer,
-  createTheme,
 } from "@g-loot/react-tournament-brackets";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
-
 import { useWindowSize } from "@uidotdev/usehooks";
-import { Match, MatchComponentProps } from "@/types/match";
-import KnockOffCard from "./knock-off-card";
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
+import { EventResponse } from "@/types/event";
 
 type Props = {
   matches: any;
   communityId: string;
-  eventId: string;
-  tournamentId: string;
-  match_rule_id: number;
-  token: string;
+  event: EventResponse;
+  isEditable?: boolean;
 };
 
 const TournamentBracket = ({
   matches,
   communityId,
-  eventId,
-  tournamentId,
-  match_rule_id,
-  token,
+  event,
+  isEditable = false,
 }: Props) => {
   const { height, width } = useWindowSize();
-  const [open, setOpen] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
-  const [selectedMatchId, setSelectedMatchId] = React.useState<any>(null);
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [selectedMatchId, setSelectedMatchId] = useState<any>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
@@ -59,7 +47,11 @@ const TournamentBracket = ({
       <SingleEliminationBracket
         matches={matches}
         matchComponent={(props: any) => (
-          <BracketCard {...props} open={open} handleOpen={handleMatchClick} />
+          <BracketCard
+            {...props}
+            open={open}
+            handleOpen={isEditable ? handleMatchClick : () => {}}
+          />
         )}
         options={{
           style: {
@@ -67,7 +59,6 @@ const TournamentBracket = ({
               backgroundColor: "#7f0d0d",
               fontColor: "#f3ec19",
             },
-
             connectorColor: "#ccc",
             connectorColorHighlight: "#123C67",
           },
@@ -78,16 +69,20 @@ const TournamentBracket = ({
           </SVGViewer>
         )}
       />
-      <UpdatePlayerForm
-        open={open}
-        setOpen={setOpen}
-        communityId={communityId}
-        eventId={eventId}
-        tournamentId={tournamentId}
-        token={token}
-        match_rule_id={String(match_rule_id)}
-        tournamentBracketId={selectedMatchId}
-      />
+      {isEditable &&
+        event?.tournament &&
+        event.tournament.id &&
+        event?.tournament?.match_rule?.id && (
+          <UpdatePlayerForm
+            open={open}
+            setOpen={setOpen}
+            communityId={communityId}
+            eventId={event.id}
+            tournamentId={event?.tournament?.id}
+            match_rule_id={String(event?.tournament?.match_rule?.id)}
+            tournamentBracketId={selectedMatchId}
+          />
+        )}
     </>
   );
 };

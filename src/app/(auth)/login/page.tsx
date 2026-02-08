@@ -5,11 +5,12 @@ import { Google } from "@/icons";
 import Link from "next/link";
 import React from "react";
 
-const page = () => {
+const Login = () => {
   return (
     <div className="container py-10 md:py-16 ">
       <div className="flex flex-col space-y-8 lg:w-1/3 mx-auto ">
         <h2 className="text-2xl text-center font-bold">Masuk</h2>
+
         <LoginForm />
 
         <Link
@@ -46,4 +47,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Login;
