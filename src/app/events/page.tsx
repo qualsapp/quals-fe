@@ -1,4 +1,4 @@
-import EventLineup from "@/components/commons/event-lineup";
+import { getEvents } from "@/actions/event";
 import PlayerEventList from "@/components/event/player-event-list";
 import EventFilterForm from "@/components/forms/EventFilterForm";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { communityService } from "@/services/community-service";
-import { eventServices } from "@/services/event-services";
-import { EventsResponse } from "@/types/event";
 import { ChevronDownIcon } from "lucide-react";
-
-import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
@@ -22,12 +17,7 @@ type Props = {
 };
 
 const page = async (props: Props) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  const { events } = token
-    ? await eventServices.getAllPublic(token)
-    : ({} as EventsResponse);
+  const { events } = await getEvents();
 
   return (
     <div className="container space-y-10 my-10">

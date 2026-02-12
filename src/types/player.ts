@@ -13,6 +13,7 @@ export interface PlayerDetailResponse {
   user_id?: string;
   username?: string;
   display_name?: string;
+  phone_number?: string;
   bio?: string;
   photo_url?: string;
   sport_types?: Sport[];

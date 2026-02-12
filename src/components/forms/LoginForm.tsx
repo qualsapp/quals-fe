@@ -25,10 +25,12 @@ import {
 } from "../ui/select";
 import { login } from "@/actions/auth";
 
+import { UserRole } from "@/types/user";
+
 const LoginScheme = z.object({
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  user_type: z.string().nonempty("Role is required"),
+  user_type: z.enum(["player", "host", "admin"]),
 });
 
 type Props = {};
@@ -44,7 +46,7 @@ const LoginForm = ({}: Props) => {
     defaultValues: {
       email: "",
       password: "",
-      user_type: "",
+      user_type: "player" as UserRole,
     },
   });
 
@@ -52,13 +54,17 @@ const LoginForm = ({}: Props) => {
     startTransition(async () => {
       const { error, token } = await login(data);
 
-      setError(error);
-      if (token) {
-        loginInState(data, token);
+      if (error) {
+        setError(error);
+        return;
+      } else if (token) {
+        loginInState(data as any, token);
         if (data.user_type === "player") {
           router.push("/dashboard?welcome=true");
         } else if (data.user_type === "host") {
           router.push("/community/events?welcome=true");
+        } else if (data.user_type === "admin") {
+          router.push("/admin?welcome=true");
         }
       }
     });

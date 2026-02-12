@@ -1,19 +1,8 @@
+import { getPlayerDetails } from "@/actions/player";
 import DashboardNav from "@/components/commons/dashboard-nav";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item";
 import ProfileHeader from "@/components/user/profile-header";
-import { cn } from "@/lib/utils";
-import { userServices } from "@/services/user-services";
-import { PlayerDetailResponse } from "@/types/user";
-import { cookies } from "next/headers";
-
+import Link from "next/link";
 import React from "react";
 
 type Props = {
@@ -21,13 +10,18 @@ type Props = {
 };
 
 const layout = async ({ children }: Props) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  const player = token
-    ? await userServices.getDetail(token)
-    : ({} as PlayerDetailResponse);
+  const player = await getPlayerDetails();
 
-  console.log(player);
+  if (!player) {
+    return (
+      <div className="container">
+        <p>Please complete your profile</p>
+        <Link href="/player-details">
+          <Button>Complete Profile</Button>
+        </Link>
+      </div>
+    );
+  }
 
   const menus = [
     { label: "Events", href: `/dashboard/events` },

@@ -1,15 +1,14 @@
-import ProfileForm from "@/components/forms/ProfileForm";
-import { cookies } from "next/headers";
 import React from "react";
+import { getPlayerDetails } from "@/actions/player";
+import { getSports } from "@/actions/sport";
+import ProfileForm from "@/components/forms/ProfileForm";
 
 type Props = {};
 
 const page = async (props: Props) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  const player = token
-    ? await userServices.getDetail(token)
-    : ({} as PlayerDetailResponse);
+  const player = await getPlayerDetails();
+
+  const { sport_types } = await getSports();
   return (
     <div className=" py-10 md:py-16 space-y-10 max-w-xl mx-auto">
       <div className="container space-y-10">
@@ -20,7 +19,7 @@ const page = async (props: Props) => {
           </p>
         </div>
 
-        <ProfileForm />
+        <ProfileForm sports={sport_types} data={player} />
       </div>
     </div>
   );

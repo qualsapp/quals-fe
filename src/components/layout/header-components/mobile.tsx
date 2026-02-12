@@ -20,9 +20,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+import { UserRole } from "@/types/user";
+
 type Props = {
   isAuthenticated?: boolean;
-  role?: string;
+  role?: UserRole;
   logout?: () => void;
 };
 
@@ -49,6 +51,27 @@ const MobileMenu = (props: Props) => {
                     >
                       Community
                     </Link>
+                  ) : role === "admin" ? (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/community"
+                        className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
+                      >
+                        Community
+                      </Link>
+                      <Link
+                        href="/admin"
+                        className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
+                      >
+                        Admin
+                      </Link>
+                    </>
                   ) : (
                     <Link
                       href="/dashboard"

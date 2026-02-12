@@ -1,3 +1,4 @@
+import React from "react";
 import EventLineup from "@/components/commons/event-lineup";
 import EventFilterForm from "@/components/forms/EventFilterForm";
 import { Button } from "@/components/ui/button";
@@ -7,18 +8,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { eventServices } from "@/services/event-services";
-import { hostServices } from "@/services/host-services";
-import { EventsResponse } from "@/types/event";
-import { HostProfileModel } from "@/types/user";
-import { ChevronDownIcon } from "lucide-react";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import Link from "next/link";
 
-import React from "react";
-import Modal from "@/components/commons/state-modal";
-import Image from "next/image";
+import { ChevronDownIcon } from "lucide-react";
+import Link from "next/link";
+import { getEvents } from "@/actions/event";
 
 type Props = {
   searchParams: Promise<{ welcome: boolean }>;
@@ -26,16 +19,8 @@ type Props = {
 
 const page = async ({ searchParams }: Props) => {
   const { welcome } = await searchParams;
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
 
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
-
-  const { events } = token
-    ? await eventServices.getAll(community.id, token)
-    : ({} as EventsResponse);
+  const { events } = await getEvents();
 
   return (
     <div className="container space-y-10">

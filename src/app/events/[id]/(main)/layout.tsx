@@ -16,9 +16,9 @@ type LayoutProps = {
 const page = async ({ params, children, searchParams }: LayoutProps) => {
   const { id } = await params;
   const menus = [
-    { label: "Matches", href: `/community/events/${id}/matches` },
-    { label: "Group", href: `/community/events/${id}/group` },
-    { label: "Playoff", href: `/community/events/${id}/playoff` },
+    { label: "Matches", href: `/events/${id}/matches` },
+    { label: "Group", href: `/events/${id}/group` },
+    { label: "Playoff", href: `/events/${id}/playoff` },
   ];
 
   const event = await getEvent(id);
@@ -54,14 +54,8 @@ const page = async ({ params, children, searchParams }: LayoutProps) => {
           </div>
           <div className="flex gap-3 lg:flex-col">
             <Link href={`/community/events/${id}/edit`}>
-              <Button variant="outline">Edit Event</Button>
+              <Button variant="outline">Join Event</Button>
             </Link>
-            <Link
-              href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-            >
-              <Button variant="outline">Edit Rules</Button>
-            </Link>
-            <Button variant="destructive">Delete Event</Button>
           </div>
         </div>
 
@@ -90,14 +84,8 @@ const page = async ({ params, children, searchParams }: LayoutProps) => {
         </div>
         <div className="flex gap-3 lg:flex-col">
           <Link href={`/community/events/${id}/edit`}>
-            <Button variant="outline">Edit Event</Button>
+            <Button variant="outline">Join Event</Button>
           </Link>
-          <Link
-            href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-          >
-            <Button variant="outline">Edit Rules</Button>
-          </Link>
-          <Button variant="destructive">Delete Event</Button>
         </div>
       </div>
       <div className="bg-primary-50">

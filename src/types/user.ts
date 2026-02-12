@@ -1,9 +1,12 @@
 import { CommunityResponse } from "./community";
 import { Sport } from "./global";
 
+export type UserRole = "admin" | "host" | "player";
+export const ROLES: UserRole[] = ["admin", "host", "player"];
+
 export interface User {
   user_id: string;
-  user_type: string;
+  user_type: UserRole;
   token: string;
   message: string;
 }
@@ -11,7 +14,7 @@ export interface User {
 export interface UserProps {
   email: string;
   password: string;
-  user_type: string;
+  user_type: UserRole;
 }
 
 export interface UserProfile {
@@ -33,7 +36,7 @@ export type UserModel = {
   sport_types: Sport[];
   bio?: string;
   photo_url?: string;
-  user_type?: string;
+  user_type?: UserRole;
 };
 
 export interface UserContextType {
@@ -69,7 +72,7 @@ export interface HostProfileModel {
 export type LoginParams = {
   email: string;
   password: string;
-  user_type: string;
+  user_type: UserRole;
 };
 
 export interface AuthResponse {
@@ -77,7 +80,7 @@ export interface AuthResponse {
   token?: string;
   message?: string;
   email?: string;
-  user_type?: string;
+  user_type?: UserRole;
   error?: string;
 }
 
@@ -91,13 +94,13 @@ export interface UserDetailParams {
 export interface HostDetailResponse extends UserDetailParams {
   id: string;
   user_id: string;
-  user_type?: string;
+  user_type?: UserRole;
 }
 
 export interface PlayerDetailResponse extends UserDetailParams {
   id: string;
   user_id: string;
-  user_type?: string;
+  user_type?: UserRole;
   phone_number: string;
   sport_types: Sport[];
 }

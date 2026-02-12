@@ -9,48 +9,34 @@ import React, {
 } from "react";
 
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
-import { userServices } from "@/services/user-services";
+import { logout as onLogout } from "@/actions/auth";
 
-const UserContext = createContext<Partial<AuthState> | undefined>(undefined);
+const UserContext = createContext<AuthState | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, logout, user, loading, setLoading, setUser } =
-    useAuthStore();
+  const auth = useAuthStore();
 
   const handleLogout = useCallback(async () => {
-    const res = await userServices.logout();
+    const res = await onLogout();
     if (res.success) {
-      logout();
+      auth.logout();
       window.location.href = "/login";
     }
-  }, []);
-
-  // const { data: profile } = useQuery({
-  //   queryKey: ["profile"],
-  //   queryFn: async () => await hostService.getProfile(),
-  // });
+  }, [auth]);
 
   // Use useEffect for operations that run after initial render, like fetching data or checking localStorage
   useEffect(() => {
     // Example: Fetch user data from an API or check local storage on mount
     const fetchUserData = async () => {
       // Your data fetching logic here
-      // For example:
-      // const response = await hostService.getProfile();
-      // if (response) {
-      //   setUser(response);
-      // }
-      // setLoading(false);
     };
 
     fetchUserData();
   }, []);
 
   const contextValue = {
-    user,
-    loading,
+    ...auth,
     logout: handleLogout,
-    isAuthenticated,
   };
 
   return (

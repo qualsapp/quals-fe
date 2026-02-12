@@ -1,11 +1,7 @@
 import React from "react";
 import DashboardNav from "@/components/commons/dashboard-nav";
-import { cookies } from "next/headers";
 import { MapPin } from "lucide-react";
-import { hostServices } from "@/services/host-services";
-import { HostProfileModel } from "@/types/user";
-import Modal from "@/components/commons/state-modal";
-import Image from "next/image";
+import { getHostProfile } from "@/actions/host";
 
 const menus = [
   { label: "Events", href: "/community/events" },
@@ -18,12 +14,9 @@ const Layout = async ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const { community } = await getHostProfile();
 
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
+  console.log(community);
 
   if (!community) {
     return <div>Community not found</div>;

@@ -16,6 +16,7 @@ export type EventParams = {
 
 export type EventResponse = Omit<EventParams, "dates"> & {
   id: string;
+  community_id: string;
   start_date: string;
   end_date: string;
   sport_type: Sport;

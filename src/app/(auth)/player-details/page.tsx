@@ -1,9 +1,12 @@
+import { getSports } from "@/actions/sport";
 import ProfileForm from "@/components/forms/ProfileForm";
 import React from "react";
 
 type Props = {};
 
-const page = (props: Props) => {
+const page = async (props: Props) => {
+  const { sport_types } = await getSports();
+
   return (
     <div className=" py-10 md:py-16 space-y-10 max-w-xl mx-auto">
       <div className="container space-y-10">
@@ -16,7 +19,7 @@ const page = (props: Props) => {
           </p>
         </div>
 
-        <ProfileForm />
+        <ProfileForm sports={sport_types} />
       </div>
     </div>
   );

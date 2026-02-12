@@ -16,6 +16,7 @@ export type SportResponse = {
 export type FilterParams = {
   search?: string;
   status?: string;
+  tournament_id?: string;
   page?: number;
   page_size?: number;
   welcome?: boolean;

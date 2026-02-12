@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { PlayerDetailResponse } from "@/types/user";
+
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { PlayerDetailResponse } from "@/types/player";
 
 type Props = {
   player: PlayerDetailResponse;

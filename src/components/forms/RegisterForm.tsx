@@ -26,12 +26,14 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { register } from "@/actions/auth";
 
+import { UserRole } from "@/types/user";
+
 const RegisterScheme = z
   .object({
-    email: z.email("Invalid email"),
+    email: z.string().email("Invalid email"),
     password: z.string().min(8, "Min 8 characters"),
     confirmPassword: z.string().min(8, "Min 8 characters"),
-    user_type: z.string().nonempty("Role is required"),
+    user_type: z.enum(["player", "host", "admin"]),
   })
   .superRefine(({ password, confirmPassword, user_type }, ctx) => {
     if (password !== confirmPassword) {
@@ -61,7 +63,7 @@ const RegisterForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      user_type: "",
+      user_type: "player" as UserRole,
     },
   });
 
@@ -73,11 +75,13 @@ const RegisterForm = () => {
 
       setError(error);
       if (token) {
-        loginInState(data, token);
+        loginInState(data as any, token);
         if (data.user_type === "player") {
           router.push("/player-details");
         } else if (data.user_type === "host") {
           router.push("/host-details");
+        } else if (data.user_type === "admin") {
+          router.push("/admin");
         }
       }
     });

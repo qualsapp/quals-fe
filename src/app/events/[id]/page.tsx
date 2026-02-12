@@ -6,7 +6,7 @@ type Props = {
 
 const page = async ({ params }: Props) => {
   const { id } = await params;
-  redirect(`/community/events/${id}/matches`);
+  redirect(`/events/${id}/matches`);
 };
 
 export default page;

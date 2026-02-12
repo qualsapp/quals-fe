@@ -33,7 +33,6 @@ type MenuItem = {
 
 const Header = () => {
   const { user, isAuthenticated, loading, logout } = useUser();
-  console.log("user", user);
 
   return (
     <header className="bg-primary sticky top-0 z-50 text-white">

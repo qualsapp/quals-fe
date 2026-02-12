@@ -20,18 +20,6 @@ const page = async ({ params, searchParams }: Props) => {
   const { id } = await params;
   const searchParamsData = await searchParams;
 
-  const { community } = await getHostProfile();
-
-  if (!community) {
-    return (
-      <div className="py-8 md:py-10 space-y-10">
-        <div className="container flex flex-col items-center">
-          <p>No community found</p>
-        </div>
-      </div>
-    );
-  }
-
   const event = await getEvent(id);
 
   if (!event) {
@@ -44,12 +32,7 @@ const page = async ({ params, searchParams }: Props) => {
     );
   }
 
-  const { matches } = await getMatches(
-    community.id,
-    id,
-    event.tournament?.id || "",
-    searchParamsData,
-  );
+  const { matches } = await getMatches({ tournament_id: event.tournament?.id });
 
   if (!matches || matches?.length === 0) {
     return (

@@ -4,23 +4,17 @@ import { MatchesResponse, MatchParams, MatchResponse } from "@/types/match";
 import { FilterParams } from "@/types/global";
 
 export const getMatches = async (
-  communityId: string,
-  eventId: string,
-  tournamentId: string,
   filters: FilterParams,
 ): Promise<MatchesResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<MatchesResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}/matches`,
-    {
-      params: filters,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
+  const response = await apiClient<MatchesResponse>(`/matches`, {
+    params: filters,
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token?.value}`,
     },
-  );
+  });
 
   return response;
 };

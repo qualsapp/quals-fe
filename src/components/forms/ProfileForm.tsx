@@ -15,24 +15,23 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "../ui/button";
-
-import { useQuery } from "@tanstack/react-query";
 import { MultiSelect } from "../ui/multi-select";
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { ProfileScheme } from "@/lib/validations/user";
 
-import { UserModel } from "@/types/user";
-import { sharedService } from "@/services/shared-service";
 import { createPlayerDetails } from "@/actions/player";
 import { useRouter } from "next/navigation";
+import { SportResponse } from "@/types/global";
+import { PlayerDetailResponse } from "@/types/player";
 
 type ProfileFormProps = {
-  data?: UserModel;
+  data?: PlayerDetailResponse;
+  sports: SportResponse["sport_types"];
 };
 
-const ProfileForm = ({ data }: ProfileFormProps) => {
+const ProfileForm = ({ data, sports }: ProfileFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -47,16 +46,6 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
       bio: data?.bio || "",
       file: undefined,
     },
-  });
-
-  const { data: sports } = useQuery({
-    queryKey: ["sports"],
-    queryFn: async () => await sharedService.getAllSports(),
-    select: (data) =>
-      data.sport_types.map((sport) => ({
-        label: sport.name,
-        value: sport.id.toString(),
-      })),
   });
 
   const onSubmit = async (params: z.infer<typeof ProfileScheme>) => {
@@ -142,7 +131,12 @@ const ProfileForm = ({ data }: ProfileFormProps) => {
               <FormLabel>Sports Preference</FormLabel>
               <FormControl>
                 <MultiSelect
-                  options={sports || []}
+                  options={
+                    sports.map((sport) => ({
+                      label: sport.name,
+                      value: sport.id.toString(),
+                    })) || []
+                  }
                   value={field.value}
                   onValueChange={field.onChange}
                   placeholder="Choose sports..."
