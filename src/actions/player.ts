@@ -3,12 +3,9 @@ import { apiClient } from "@/lib/api-client";
 
 import {
   JoinCommunityResponse,
-  JoinTournamentParams,
-  JoinTournamentResponse,
   PlayerDetailResponse,
   PlayerListResponse,
 } from "@/types/player";
-import { cookies } from "next/headers";
 import { getCookies } from "./helper";
 
 export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
@@ -70,26 +67,6 @@ export const joinCommunity = async (
       headers: {
         Authorization: `Bearer ${token?.value}`,
       },
-    },
-  );
-
-  return response;
-};
-
-export const joinTournament = async (
-  tournamentId: string,
-  params: JoinTournamentParams,
-): Promise<JoinTournamentResponse> => {
-  const token = await getCookies();
-
-  const response = await apiClient<JoinTournamentResponse>(
-    `/players/tournaments/${tournamentId}/join`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-      body: JSON.stringify(params),
     },
   );
 

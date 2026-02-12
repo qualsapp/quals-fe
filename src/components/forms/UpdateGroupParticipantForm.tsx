@@ -25,8 +25,6 @@ import { Button } from "@/components/ui/button";
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  communityId: string;
-  eventId: string;
   tournamentId: string;
 };
 
@@ -39,13 +37,7 @@ const PlayerScheme = z.object({
   participant_a: z.array(z.string()).min(1),
 });
 
-const UpdateGroupParticipantForm = ({
-  open,
-  setOpen,
-  communityId,
-  eventId,
-  tournamentId,
-}: Props) => {
+const UpdateGroupParticipantForm = ({ open, setOpen, tournamentId }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [options, setOptions] = useState<MultiSelectOption[]>([]);
   const [search, setSearch] = useState("");
@@ -60,11 +52,9 @@ const UpdateGroupParticipantForm = ({
 
   const fetchParticipants = React.useCallback(
     async (searchValue: string) => {
-      if (!communityId || !eventId || !tournamentId) return;
+      if (!tournamentId) return;
       try {
         const response = await getTournamentParticipants(
-          communityId,
-          eventId,
           tournamentId,
 
           {
@@ -85,7 +75,7 @@ const UpdateGroupParticipantForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [communityId, eventId, tournamentId],
+    [tournamentId],
   );
 
   useEffect(() => {

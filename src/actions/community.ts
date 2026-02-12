@@ -1,3 +1,5 @@
+"use server";
+
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { CommunityListResponse, CommunityResponse } from "@/types/community";

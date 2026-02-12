@@ -1,3 +1,4 @@
+"use server";
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { MatchesResponse, MatchParams, MatchResponse } from "@/types/match";
@@ -20,15 +21,13 @@ export const getMatches = async (
 };
 
 export const createMatch = async (
-  communityId: string,
-  eventId: string,
-  tournamentId: string,
+  bracketId: string,
   params: MatchParams,
 ): Promise<MatchResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<MatchResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}/matches`,
+    `/tournament_brackets/${bracketId}/matches`,
     {
       method: "POST",
       headers: {

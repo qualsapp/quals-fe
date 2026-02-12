@@ -1,10 +1,8 @@
 import { ReactElement } from "react";
 
 export type MatchParams = {
-  tournament_bracket_id: number;
-  match_rule_id: number;
-  participant_a: string;
-  participant_b: string;
+  participant_a_id: number;
+  participant_b_id: number;
   court_number: number;
 };
 

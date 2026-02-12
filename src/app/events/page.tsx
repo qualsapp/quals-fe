@@ -1,4 +1,5 @@
 import { getEvents } from "@/actions/event";
+import { getPlayerDetails } from "@/actions/player";
 import PlayerEventList from "@/components/event/player-event-list";
 import EventFilterForm from "@/components/forms/EventFilterForm";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,12 @@ type Props = {
 };
 
 const page = async (props: Props) => {
+  const { id } = await getPlayerDetails();
+
+  if (!id) {
+    return <div>Player not found</div>;
+  }
+
   const { events } = await getEvents();
 
   return (
@@ -49,7 +56,7 @@ const page = async (props: Props) => {
         </Link>
       </div>
 
-      <PlayerEventList events={events} />
+      <PlayerEventList events={events} playerId={id} />
     </div>
   );
 };

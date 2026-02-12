@@ -73,3 +73,15 @@ export interface ParticipantsResponse {
   error?: string;
   message?: string;
 }
+
+export type JoinTournamentParams = {
+  participant: number[];
+};
+
+export interface JoinTournamentResponse {
+  id?: number;
+  name?: string;
+  type?: "single" | "double";
+  code?: string;
+  error?: string;
+}

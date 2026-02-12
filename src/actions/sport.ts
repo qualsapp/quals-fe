@@ -1,3 +1,5 @@
+"use server";
+
 import { SportResponse } from "@/types/global";
 import { getCookies } from "./helper";
 import { apiClient } from "@/lib/api-client";

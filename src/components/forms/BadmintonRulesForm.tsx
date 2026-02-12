@@ -22,7 +22,7 @@ import {
 
 import React, { useState, useTransition } from "react";
 import { Button } from "../ui/button";
-import { eventServices } from "@/services/event-services";
+
 import {
   MatchRuleParams,
   TournamentResponse,
@@ -123,12 +123,7 @@ const RulesForm = ({ eventId, communityId, tournament }: Props) => {
     startTransition(async () => {
       try {
         if (tournament?.id) {
-          const { error } = await updateTournament(
-            communityId,
-            eventId,
-            tournament.id,
-            params,
-          );
+          const { error } = await updateTournament(tournament.id, params);
           if (error) {
             setError(error);
           } else {
@@ -136,11 +131,7 @@ const RulesForm = ({ eventId, communityId, tournament }: Props) => {
             router.push(`/community/events/${eventId}?welcome=true`);
           }
         } else {
-          const { error } = await createTournament(
-            communityId,
-            eventId,
-            params,
-          );
+          const { error } = await createTournament(eventId, params);
           if (error) {
             setError(error);
           } else {

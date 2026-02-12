@@ -58,7 +58,11 @@ const GroupTable = ({ players, results }: Props) => {
         </>
       ))}
 
-      <UpdateGroupParticipantForm open={open} setOpen={setOpen} />
+      <UpdateGroupParticipantForm
+        tournamentId={""}
+        open={open}
+        setOpen={setOpen}
+      />
     </div>
   );
 };

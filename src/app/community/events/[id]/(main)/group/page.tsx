@@ -1,17 +1,5 @@
-import DashboardNav from "@/components/commons/dashboard-nav";
+import { getEvent } from "@/actions/event";
 import GroupTable from "@/components/commons/group-table";
-import MatchCard from "@/components/commons/match-card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { eventServices } from "@/services/event-services";
-import { hostServices } from "@/services/host-services";
-import { EventResponse } from "@/types/event";
-import { HostProfileModel } from "@/types/user";
-import { group } from "console";
-import { pl, ro } from "date-fns/locale";
-import { CircleX } from "lucide-react";
-import { cookies } from "next/headers";
 
 import React from "react";
 
@@ -37,18 +25,12 @@ const groupResult = [
 
 const page = async ({ params }: Props) => {
   const { id } = await params;
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
 
-  const { community } = token
-    ? await hostServices.getProfile(token)
-    : ({} as HostProfileModel);
+  const event = await getEvent(id);
 
-  const event = token
-    ? await eventServices.getById(id, token)
-    : ({} as EventResponse);
+  console.log(event);
 
-  if (event.tournament.format !== "group_stage") {
+  if (event?.tournament?.format !== "group_stage") {
     return (
       <div className="py-10 md:py-16 space-y-10">
         <div className="container flex space-y-10 flex-col items-center">

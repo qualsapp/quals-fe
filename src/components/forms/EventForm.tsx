@@ -27,11 +27,11 @@ import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { TimePicker } from "../ui/time-picker";
 import DatePicker from "../date-picker";
-import { eventServices } from "@/services/event-services";
-import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { useQuery } from "@tanstack/react-query";
 import { EventParams, EventResponse } from "@/types/event";
 import { useRouter } from "next/navigation";
-import { sharedService } from "@/services/shared-service";
+
 import { SportResponse } from "@/types/global";
 import { createEvent, updateEvent } from "@/actions/event";
 
@@ -62,7 +62,7 @@ const eventSchema = z.object({
   isRepeat: z.boolean(),
 });
 
-const EventForm = ({ event }: Props) => {
+const EventForm = ({ event, sports }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -89,12 +89,6 @@ const EventForm = ({ event }: Props) => {
   });
 
   const watchDates = form.watch("dates");
-
-  const { data: sports } = useQuery({
-    queryKey: ["sports"],
-    queryFn: async () => await sharedService.getAllSports(),
-    select: (data) => data.sport_types,
-  });
 
   const onSubmit = (data: z.infer<typeof eventSchema>) => {
     // add community_id from cookies

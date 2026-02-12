@@ -1,3 +1,4 @@
+"use server";
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { EventParams, EventResponse, EventsResponse } from "@/types/event";

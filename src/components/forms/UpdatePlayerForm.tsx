@@ -24,12 +24,12 @@ import { Button } from "../ui/button";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Input } from "../ui/input";
 import { getTournamentParticipants } from "@/actions/tournament";
+import { createMatch } from "@/actions/match";
+import { MatchParams } from "@/types/match";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  communityId: string;
-  eventId: string;
   tournamentId: string;
   tournamentBracketId: string;
   match_rule_id: string;
@@ -38,21 +38,17 @@ type Props = {
 const PlayerScheme = z.object({
   participant_a: z.array(z.string()).min(1),
   participant_b: z.array(z.string()).min(1),
-  tournament_bracket_id: z.string(),
   court_number: z.string(),
-  match_rule_id: z.string(),
 });
 
 const UpdatePlayerForm = ({
   open,
   setOpen,
-  communityId,
-  eventId,
   tournamentId,
   tournamentBracketId,
-  match_rule_id,
 }: Props) => {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const [options, setOptions] = useState<MultiSelectOption[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -62,26 +58,19 @@ const UpdatePlayerForm = ({
     defaultValues: {
       participant_a: [],
       participant_b: [],
-      tournament_bracket_id: tournamentBracketId || "",
       court_number: "",
-      match_rule_id: match_rule_id || "",
     },
   });
 
   const fetchParticipants = useCallback(
     async (searchValue: string) => {
-      if (!communityId || !eventId || !tournamentId) return;
+      if (!tournamentId) return;
       try {
-        const response = await getTournamentParticipants(
-          communityId,
-          eventId,
-          tournamentId,
-          {
-            search: searchValue,
-            page: 1,
-            page_size: 20,
-          },
-        );
+        const response = await getTournamentParticipants(tournamentId, {
+          search: searchValue,
+          page: 1,
+          page_size: 20,
+        });
 
         if (response.participants) {
           const participantOptions = response.participants.map((p: any) => ({
@@ -95,7 +84,7 @@ const UpdatePlayerForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [communityId, eventId, tournamentId],
+    [tournamentId],
   );
 
   const [mounted, setMounted] = React.useState(false);
@@ -112,16 +101,20 @@ const UpdatePlayerForm = ({
 
   const onSubmit = (data: z.infer<typeof PlayerScheme>) => {
     try {
-      const params = {
+      const params: MatchParams = {
         participant_a_id: Number(data.participant_a[0]),
         participant_b_id: Number(data.participant_b[0]),
-        tournament_bracket_id: Number(tournamentBracketId),
         court_number: Number(data.court_number),
-        match_rule_id: Number(data.match_rule_id),
       };
 
-      startTransition(() => {
-        // to do: update participant
+      startTransition(async () => {
+        const { error } = await createMatch(tournamentBracketId, params);
+        if (error) {
+          setError(error);
+        } else {
+          form.reset();
+          setOpen(false);
+        }
       });
     } catch (error) {
       console.error("Failed to update participant:", error);
@@ -199,6 +192,7 @@ const UpdatePlayerForm = ({
               name="court_number"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Court Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Court number..." />
                   </FormControl>
@@ -206,34 +200,7 @@ const UpdatePlayerForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="tournament_bracket_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      hidden
-                      {...field}
-                      placeholder="Choose participants..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="match_rule_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input hidden {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <div className="flex justify-center">
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Updating..." : "Update"}

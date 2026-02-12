@@ -13,15 +13,13 @@ type Props = {
 const page = async ({ params }: Props) => {
   const { id } = await params;
 
-  const { community } = await getHostProfile();
-
   const event = await getEvent(id);
 
   if (!event.tournament?.id) {
     return <div>No tournament found</div>;
   }
 
-  const tournament = await getTournament(community.id, id, event.tournament.id);
+  const tournament = await getTournament(event.tournament.id);
 
   const matchData = tournament?.tournament_brackets.map((match) => {
     return {
@@ -52,11 +50,7 @@ const page = async ({ params }: Props) => {
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container flex-col space-y-10">
-        <TournamentBracket
-          matches={matchData}
-          communityId={community.id}
-          event={event}
-        />
+        <TournamentBracket matches={matchData} event={event} />
       </div>
     </div>
   );

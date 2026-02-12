@@ -1,6 +1,9 @@
+"use server";
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import {
+  JoinTournamentParams,
+  JoinTournamentResponse,
   ParticipantsResponse,
   TournamentGroupParams,
   TournamentGroupsResponse,
@@ -10,14 +13,12 @@ import {
 import { FilterParams } from "@/types/global";
 
 export const getTournament = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<TournamentResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}`,
+    `/tournaments/${tournamentId}`,
     {
       method: "GET",
       headers: {
@@ -30,14 +31,13 @@ export const getTournament = async (
 };
 
 export const createTournament = async (
-  communityId: string,
   eventId: string,
   params: TournamentParams,
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<TournamentResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments`,
+    `/events/${eventId}/tournaments`,
     {
       method: "POST",
       headers: {
@@ -51,15 +51,13 @@ export const createTournament = async (
 };
 
 export const updateTournament = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
   params: TournamentParams,
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<TournamentResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}`,
+    `/tournaments/${tournamentId}`,
     {
       method: "PUT",
       headers: {
@@ -73,14 +71,12 @@ export const updateTournament = async (
 };
 
 export const deleteTournament = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
 ): Promise<{ message: string }> => {
   const token = await getCookies();
 
   const response = await apiClient<{ message: string }>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}`,
+    `/tournaments/${tournamentId}`,
     {
       method: "DELETE",
       headers: {
@@ -92,16 +88,34 @@ export const deleteTournament = async (
   return response;
 };
 
+export const joinTournament = async (
+  tournamentId: string,
+  params: JoinTournamentParams,
+): Promise<JoinTournamentResponse> => {
+  const token = await getCookies();
+
+  const response = await apiClient<JoinTournamentResponse>(
+    `/tournaments/${tournamentId}/join`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+      body: JSON.stringify(params),
+    },
+  );
+
+  return response;
+};
+
 export const getTournamentParticipants = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
   filters: FilterParams,
 ): Promise<ParticipantsResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<ParticipantsResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}/participants`,
+    `/tournaments/${tournamentId}/participants`,
     {
       method: "GET",
       headers: {
@@ -115,15 +129,13 @@ export const getTournamentParticipants = async (
 };
 
 export const createGroupTournament = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
   params: TournamentGroupParams,
 ): Promise<TournamentGroupsResponse> => {
   const token = await getCookies();
 
   const response = await apiClient<TournamentGroupsResponse>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}/group_participants`,
+    `/tournaments/${tournamentId}/group_participants`,
     {
       method: "POST",
       headers: {
@@ -138,15 +150,13 @@ export const createGroupTournament = async (
 };
 
 export const deleteTournamentParticipant = async (
-  communityId: string,
-  eventId: string,
   tournamentId: string,
   participantId: string,
 ): Promise<{ message: string }> => {
   const token = await getCookies();
 
   const response = await apiClient<Promise<{ message: string }>>(
-    `/communities/${communityId}/events/${eventId}/tournaments/${tournamentId}/participants/${participantId}`,
+    `/tournaments/${tournamentId}/participants/${participantId}`,
     {
       method: "DELETE",
       headers: {

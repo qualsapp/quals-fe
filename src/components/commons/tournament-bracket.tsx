@@ -12,14 +12,14 @@ import { EventResponse } from "@/types/event";
 
 type Props = {
   matches: any;
-  communityId: string;
+
   event: EventResponse;
   isEditable?: boolean;
 };
 
 const TournamentBracket = ({
   matches,
-  communityId,
+
   event,
   isEditable = false,
 }: Props) => {
@@ -76,8 +76,6 @@ const TournamentBracket = ({
           <UpdatePlayerForm
             open={open}
             setOpen={setOpen}
-            communityId={communityId}
-            eventId={event.id}
             tournamentId={event?.tournament?.id}
             match_rule_id={String(event?.tournament?.match_rule?.id)}
             tournamentBracketId={selectedMatchId}

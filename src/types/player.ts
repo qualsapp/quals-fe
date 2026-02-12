@@ -39,15 +39,3 @@ export interface JoinCommunityResponse {
   code?: string;
   error?: string;
 }
-
-export interface JoinTournamentParams {
-  participant?: number[]; // Array of player details IDs (including partner for double setting)
-}
-
-export interface JoinTournamentResponse {
-  id?: number;
-  name?: string;
-  type?: "single" | "double";
-  code?: string;
-  error?: string;
-}
