@@ -1,6 +1,7 @@
 "use client";
-import React, { startTransition, useState, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import z from "zod";
+
 import {
   Form,
   FormControl,
@@ -16,14 +17,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "../ui/button";
 
-import { useMutation } from "@tanstack/react-query";
-
 import { Textarea } from "../ui/textarea";
 import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { HostScheme } from "@/lib/validations/user";
 
-import { hostServices } from "@/services/host-services";
 import { useRouter } from "next/navigation";
 import { HostModel } from "@/types/user";
 import { createHostDetails } from "@/actions/host";
@@ -77,7 +75,11 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
   };
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8"
+        encType="multipart/form-data"
+      >
         <FormField
           control={form.control}
           name="username"

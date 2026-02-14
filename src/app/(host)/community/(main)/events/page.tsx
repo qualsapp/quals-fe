@@ -1,6 +1,5 @@
-import { getEvents } from "@/actions/event";
-import { getPlayerDetails } from "@/actions/player";
-import PlayerEventList from "@/components/event/player-event-list";
+import React from "react";
+import EventLineup from "@/components/commons/event-lineup";
 import EventFilterForm from "@/components/forms/EventFilterForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,27 +8,24 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
 import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { getEvents } from "@/actions/event";
+import Modal from "@/components/commons/state-modal";
+import Image from "next/image";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  searchParams: Promise<{ welcome: boolean }>;
 };
 
-const page = async (props: Props) => {
-  const { id } = await getPlayerDetails();
-
-  if (!id) {
-    return <div>Player not found</div>;
-  }
+const page = async ({ searchParams }: Props) => {
+  const { welcome } = await searchParams;
 
   const { events } = await getEvents();
 
   return (
-    <div className="container space-y-10 my-10">
-      <h2 className="text-2xl font-bold text-center">Quals Events</h2>
-
+    <div className="container space-y-10">
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <Card className="mx-auto w-full max-w-sm py- md:py-2 md:hidden">
           <CardContent className="px-3 md:px-2">
@@ -56,7 +52,25 @@ const page = async (props: Props) => {
         </Link>
       </div>
 
-      <PlayerEventList events={events} playerId={id} />
+      <div className="grid grid-cols-1 gap-0">
+        {events.map((event) => (
+          <Link
+            href={`/community/events/${event.id}`}
+            key={event.id}
+            className="hover:bg-gray-100"
+          >
+            <EventLineup event={event} />
+          </Link>
+        ))}
+      </div>
+      <Modal isOpen={welcome}>
+        <Image
+          width={1920}
+          height={1080}
+          src="/images/welcome.jpeg"
+          alt="welcome"
+        />
+      </Modal>
     </div>
   );
 };

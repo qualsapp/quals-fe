@@ -21,12 +21,11 @@ import {
 } from "../ui/select";
 import React, { useState, useTransition } from "react";
 import { Button } from "../ui/button";
-import { useMutation } from "@tanstack/react-query";
 
 import { Switch } from "../ui/switch";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { eventServices } from "@/services/event-services";
+
 import {
   MatchRuleParams,
   TournamentParams,
@@ -102,12 +101,7 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
     startTransition(async () => {
       try {
         if (tournament?.id) {
-          const { error } = await updateTournament(
-            communityId,
-            eventId,
-            tournament.id,
-            params,
-          );
+          const { error } = await updateTournament(tournament.id, params);
           if (error) {
             setError(error);
           } else {
@@ -115,11 +109,7 @@ const RulesForm = ({ tournament, eventId, communityId }: Props) => {
             router.push(`/community/events/${eventId}?welcome=true`);
           }
         } else {
-          const { error } = await createTournament(
-            communityId,
-            eventId,
-            params,
-          );
+          const { error } = await createTournament(eventId, params);
           if (error) {
             setError(error);
             return;

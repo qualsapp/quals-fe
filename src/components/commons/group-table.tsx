@@ -5,8 +5,8 @@ import { CircleX } from "lucide-react";
 import UpdateGroupParticipantForm from "../forms/UpdateGroupParticipantForm";
 
 type Props = {
-  players: string[];
-  results: string[][];
+  players?: string[];
+  results?: string[][];
 };
 
 const GroupTable = ({ players, results }: Props) => {
@@ -21,7 +21,7 @@ const GroupTable = ({ players, results }: Props) => {
       <p className="font-bold border p-3 text-center bg-primary text-secondary border-primary rounded-tl-md ">
         Team
       </p>
-      {players.map((player, index) => (
+      {players?.map((player, index) => (
         <p
           key={index}
           className={cn(
@@ -34,15 +34,15 @@ const GroupTable = ({ players, results }: Props) => {
         </p>
       ))}
 
-      {results.map((row, rowIndex) => (
+      {results?.map((row, rowIndex) => (
         <>
           <p
             className={cn(
               "font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
-              rowIndex === players.length - 1 ? "rounded-bl-md" : "",
+              rowIndex === players?.length - 1 ? "rounded-bl-md" : "",
             )}
           >
-            {players[rowIndex]}
+            {players?.[rowIndex]}
           </p>
           {row.map((result, colIndex) => (
             <p

@@ -44,10 +44,35 @@ export const login = async (
 export const register = async (
   credentials: LoginParams,
 ): Promise<AuthResponse> => {
+  const cookieStore = await cookies();
   const response = await apiClient<AuthResponse>("/users/register", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
+
+  if (response.token) {
+    cookieStore.set("token", response.token, {
+      path: "/",
+      expires: new Date(
+        Date.now() + Number(TokenExpirationDays) * 24 * 60 * 60 * 1000,
+      ),
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    if (response.user_type) {
+      cookieStore.set("user_type", response.user_type, {
+        path: "/",
+        expires: new Date(
+          Date.now() + Number(TokenExpirationDays) * 24 * 60 * 60 * 1000,
+        ),
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+  }
 
   return response;
 };

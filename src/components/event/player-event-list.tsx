@@ -7,10 +7,9 @@ import Link from "next/link";
 
 type Props = {
   events: EventsResponse["events"];
-  playerId: string;
 };
 
-const PlayerEventList = ({ events, playerId }: Props) => {
+const PlayerEventList = ({ events }: Props) => {
   return (
     <div className="grid grid-cols-1 gap-0">
       {events.map((eventData) => (

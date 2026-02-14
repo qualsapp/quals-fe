@@ -9,7 +9,7 @@ export async function apiClient<T>(
   endpoint: string,
   options: ApiRequestInit = {},
 ): Promise<T> {
-  const { headers, params, paramsSerializer, ...customConfig } = options;
+  const { headers, params, paramsSerializer, body, ...customConfig } = options;
 
   let queryString = "";
   if (params) {
@@ -28,9 +28,8 @@ export async function apiClient<T>(
 
   const config: RequestInit = {
     ...customConfig,
-    headers: {
-      ...headers,
-    },
+    headers: headers,
+    body: body,
     // Next.js 14+ caching strategy
     cache: options.cache || "no-store",
   };
@@ -38,7 +37,13 @@ export async function apiClient<T>(
   const response = await fetch(`${ApiUrl}${endpoint}${queryString}`, config);
 
   if (!response.ok) {
-    Promise.reject(response);
+    // Try to parse the error message if possible
+    try {
+      const errorData = await response.json();
+      return Promise.reject(errorData);
+    } catch {
+      return Promise.reject(response);
+    }
   }
 
   return response.json();

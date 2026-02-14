@@ -1,8 +1,8 @@
 "use server";
 
 import { apiClient } from "@/lib/api-client";
+import { ApiUrl } from "@/lib/env";
 import { HostDetailResponse, HostProfileResponse } from "@/types/host";
-import { cookies } from "next/headers";
 import { getCookies } from "./helper";
 
 export const getHostDetails = async (): Promise<HostDetailResponse> => {
@@ -38,13 +38,19 @@ export const createHostDetails = async (
 ): Promise<HostDetailResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<HostDetailResponse>("/hosts", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-    body: formData,
-  });
+  try {
+    const response = await apiClient<HostDetailResponse>("/hosts/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+      body: formData,
+    });
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to create host details",
+    };
+  }
 };

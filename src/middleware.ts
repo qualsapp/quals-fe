@@ -6,9 +6,8 @@ const DEFAULT_LOGGED_IN_ROUTE = "/";
 
 // Map roles to their specific route prefixes
 const ROLE_ROUTES: Record<string, string[]> = {
-  player: ["/dashboard"],
+  player: ["/dashboard", "/events", "/communities"],
   host: ["/community"],
-  admin: ["/admin", "/community", "/dashboard"], // Admin can access everything
 };
 
 export default async function middleware(req: NextRequest) {

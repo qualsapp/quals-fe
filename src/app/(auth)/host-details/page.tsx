@@ -1,6 +1,10 @@
 import HostProfileForm from "@/components/forms/HostProfileForm";
 import React from "react";
 
+export const config = {
+  bodyParser: false,
+};
+
 type Props = {};
 
 const page = (props: Props) => {

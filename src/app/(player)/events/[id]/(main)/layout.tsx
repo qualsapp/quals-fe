@@ -17,6 +17,7 @@ type LayoutProps = {
 
 const page = async ({ params, children, searchParams }: LayoutProps) => {
   const { id } = await params;
+
   const { id: playerId } = await getPlayerDetails();
 
   if (!playerId) {

@@ -59,6 +59,7 @@ const LoginForm = ({}: Props) => {
         return;
       } else if (token) {
         loginInState(data as any, token);
+
         if (data.user_type === "player") {
           router.push("/dashboard?welcome=true");
         } else if (data.user_type === "host") {

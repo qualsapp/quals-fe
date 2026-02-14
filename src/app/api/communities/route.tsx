@@ -46,7 +46,6 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
       },
       body: payload,
     });

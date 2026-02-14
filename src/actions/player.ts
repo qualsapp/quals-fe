@@ -44,7 +44,7 @@ export const createPlayerDetails = async (
 ): Promise<PlayerDetailResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<PlayerDetailResponse>("/players/details", {
+  const response = await apiClient<PlayerDetailResponse>("/players/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token?.value}`,

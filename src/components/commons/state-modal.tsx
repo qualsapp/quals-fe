@@ -24,11 +24,9 @@ const Modal = (props: Props) => {
 
   return (
     <Dialog defaultOpen={open} open={open} onOpenChange={handleOnOpenChange}>
-      <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto">
-        <DialogContent className="overflow-y-hidden !p-0">
-          {props.children}
-        </DialogContent>
-      </div>
+      <DialogContent className="overflow-y-hidden !p-0">
+        {props.children}
+      </DialogContent>
     </Dialog>
   );
 };

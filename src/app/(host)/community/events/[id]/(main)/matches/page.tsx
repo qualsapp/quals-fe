@@ -111,16 +111,14 @@ const page = async ({ params, searchParams }: Props) => {
         </Tabs>
       </div>
 
-      {searchParamsData.welcome && (
-        <Modal isOpen={searchParamsData.welcome || false}>
-          <Image
-            width={1920}
-            height={1080}
-            src="/images/welcome.jpeg"
-            alt="welcome"
-          />
-        </Modal>
-      )}
+      <Modal isOpen={searchParamsData.welcome || false}>
+        <Image
+          width={1920}
+          height={1080}
+          src="/images/welcome.jpeg"
+          alt="welcome"
+        />
+      </Modal>
     </div>
   );
 };

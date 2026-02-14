@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const useFullScreen = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(true);
 
   const goFullscreen = () => {
     const element = ref.current;

@@ -40,7 +40,7 @@ export const createCommunity = async (
 ): Promise<CommunityResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<CommunityResponse>("/communities", {
+  const response = await apiClient<CommunityResponse>("/communities/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token?.value}`,

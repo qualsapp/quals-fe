@@ -15,13 +15,13 @@ const BadmintonBoard = (props: Props) => {
       ref={ref}
       className={cn(
         "relative flex items-center justify-center",
-        isFullscreen && "w-[100vw] h-[100vh] fixed inset-0 z-50 bg-white"
+        isFullscreen && "w-[100vw] h-[100vh] fixed inset-0 z-50 bg-white",
       )}
     >
       <div
         className={cn(
           "flex flex-col gap-6",
-          isFullscreen && "w-[100vw] h-[100vh]"
+          isFullscreen && "w-[100vw] h-[100vh]",
         )}
       >
         <div className="flex border-4 border-primary-100 w-full">

@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import FullScreenWrapper from "@/components/commons/full-screen";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UpdateRuleBeforeMatch from "@/components/match/update-rule-before-match";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -56,9 +57,7 @@ const page = async ({ params, searchParams }: Props) => {
           </ItemContent>
         </Item>
       </div>
-      <div className="flex justify-center">
-        <Button>Start Match</Button>
-      </div>
+      <UpdateRuleBeforeMatch type="badminton" />
     </div>
   );
 };

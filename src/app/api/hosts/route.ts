@@ -1,5 +1,5 @@
 import { ApiUrl } from "@/lib/env";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const config = {
@@ -9,23 +9,32 @@ export const config = {
 };
 
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  const formData = await request.formData();
+  const contentType = request.headers.get("content-type") || "";
+  const authHeader = request.headers.get("Authorization") || "";
 
   try {
-    const res = await fetch(ApiUrl + "/hosts/details", {
+    let body: any;
+
+    if (contentType.includes("multipart/form-data")) {
+      body = await request.formData();
+    } else {
+      body = await request.json();
+    }
+
+    const res = await fetch(ApiUrl + "/hosts", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: authHeader,
       },
-      body: formData,
+      body: contentType.includes("multipart/form-data")
+        ? body
+        : JSON.stringify(body),
     });
     const json = await res.json();
 
     return NextResponse.json(json, { status: res.status });
   } catch (err) {
-    console.log("Error logging in:", err);
+    console.log("Error in /api/hosts proxy:", err);
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 },

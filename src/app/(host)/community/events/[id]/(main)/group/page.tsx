@@ -1,5 +1,10 @@
 import { getEvent } from "@/actions/event";
+import { getGroups } from "@/actions/group";
+import { getHostProfile } from "@/actions/host";
 import GroupTable from "@/components/commons/group-table";
+import GroupList from "@/components/group/group-list";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 import React from "react";
 
@@ -27,8 +32,11 @@ const page = async ({ params }: Props) => {
   const { id } = await params;
 
   const event = await getEvent(id);
-
   console.log(event);
+
+  if (!event) {
+    return <div>No event found</div>;
+  }
 
   if (event?.tournament?.format !== "group_stage") {
     return (
@@ -40,13 +48,20 @@ const page = async ({ params }: Props) => {
     );
   }
 
+  const groups = await getGroups(String(event.tournament.id));
+
+  if (!groups) {
+    return <div>No groups found</div>;
+  }
+
   return (
     <div className="py-10 md:py-16 space-y-10">
       <div className="container flex space-y-10 flex-col items-center">
-        <h3 className="text-xl font-bold">Group A</h3>
-        <div className="overflow-x-auto w-full">
-          <GroupTable players={players} results={groupResult} />
-        </div>
+        <GroupList
+          groups={groups}
+          seatPerGroup={Number(event.tournament.seat_per_group)}
+          tournamentId={String(event.tournament.id)}
+        />
       </div>
     </div>
   );
