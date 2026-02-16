@@ -60,6 +60,7 @@ const page = async ({ params }: Props) => {
           groups={groups}
           seatPerGroup={Number(event.tournament.seat_per_group)}
           tournamentId={String(event.tournament.id)}
+          isEditable={true}
         />
       </div>
     </div>

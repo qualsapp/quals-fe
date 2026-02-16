@@ -75,11 +75,6 @@ const page = async ({ params, children, searchParams }: LayoutProps) => {
         </div>
 
         <p>No Tournament found</p>
-        <Link
-          href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-        >
-          <Button variant="outline">Create Tournament Rules</Button>
-        </Link>
       </div>
     );
   }

@@ -16,9 +16,15 @@ type Props = {
   groups: GroupsResponse;
   tournamentId: string;
   seatPerGroup: number;
+  isEditable?: boolean;
 };
 
-const GroupList = ({ groups, tournamentId, seatPerGroup }: Props) => {
+const GroupList = ({
+  groups,
+  tournamentId,
+  seatPerGroup,
+  isEditable = false,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupsResponse[0] | null>(
     null,
@@ -35,7 +41,7 @@ const GroupList = ({ groups, tournamentId, seatPerGroup }: Props) => {
           <div className="overflow-x-auto w-full">
             {group.participants && group.matches ? (
               <GroupTable players={group.participants} results={[]} />
-            ) : (
+            ) : isEditable ? (
               <div className="flex flex-col items-center justify-center gap-3">
                 <p>No participants found yet</p>
                 <Button
@@ -47,29 +53,35 @@ const GroupList = ({ groups, tournamentId, seatPerGroup }: Props) => {
                   Update group participants
                 </Button>
               </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-3">
+                <p>Group is not ready yet</p>
+              </div>
             )}
           </div>
         </div>
       ))}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update group participants</DialogTitle>
-            <DialogDescription>
-              Update the participants for the selected group.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedGroup?.id && (
-            <GroupParticipantForm
-              groupId={String(selectedGroup.id)}
-              tournamentId={tournamentId}
-              seatPerGroup={seatPerGroup}
-              closeModal={() => setOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {isEditable && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update group participants</DialogTitle>
+              <DialogDescription>
+                Update the participants for the selected group.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedGroup?.id && (
+              <GroupParticipantForm
+                groupId={String(selectedGroup.id)}
+                tournamentId={tournamentId}
+                seatPerGroup={seatPerGroup}
+                closeModal={() => setOpen(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

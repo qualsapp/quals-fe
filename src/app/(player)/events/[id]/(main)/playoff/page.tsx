@@ -66,7 +66,11 @@ const page = async ({ params }: Props) => {
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container flex-col space-y-10">
-        <TournamentBracket matches={matchData} event={event} />
+        <TournamentBracket
+          matches={matchData}
+          event={event}
+          isEditable={false}
+        />
       </div>
     </div>
   );

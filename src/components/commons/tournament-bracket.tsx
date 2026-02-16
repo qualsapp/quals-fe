@@ -1,15 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  SingleEliminationBracket,
-  SVGViewer,
-} from "@g-loot/react-tournament-brackets";
+import { SingleEliminationBracket } from "@g-loot/react-tournament-brackets";
 
 import { useWindowSize } from "@uidotdev/usehooks";
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
 import { EventResponse } from "@/types/event";
-import { Match } from "@/types/match";
+import { Match } from "@/types/bracket";
 
 type Props = {
   matches: Match[];
@@ -28,9 +25,6 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   }, []);
 
   if (!mounted) return null;
-
-  const finalWidth = width ? Math.max(width - 50, 500) : 0;
-  const finalHeight = height ? Math.max(height - 100, 500) : 0;
 
   const handleMatchClick = (matchId: number) => {
     setSelectedMatchId(matchId);
@@ -65,11 +59,6 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
             </div>
           </div>
         )}
-        // svgWrapper={({ children, ...props }: any) => (
-        //   <SVGViewer width={finalWidth} height={finalHeight} {...props}>
-        //     {children}
-        //   </SVGViewer>
-        // )}
       />
       {isEditable &&
         event?.tournament &&

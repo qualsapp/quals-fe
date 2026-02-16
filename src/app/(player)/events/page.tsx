@@ -14,7 +14,6 @@ import React from "react";
 
 const page = async () => {
   const { events } = await getEvents();
-  console.log("player events");
 
   return (
     <div className="container space-y-10 my-10">
