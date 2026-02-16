@@ -1,10 +1,8 @@
 import React from "react";
-
 import TournamentBracket from "@/components/commons/tournament-bracket";
-
-import { getHostProfile } from "@/actions/host";
 import { getEvent } from "@/actions/event";
-import { getTournament } from "@/actions/tournament";
+import { getBrackets } from "@/actions/tournament";
+import { Match } from "@/types/bracket";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -19,31 +17,49 @@ const page = async ({ params }: Props) => {
     return <div>No tournament found</div>;
   }
 
-  const tournament = await getTournament(event.tournament.id);
+  const brackets = await getBrackets(event.tournament.id);
 
-  const matchData = tournament?.tournament_brackets.map((match) => {
+  const matchData: Match[] = brackets?.map((bracket) => {
     return {
-      id: match.id,
-      round: match.round,
-      name: `Match ${match.match_number}`,
-      tournamentRoundText: match.round,
-      match_number: match.match_number,
-      nextMatchId: match.next_bracket_id,
+      id: bracket.id,
+      round: bracket.round,
+      name: `Match ${bracket.match_number}`,
+      tournamentRoundText: bracket.round.toString(),
+      match_number: bracket.match_number,
+      nextMatchId: bracket.next_bracket_id,
       nextLooserMatchId: null,
-      state: "SCHEDULED",
-      participants:
-        match.participants?.length > 0
-          ? match.participants.map((participant) => {
-              return {
-                id: participant.id,
-                name: participant.name,
-                score: participant?.score || null,
-                seed: participant?.seed || null,
-                isWinner: participant?.isWinner || null,
-              };
-            })
-          : [],
-      startTime: "",
+      state: bracket.match?.status,
+      participants: [
+        ...(bracket.match?.participant_a
+          ? [
+              {
+                id: bracket.match.participant_a.id,
+                name: bracket.match.participant_a.name,
+                score: bracket.match.participant_a.score || null,
+                seed: null,
+                isWinner: bracket.match.participant_a.isWinner,
+                // sets: bracket.match.participant_a?.sets || null,
+              },
+            ]
+          : []),
+        ...(bracket.match?.participant_b
+          ? [
+              {
+                id: bracket.match.participant_b.id,
+                name: bracket.match.participant_b.name,
+                score: bracket.match.participant_b.score || null,
+                seed: null,
+                isWinner: bracket.match.participant_b.isWinner,
+                // sets: bracket.match.participant_a?.sets || null,
+              },
+            ]
+          : []),
+      ],
+      court_number: bracket.match?.court_number,
+      href: bracket.match?.id
+        ? `/events/${id}/matches/${bracket.match?.id}`
+        : undefined,
+      startTime: bracket.match?.scheduled_at,
     };
   });
 

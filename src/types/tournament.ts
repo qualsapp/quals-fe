@@ -1,3 +1,5 @@
+import { GroupResponse } from "./group";
+
 export type MatchRuleParams = {
   deuce?: boolean;
   max_deuce_point?: number;
@@ -85,3 +87,39 @@ export interface JoinTournamentResponse {
   code?: string;
   error?: string;
 }
+
+export interface MatchResponse {
+  id: number;
+  completed_at: string | null;
+  court_number: number;
+  participant_a: Participant;
+  participant_b: Participant;
+  next_bracket_id: number;
+  scheduled_at: string | null;
+  started_at: string | null;
+  status: string;
+  winner: Participant | null;
+}
+
+export interface DetailMatchResponse extends MatchResponse {
+  tournament_bracket: BracketResponse;
+  tournament_group: GroupResponse;
+  match_rule: MatchRuleResponse;
+  error?: string;
+}
+
+export interface BracketResponse {
+  id: number;
+  match_number: number;
+  round: number;
+  next_bracket_id: number;
+  matches: MatchResponse;
+}
+
+export type BracketsResponse = {
+  id: number;
+  match_number: number;
+  round: number;
+  next_bracket_id: number;
+  match: MatchResponse;
+}[];

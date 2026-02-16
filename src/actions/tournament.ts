@@ -2,6 +2,7 @@
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import {
+  BracketsResponse,
   JoinTournamentParams,
   JoinTournamentResponse,
   ParticipantsResponse,
@@ -159,6 +160,24 @@ export const deleteTournamentParticipant = async (
     `/tournaments/${tournamentId}/participants/${participantId}`,
     {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+    },
+  );
+
+  return response;
+};
+
+export const getBrackets = async (
+  tournamentId: string,
+): Promise<BracketsResponse> => {
+  const token = await getCookies();
+
+  const response = await apiClient<BracketsResponse>(
+    `/tournaments/${tournamentId}/brackets`,
+    {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token?.value}`,
       },

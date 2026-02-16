@@ -2,8 +2,8 @@
 import React from "react";
 import CommunityCard from "../commons/community-card";
 import { CommunityResponse } from "@/types/community";
-import { userServices } from "@/services/user-services";
 import { useMutation } from "@tanstack/react-query";
+import { getCommunities } from "@/actions/community";
 
 type Props = {
   communities: CommunityResponse[];
@@ -11,7 +11,7 @@ type Props = {
 
 const CommunityList = ({ communities }: Props) => {
   const { mutate } = useMutation({
-    mutationFn: async (id: string) => await userServices.joinCommunity(id),
+    mutationFn: async (id: string) => await getCommunities(),
     onSuccess: () => {
       console.log("joined community");
     },

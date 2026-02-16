@@ -3,6 +3,7 @@ import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { MatchesResponse, MatchParams, MatchResponse } from "@/types/match";
 import { FilterParams } from "@/types/global";
+import { DetailMatchResponse } from "@/types/tournament";
 
 export const getMatches = async (
   filters: FilterParams,
@@ -11,6 +12,21 @@ export const getMatches = async (
 
   const response = await apiClient<MatchesResponse>(`/matches`, {
     params: filters,
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token?.value}`,
+    },
+  });
+
+  return response;
+};
+
+export const getMatch = async (
+  matchId: string,
+): Promise<DetailMatchResponse> => {
+  const token = await getCookies();
+
+  const response = await apiClient<DetailMatchResponse>(`/matches/${matchId}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token?.value}`,

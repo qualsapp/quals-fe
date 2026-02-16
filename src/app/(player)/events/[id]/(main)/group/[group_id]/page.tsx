@@ -10,11 +10,22 @@ const page = async (props: Props) => {
   const { id, group_id } = await props.params;
 
   const event = await getEvent(id);
-  console.log(event.tournament?.seat_per_group);
+
+  if (!event) {
+    return <div>No event found</div>;
+  }
+
+  if (!event.tournament) {
+    return <div>No tournament found</div>;
+  }
+
   return (
     <div>
       <GroupParticipantsForm
-        seatPerGroup={Number(event.tournament?.seat_per_group)}
+        seatPerGroup={Number(event.tournament.seat_per_group)}
+        groupId={group_id}
+        tournamentId={String(event.tournament.id)}
+        closeModal={() => {}}
       />
     </div>
   );

@@ -1,8 +1,9 @@
 import React from "react";
-import { MatchComponentProps } from "../../types/match";
+import { MatchComponentProps } from "@/types/bracket";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "../ui/item";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { cn } from "@/lib/utils";
+import { Eye, Video } from "lucide-react";
 
 interface BracketCardProps extends MatchComponentProps {
   open: boolean;
@@ -12,7 +13,6 @@ interface BracketCardProps extends MatchComponentProps {
 function BracketCard({
   bottomHovered,
   bottomParty,
-  bottomText,
   bottomWon,
   match,
   onMatchClick,
@@ -21,7 +21,6 @@ function BracketCard({
   onPartyClick,
   topHovered,
   topParty,
-  topText,
   topWon,
   open,
   handleOpen,
@@ -29,24 +28,13 @@ function BracketCard({
   const isFirstRound = String(match.tournamentRoundText) === "1";
   return (
     <div
-      onClick={() => handleOpen(match.id)}
+      onClick={() => (isFirstRound ? handleOpen(match.id) : null)}
       className={cn(
         isFirstRound ? "cursor-pointer" : "",
         open ? "border-primary" : "",
+        "relative",
       )}
     >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {(match.href || typeof onMatchClick === "function") && (
-          <a
-            href={match.href}
-            onClick={(event: any) =>
-              onMatchClick?.({ match, topWon, bottomWon, event })
-            }
-          >
-            <p>Match Details</p>
-          </a>
-        )}
-      </div>
       <div className="border rounded-md flex flex-col">
         <Item
           className={cn(
@@ -104,13 +92,33 @@ function BracketCard({
           </ItemContent>
         </Item>
       </div>
-      <div className="flex space-x-2 text-gray-500 text-xs mt-1">
-        <p>{bottomText ?? " "}</p>
-        {topText && (
+      <div className="flex space-x-2 text-gray-500 text-xs mt-1 px-2">
+        {match.court_number ? (
+          <>
+            <span>Court {match.court_number}</span>
+          </>
+        ) : (
+          ""
+        )}
+        {match.startTime ? (
           <>
             <span>|</span>
-            <p>{topText ?? ""}</p>
+            <span>{match.startTime}</span>
           </>
+        ) : (
+          ""
+        )}
+
+        {match.state === "LIVE" ? (
+          <span className="ml-auto">
+            <Video className="w-4 h-4 text-destructive" />
+          </span>
+        ) : match.href ? (
+          <a href={match.href} aria-label="match detail" className="ml-auto">
+            <Eye className="w-4 h-4" />
+          </a>
+        ) : (
+          ""
         )}
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { joinTournament } from "@/actions/tournament";
 import {
@@ -19,6 +19,8 @@ import { JoinTournamentParams } from "@/types/tournament";
 import { EventResponse } from "@/types/event";
 import { MultiSelect } from "../ui/multi-select";
 import { Button } from "../ui/button";
+import { searchPlayer } from "@/actions/player";
+import { useDebounce } from "@uidotdev/usehooks";
 
 type Props = {
   event: EventResponse;
@@ -45,15 +47,43 @@ const JoinEventScheme = z
 const JoinTournamentForm = ({ event, playerId, closeModal }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
+  const [options, setOptions] = useState<
+    {
+      label: string;
+      value: string;
+    }[]
+  >([]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const form = useForm<z.infer<typeof JoinEventScheme>>({
     resolver: zodResolver(JoinEventScheme),
     defaultValues: {
       participant_a: String(playerId),
       participant_b: "",
-      tournament_format: event.tournament?.format || "",
+      tournament_format: event.tournament?.category || "",
       tournament_id: Number(event.tournament?.id) || 0,
     },
   });
+
+  const fetchParticipants = React.useCallback(async (searchValue: string) => {
+    try {
+      const res = await searchPlayer(searchValue);
+
+      if (Array.isArray(res)) {
+        const participantOptions = res.map((p: any) => ({
+          label: p.display_name,
+          value: p.id.toString(),
+        }));
+        setOptions(participantOptions);
+      }
+    } catch (error) {
+      console.error("Failed to fetch participants:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchParticipants(debouncedSearch);
+  }, [debouncedSearch, fetchParticipants]);
 
   const onSubmit = (data: z.infer<typeof JoinEventScheme>) => {
     const params: JoinTournamentParams = {
@@ -101,8 +131,14 @@ const JoinTournamentForm = ({ event, playerId, closeModal }: Props) => {
                 <FormControl>
                   <MultiSelect
                     {...field}
-                    options={[]}
-                    onValueChange={field.onChange}
+                    options={options}
+                    onValueChange={(value) => {
+                      field.onChange(value[0] || "");
+                    }}
+                    value={field.value}
+                    placeholder="Select your partner"
+                    onSearchValueChange={setSearch}
+                    maxSelected={1}
                   />
                 </FormControl>
                 <FormMessage />

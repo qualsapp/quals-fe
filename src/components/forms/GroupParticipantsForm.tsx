@@ -2,10 +2,7 @@
 
 import React, { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import {
-  getTournamentParticipants,
-  joinTournament,
-} from "@/actions/tournament";
+import { getTournamentParticipants } from "@/actions/tournament";
 import {
   Form,
   FormControl,
@@ -16,10 +13,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { JoinTournamentParams, Participant } from "@/types/tournament";
 import { MultiSelect } from "../ui/multi-select";
 import { Button } from "../ui/button";
 import { useDebounce } from "@uidotdev/usehooks";
+import { createGroupParticipants } from "@/actions/group";
+import { GroupParticipantsParams } from "@/types/group";
 
 type Props = {
   groupId: string;
@@ -102,11 +100,11 @@ const GroupParticipantForm = ({
   }, [debouncedSearch, fetchParticipants]);
 
   const onSubmit = (data: z.infer<typeof JoinEventScheme>) => {
-    const params: JoinTournamentParams = {
-      participant: data.participant_ids.map(Number),
+    const params: GroupParticipantsParams = {
+      participant_ids: data.participant_ids.map((id) => Number(id)),
     };
     startTransition(async () => {
-      const { error } = await joinTournament(data.groupId, params);
+      const { error } = await createGroupParticipants(data.groupId, params);
       if (error) {
         setError(error);
       } else {
@@ -129,7 +127,7 @@ const GroupParticipantForm = ({
                   {...field}
                   options={options}
                   onValueChange={onChange}
-                  // maxSelect={seatPerGroup}
+                  maxSelected={seatPerGroup}
                   onSearchValueChange={setSearch}
                   placeholder={`Select up to ${seatPerGroup} participants`}
                 />

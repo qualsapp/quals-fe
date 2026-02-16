@@ -28,8 +28,6 @@ export const getHostProfile = async (): Promise<HostProfileResponse> => {
     },
   });
 
-  console.log("profile", response);
-
   return response;
 };
 

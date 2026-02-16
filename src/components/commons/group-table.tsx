@@ -2,20 +2,23 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { CircleX } from "lucide-react";
-import UpdateGroupParticipantForm from "../forms/UpdateGroupParticipantForm";
+import { GroupResponse } from "@/types/group";
 
 type Props = {
-  players?: string[];
+  players?: GroupResponse["participants"][number][];
   results?: string[][];
 };
 
 const GroupTable = ({ players, results }: Props) => {
-  const [open, setOpen] = React.useState(false);
+  if (!players) {
+    return <div>no Player</div>;
+  }
+
   return (
     <div
       className={cn(
         "grid gap-[2px] w-auto",
-        `grid-cols-[repeat(6,minmax(150px,1fr))]`,
+        `grid-cols-[repeat(5,minmax(150px,1fr))]`,
       )}
     >
       <p className="font-bold border p-3 text-center bg-primary text-secondary border-primary rounded-tl-md ">
@@ -25,16 +28,15 @@ const GroupTable = ({ players, results }: Props) => {
         <p
           key={index}
           className={cn(
-            "hover:cursor-pointer hover:bg-primary/90 font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
+            "hover:bg-primary/90 font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
             index === players.length - 1 ? "rounded-tr-md" : "",
           )}
-          onClick={() => setOpen(true)}
         >
-          {player}
+          {player.name}
         </p>
       ))}
 
-      {results?.map((row, rowIndex) => (
+      {players?.map((player, rowIndex) => (
         <>
           <p
             className={cn(
@@ -42,27 +44,22 @@ const GroupTable = ({ players, results }: Props) => {
               rowIndex === players?.length - 1 ? "rounded-bl-md" : "",
             )}
           >
-            {players?.[rowIndex]}
+            {players?.[rowIndex].name}
           </p>
-          {row.map((result, colIndex) => (
+          {players?.map((player, colIndex) => (
             <p
               key={colIndex}
-              className={cn(
-                "border text-center p-3 border-primary",
-                result === "-" ? "text-destructive font-extrabold" : "",
-              )}
+              className={cn("border text-center p-3 border-primary")}
             >
-              {result === "-" ? <CircleX className="mx-auto" /> : result}
+              {player.id === players[rowIndex].id ? (
+                <CircleX className="mx-auto text-destructive" />
+              ) : (
+                0
+              )}
             </p>
           ))}
         </>
       ))}
-
-      <UpdateGroupParticipantForm
-        tournamentId={""}
-        open={open}
-        setOpen={setOpen}
-      />
     </div>
   );
 };

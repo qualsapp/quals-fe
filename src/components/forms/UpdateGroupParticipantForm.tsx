@@ -91,8 +91,6 @@ const UpdateGroupParticipantForm = ({ open, setOpen, tournamentId }: Props) => {
         participant_ids: data.participant_a.map((id) => Number(id)),
       };
 
-      console.log(params);
-
       startTransition(() => {
         // to do: update participant
       });

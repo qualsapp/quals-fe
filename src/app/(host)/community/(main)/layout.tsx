@@ -16,8 +16,6 @@ const Layout = async ({
 }>) => {
   const { community } = await getHostProfile();
 
-  console.log(community);
-
   if (!community) {
     return <div>Community not found</div>;
   }

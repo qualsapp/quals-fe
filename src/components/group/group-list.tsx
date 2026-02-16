@@ -34,10 +34,7 @@ const GroupList = ({ groups, tournamentId, seatPerGroup }: Props) => {
           <h3 className="text-xl font-bold text-center py-3">{group.name}</h3>
           <div className="overflow-x-auto w-full">
             {group.participants && group.matches ? (
-              <GroupTable
-                players={group.participants}
-                results={group.matches}
-              />
+              <GroupTable players={group.participants} results={[]} />
             ) : (
               <div className="flex flex-col items-center justify-center gap-3">
                 <p>No participants found yet</p>

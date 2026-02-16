@@ -24,13 +24,12 @@ export type PlayerSearchParams = {
   search: string;
 };
 
-export type PlayerListResponse = {
-  player_details?: {
-    id: number;
-    display_name: string;
-  }[];
-  error?: string;
-};
+export type PlayerListResponse =
+  | {
+      id: number;
+      display_name: string;
+    }[]
+  | { error?: string };
 
 export interface JoinCommunityResponse {
   id?: number;

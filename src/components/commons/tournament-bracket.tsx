@@ -9,20 +9,15 @@ import { useWindowSize } from "@uidotdev/usehooks";
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
 import { EventResponse } from "@/types/event";
+import { Match } from "@/types/match";
 
 type Props = {
-  matches: any;
-
+  matches: Match[];
   event: EventResponse;
   isEditable?: boolean;
 };
 
-const TournamentBracket = ({
-  matches,
-
-  event,
-  isEditable = false,
-}: Props) => {
+const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   const { height, width } = useWindowSize();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -64,10 +59,17 @@ const TournamentBracket = ({
           },
         }}
         svgWrapper={({ children, ...props }: any) => (
-          <SVGViewer width={finalWidth} height={finalHeight} {...props}>
-            {children}
-          </SVGViewer>
+          <div className="w-[90vw] h-full">
+            <div className="overflow-x-scroll" {...props}>
+              {children}
+            </div>
+          </div>
         )}
+        // svgWrapper={({ children, ...props }: any) => (
+        //   <SVGViewer width={finalWidth} height={finalHeight} {...props}>
+        //     {children}
+        //   </SVGViewer>
+        // )}
       />
       {isEditable &&
         event?.tournament &&

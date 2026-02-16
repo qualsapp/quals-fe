@@ -14,7 +14,9 @@ const UpdateRuleBeforeMatch = ({ type }: Props) => {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Start Match</Button>
+      <div className="flex justify-center">
+        <Button onClick={() => setOpen(true)}>Start Match</Button>
+      </div>
 
       {type === "badminton" && (
         <UpdateBadmintonMatchRuleForm

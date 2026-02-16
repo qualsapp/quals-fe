@@ -144,6 +144,14 @@ interface MultiSelectProps
   animationConfig?: AnimationConfig;
 
   /**
+   * The maximum number of items that can be selected.
+   * If set to 1, the component acts like a single select (radio behavior).
+   * If set to > 1, it prevents selecting more than the limit.
+   * Optional, defaults to unlimited.
+   */
+  maxSelected?: number;
+
+  /**
    * Maximum number of items to display. Extra selected items will be summarized.
    * Optional, defaults to 3.
    */
@@ -319,6 +327,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       animation = 0,
       animationConfig,
       maxCount = 3,
+      maxSelected,
       modalPopover = false,
       asChild = false,
       className,
@@ -626,9 +635,23 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       if (disabled) return;
       const option = getOptionByValue(optionValue);
       if (option?.disabled) return;
-      const newSelectedValues = selectedValues.includes(optionValue)
-        ? selectedValues.filter((value) => value !== optionValue)
-        : [...selectedValues, optionValue];
+
+      let newSelectedValues: string[];
+
+      if (selectedValues.includes(optionValue)) {
+        newSelectedValues = selectedValues.filter(
+          (value) => value !== optionValue,
+        );
+      } else {
+        if (maxSelected === 1) {
+          newSelectedValues = [optionValue];
+        } else if (maxSelected && selectedValues.length >= maxSelected) {
+          return;
+        } else {
+          newSelectedValues = [...selectedValues, optionValue];
+        }
+      }
+
       setSelectedValues(newSelectedValues);
       onValueChange(newSelectedValues);
       if (closeOnSelect) {

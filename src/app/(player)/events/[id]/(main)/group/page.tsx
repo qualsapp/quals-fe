@@ -32,7 +32,6 @@ const page = async ({ params }: Props) => {
   const { id } = await params;
 
   const event = await getEvent(id);
-  console.log(event);
 
   if (!event) {
     return <div>No event found</div>;

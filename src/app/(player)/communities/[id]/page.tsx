@@ -1,4 +1,3 @@
-import { communityService } from "@/services/community-service";
 import { cookies } from "next/headers";
 import React from "react";
 
@@ -13,9 +12,6 @@ const page = async (props: Props) => {
   const { params } = await props;
   const { id } = await params;
 
-  // const community = await communityService.getAllPublic();
-
-  // console.log(community);
   return <div>page</div>;
 };
 
