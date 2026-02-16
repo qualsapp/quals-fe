@@ -8,7 +8,7 @@ export type CommunityParams = {
   image?: File;
 };
 
-export type CommunityResponse = Omit<CommunityParams, "image, sports"> & {
+export type CommunityResponse = Omit<CommunityParams, "image" | "sports"> & {
   id: string;
   image_url: string;
   host_id: string;

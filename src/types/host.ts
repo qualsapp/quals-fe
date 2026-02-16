@@ -18,7 +18,7 @@ export type HostDetailResponse = {
 };
 
 export type HostProfileResponse = {
-  community: CommunityResponse;
-  host_detail: HostDetailResponse;
+  community?: CommunityResponse;
+  host_detail?: HostDetailResponse;
   error?: string;
 };

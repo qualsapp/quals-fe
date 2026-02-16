@@ -25,11 +25,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { MatchRuleParams, MatchRuleResponse } from "@/types/tournament";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { updateMatchRules } from "@/actions/match";
+import { usePathname, useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  match_rule: MatchRuleResponse;
+  matchId: string;
+  rule: MatchRuleResponse;
 };
 
 const PadelMatchRuleScheme = z.object({
@@ -38,16 +41,18 @@ const PadelMatchRuleScheme = z.object({
   race_to: z.string().optional(),
 });
 
-const UpdatePadelMatchRuleForm = ({ open, setOpen }: Props) => {
+const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
     resolver: zodResolver(PadelMatchRuleScheme),
     defaultValues: {
-      deuce: false,
-      best_of_sets: "",
-      race_to: "",
+      deuce: rule.deuce,
+      best_of_sets: rule.best_of_sets?.toString() || "",
+      race_to: rule.race_to?.toString() || "",
     },
   });
 
@@ -64,15 +69,16 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen }: Props) => {
           : { race_to: Number(data.race_to) }),
       };
 
-      // startTransition(async () => {
-      //   const { error } = await updateMatchRule(match_rule_id, params);
-      //   if (error) {
-      //     setError(error);
-      //   } else {
-      //     form.reset();
-      //     setOpen(false);
-      //   }
-      // });
+      startTransition(async () => {
+        const { error } = await updateMatchRules(matchId, params);
+        if (error) {
+          setError(error);
+        } else {
+          form.reset();
+          setOpen(false);
+          router.push(`${pathname}/play`);
+        }
+      });
     } catch (error) {
       console.error("Failed to update participant:", error);
     }
@@ -150,9 +156,12 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen }: Props) => {
                   </TabsContent>
                 </Tabs>
               </div>
-            </div>
-            <div className="flex justify-center">
-              <Button type="submit">Confirm</Button>
+              {error && <p className="text-red-500 text-center">{error}</p>}
+              <div className="flex justify-center">
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? "Updating..." : "Confirm"}
+                </Button>
+              </div>
             </div>
           </form>
         </Form>

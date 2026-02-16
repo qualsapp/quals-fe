@@ -18,17 +18,32 @@ export const getTournament = async (
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<TournamentResponse>(
-    `/tournaments/${tournamentId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<TournamentResponse>(
+      `/tournaments/${tournamentId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      id: "",
+      event_id: "",
+      format: "",
+      category: "",
+      participants_count: 0,
+      courts_count: 0,
+      match_rule: {} as any,
+      tournament_brackets: [],
+      tournament_groups: [],
+      error: error?.message || "Failed to fetch tournament",
+    } as TournamentResponse;
+  }
 };
 
 export const createTournament = async (
@@ -37,18 +52,24 @@ export const createTournament = async (
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<TournamentResponse>(
-    `/events/${eventId}/tournaments`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<TournamentResponse>(
+      `/events/${eventId}/tournaments`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
       },
-      body: JSON.stringify(params),
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to create tournament",
+    } as TournamentResponse;
+  }
 };
 
 export const updateTournament = async (
@@ -57,36 +78,49 @@ export const updateTournament = async (
 ): Promise<TournamentResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<TournamentResponse>(
-    `/tournaments/${tournamentId}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<TournamentResponse>(
+      `/tournaments/${tournamentId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
       },
-      body: JSON.stringify(params),
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to update tournament",
+    } as TournamentResponse;
+  }
 };
 
 export const deleteTournament = async (
   tournamentId: string,
-): Promise<{ message: string }> => {
+): Promise<{ message: string; error?: string }> => {
   const token = await getCookies();
 
-  const response = await apiClient<{ message: string }>(
-    `/tournaments/${tournamentId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<{ message: string }>(
+      `/tournaments/${tournamentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      message: "",
+      error: error?.message || "Failed to delete tournament",
+    };
+  }
 };
 
 export const joinTournament = async (
@@ -95,18 +129,24 @@ export const joinTournament = async (
 ): Promise<JoinTournamentResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<JoinTournamentResponse>(
-    `/tournaments/${tournamentId}/join`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<JoinTournamentResponse>(
+      `/tournaments/${tournamentId}/join`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
       },
-      body: JSON.stringify(params),
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to join tournament",
+    } as JoinTournamentResponse;
+  }
 };
 
 export const getTournamentParticipants = async (
@@ -115,18 +155,28 @@ export const getTournamentParticipants = async (
 ): Promise<ParticipantsResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<ParticipantsResponse>(
-    `/tournaments/${tournamentId}/participants`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<ParticipantsResponse>(
+      `/tournaments/${tournamentId}/participants`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        params: filters,
       },
-      params: filters,
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      participants: [],
+      page: 0,
+      page_size: 0,
+      total: 0,
+      error: error?.message || "Failed to fetch participants",
+    };
+  }
 };
 
 export const createGroupTournament = async (
@@ -135,38 +185,51 @@ export const createGroupTournament = async (
 ): Promise<TournamentGroupsResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<TournamentGroupsResponse>(
-    `/tournaments/${tournamentId}/group_participants`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<TournamentGroupsResponse>(
+      `/tournaments/${tournamentId}/group_participants`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+
+        body: JSON.stringify(params),
       },
+    );
 
-      body: JSON.stringify(params),
-    },
-  );
-
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to create group",
+    } as TournamentGroupsResponse;
+  }
 };
 
 export const deleteTournamentParticipant = async (
   tournamentId: string,
   participantId: string,
-): Promise<{ message: string }> => {
+): Promise<{ message: string; error?: string }> => {
   const token = await getCookies();
 
-  const response = await apiClient<Promise<{ message: string }>>(
-    `/tournaments/${tournamentId}/participants/${participantId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<{ message: string }>(
+      `/tournaments/${tournamentId}/participants/${participantId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      message: "",
+      error: error?.message || "Failed to delete participant",
+    };
+  }
 };
 
 export const getBrackets = async (
@@ -174,15 +237,20 @@ export const getBrackets = async (
 ): Promise<BracketsResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<BracketsResponse>(
-    `/tournaments/${tournamentId}/brackets`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<BracketsResponse>(
+      `/tournaments/${tournamentId}/brackets`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    console.error("Failed to fetch brackets:", error);
+    return [] as BracketsResponse;
+  }
 };

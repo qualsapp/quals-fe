@@ -11,14 +11,20 @@ import { getCookies } from "./helper";
 export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<PlayerDetailResponse>("/players", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
+  try {
+    const response = await apiClient<PlayerDetailResponse>("/players", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+    });
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to fetch player details",
+    } as PlayerDetailResponse;
+  }
 };
 
 export const searchPlayer = async (
@@ -26,17 +32,23 @@ export const searchPlayer = async (
 ): Promise<PlayerListResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<PlayerListResponse>(`/players/search`, {
-    params: {
-      q: search,
-    },
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
+  try {
+    const response = await apiClient<PlayerListResponse>(`/players/search`, {
+      params: {
+        q: search,
+      },
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+    });
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to search players",
+    };
+  }
 };
 
 export const createPlayerDetails = async (
@@ -44,15 +56,21 @@ export const createPlayerDetails = async (
 ): Promise<PlayerDetailResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<PlayerDetailResponse>("/players/", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-    body: formData,
-  });
+  try {
+    const response = await apiClient<PlayerDetailResponse>("/players/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
+      },
+      body: formData,
+    });
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to create player details",
+    } as PlayerDetailResponse;
+  }
 };
 
 export const joinCommunity = async (
@@ -60,15 +78,21 @@ export const joinCommunity = async (
 ): Promise<JoinCommunityResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<JoinCommunityResponse>(
-    `/players/communities/${communityId}/join`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<JoinCommunityResponse>(
+      `/players/communities/${communityId}/join`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to join community",
+    } as JoinCommunityResponse;
+  }
 };

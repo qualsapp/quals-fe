@@ -11,6 +11,7 @@ export type Sport = {
 
 export type SportResponse = {
   sport_types: Sport[];
+  error?: string;
 };
 
 export type FilterParams = {

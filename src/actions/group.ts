@@ -8,17 +8,23 @@ export const getGroups = async (
 ): Promise<GroupsResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<GroupsResponse>(
-    `/tournaments/${tournamentId}/groups`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<GroupsResponse>(
+      `/tournaments/${tournamentId}/groups`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
       },
-    },
-  );
+    );
 
-  return response;
+    return response;
+  } catch (error: any) {
+    // GroupsResponse is an array, so we return empty array on error
+    console.error("Failed to fetch groups:", error);
+    return [] as GroupsResponse;
+  }
 };
 
 export const createGroupParticipants = async (
@@ -29,17 +35,23 @@ export const createGroupParticipants = async (
 ): Promise<GroupResponse> => {
   const token = await getCookies();
 
-  const response = await apiClient<GroupResponse>(
-    `/tournament_groups/${groupId}/participants`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+  try {
+    const response = await apiClient<GroupResponse>(
+      `/tournament_groups/${groupId}/participants`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+
+        body: JSON.stringify(params),
       },
+    );
 
-      body: JSON.stringify(params),
-    },
-  );
-
-  return response;
+    return response;
+  } catch (error: any) {
+    return {
+      error: error?.message || "Failed to create group participants",
+    } as GroupResponse;
+  }
 };

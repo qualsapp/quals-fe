@@ -40,6 +40,7 @@ export async function apiClient<T>(
     // Try to parse the error message if possible
     try {
       const errorData = await response.json();
+      console.log(errorData);
       return Promise.reject(errorData);
     } catch {
       return Promise.reject(response);

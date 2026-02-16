@@ -29,6 +29,7 @@ export type MatchResponse = Omit<
   started_at: string | null;
   completed_at: string | null;
   match_sets: string | null;
+  error?: string;
 };
 
 export type MatchesResponse = {

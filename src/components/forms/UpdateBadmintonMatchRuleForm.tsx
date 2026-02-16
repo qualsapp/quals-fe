@@ -12,7 +12,6 @@ import {
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MultiSelectOption } from "../ui/multi-select";
 import {
   Dialog,
   DialogContent,
@@ -35,12 +34,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { badmintonMaxPointPerSet, badmintonScoreType } from "@/lib/constants";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { updateMatchRules } from "@/actions/match";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
-  match_rule: MatchRuleResponse;
+  rule: MatchRuleResponse;
+  matchId: string;
 };
 
 const BadmintonMatchRuleScheme = z
@@ -62,20 +63,26 @@ const BadmintonMatchRuleScheme = z
     }
   });
 
-const UpdateBadmintonMatchRuleForm = ({ open, setOpen, match_rule }: Props) => {
+const UpdateBadmintonMatchRuleForm = ({
+  open,
+  setOpen,
+  rule,
+  matchId,
+}: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
     resolver: zodResolver(BadmintonMatchRuleScheme),
     defaultValues: {
-      deuce: false,
-      scoring_system: "best_of",
-      max_deuce_point: "",
-      max_point_per_set: "",
-      best_of_sets: "",
-      race_to: "",
+      deuce: rule.deuce,
+      scoring_system: rule.scoring_system,
+      max_deuce_point: rule.max_deuce_point?.toString() || "",
+      max_point_per_set: rule.max_point_per_set?.toString() || "",
+      best_of_sets: rule.best_of_sets?.toString() || "",
+      race_to: rule.race_to?.toString() || "",
     },
   });
 
@@ -95,17 +102,16 @@ const UpdateBadmintonMatchRuleForm = ({ open, setOpen, match_rule }: Props) => {
         scoring_system: data.scoring_system,
       };
 
-      // startTransition(async () => {
-      //   const { error } = await updateMatchRule(match_rule_id, params);
-      //   if (error) {
-      //     setError(error);
-      //   } else {
-      //     form.reset();
-      //     setOpen(false);
-      //   }
-      // });
-
-      router.push(`/community/events/11/matches/123/play`);
+      startTransition(async () => {
+        const { error } = await updateMatchRules(matchId, params);
+        if (error) {
+          setError(error);
+        } else {
+          form.reset();
+          setOpen(false);
+          router.push(`${pathname}/play`);
+        }
+      });
     } catch (error) {
       console.error("Failed to update participant:", error);
     }
@@ -259,9 +265,12 @@ const UpdateBadmintonMatchRuleForm = ({ open, setOpen, match_rule }: Props) => {
                   )}
                 />
               </div>
-            </div>
-            <div className="flex justify-center">
-              <Button type="submit">Confirm</Button>
+              {error && <p className="text-red-500 text-center">{error}</p>}
+              <div className="flex justify-center">
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? "Updating..." : "Confirm"}
+                </Button>
+              </div>
             </div>
           </form>
         </Form>

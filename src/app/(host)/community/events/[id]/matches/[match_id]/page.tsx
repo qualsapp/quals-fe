@@ -1,13 +1,10 @@
 import React from "react";
 
-import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import UpdateRuleBeforeMatch from "@/components/match/update-rule-before-match";
-import { getMatch, getMatches } from "@/actions/match";
+import { getMatch } from "@/actions/match";
 import Player from "@/components/commons/player";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import BackButton from "@/components/commons/back-button";
+import { getEvent } from "@/actions/event";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -16,7 +13,11 @@ type Props = {
 const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
 
-  const match = await getMatch(match_id);
+  const [match, event] = await Promise.all([getMatch(match_id), getEvent(id)]);
+
+  if (!match || !event) {
+    return <div>Match not found</div>;
+  }
 
   return (
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">
@@ -44,7 +45,11 @@ const page = async ({ params }: Props) => {
 
           <Player names={match.participant_b.name.split("/")} />
         </div>
-        <UpdateRuleBeforeMatch type="badminton" />
+        <UpdateRuleBeforeMatch
+          matchId={match_id}
+          rule={match.match_rule}
+          type={event.sport_type.slug}
+        />
       </div>
     </div>
   );

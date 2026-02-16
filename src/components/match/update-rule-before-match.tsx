@@ -7,9 +7,11 @@ import UpdatePadelMatchRuleForm from "../forms/UpdatePadelMatchRuleForm";
 
 type Props = {
   type: string;
+  rule: MatchRuleResponse;
+  matchId: string;
 };
 
-const UpdateRuleBeforeMatch = ({ type }: Props) => {
+const UpdateRuleBeforeMatch = ({ type, rule, matchId }: Props) => {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -20,7 +22,8 @@ const UpdateRuleBeforeMatch = ({ type }: Props) => {
 
       {type === "badminton" && (
         <UpdateBadmintonMatchRuleForm
-          match_rule={{} as MatchRuleResponse}
+          matchId={matchId}
+          rule={rule}
           open={open}
           setOpen={setOpen}
         />
@@ -28,7 +31,8 @@ const UpdateRuleBeforeMatch = ({ type }: Props) => {
 
       {type === "padel" && (
         <UpdatePadelMatchRuleForm
-          match_rule={{} as MatchRuleResponse}
+          matchId={matchId}
+          rule={rule}
           open={open}
           setOpen={setOpen}
         />
