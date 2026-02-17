@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 
 const useFullScreen = () => {
@@ -40,13 +41,13 @@ const useFullScreen = () => {
 
   useEffect(() => {
     if (isFullscreen) {
-      screen.orientation.lock("landscape-primary");
+      (screen.orientation as any).lock("landscape-primary");
     } else {
-      screen.orientation.unlock();
+      (screen.orientation as any).unlock();
     }
 
     return () => {
-      screen.orientation.unlock();
+      (screen.orientation as any).unlock();
     };
   }, [isFullscreen]);
 
@@ -59,3 +60,5 @@ const useFullScreen = () => {
 };
 
 export default useFullScreen;
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

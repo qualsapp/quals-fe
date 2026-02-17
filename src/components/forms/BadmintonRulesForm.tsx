@@ -37,7 +37,6 @@ import { createTournament, updateTournament } from "@/actions/tournament";
 
 type Props = {
   eventId: string;
-  communityId: string;
   tournament?: TournamentResponse;
 };
 
@@ -67,7 +66,7 @@ const RulesSchema = z
     }
   });
 
-const RulesForm = ({ eventId, communityId, tournament }: Props) => {
+const RulesForm = ({ eventId, tournament }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -121,26 +120,22 @@ const RulesForm = ({ eventId, communityId, tournament }: Props) => {
     };
 
     startTransition(async () => {
-      try {
-        if (tournament?.id) {
-          const { error } = await updateTournament(tournament.id, params);
-          if (error) {
-            setError(error);
-          } else {
-            form.reset();
-            router.push(`/community/events/${eventId}?welcome=true`);
-          }
+      if (tournament?.id) {
+        const { error } = await updateTournament(tournament.id, params);
+        if (error) {
+          setError(error);
         } else {
-          const { error } = await createTournament(eventId, params);
-          if (error) {
-            setError(error);
-          } else {
-            form.reset();
-            router.push(`/community/events/${eventId}?welcome=true`);
-          }
+          form.reset();
+          router.push(`/community/events/${eventId}?welcome=true`);
         }
-      } catch (error) {
-        setError("Failed to create event");
+      } else {
+        const { error } = await createTournament(eventId, params);
+        if (error) {
+          setError(error);
+        } else {
+          form.reset();
+          router.push(`/community/events/${eventId}?welcome=true`);
+        }
       }
     });
   };

@@ -5,6 +5,7 @@ import {
   BracketsResponse,
   JoinTournamentParams,
   JoinTournamentResponse,
+  MatchRuleResponse,
   ParticipantsResponse,
   TournamentGroupParams,
   TournamentGroupsResponse,
@@ -12,6 +13,7 @@ import {
   TournamentResponse,
 } from "@/types/tournament";
 import { FilterParams } from "@/types/global";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getTournament = async (
   tournamentId: string,
@@ -30,7 +32,7 @@ export const getTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: "",
       event_id: "",
@@ -38,10 +40,10 @@ export const getTournament = async (
       category: "",
       participants_count: 0,
       courts_count: 0,
-      match_rule: {} as any,
+      match_rule: {} as MatchRuleResponse,
       tournament_brackets: [],
       tournament_groups: [],
-      error: error?.message || "Failed to fetch tournament",
+      error: errorHandler(error, "Failed to fetch tournament"),
     } as TournamentResponse;
   }
 };
@@ -65,9 +67,9 @@ export const createTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create tournament",
+      error: errorHandler(error, "Failed to create tournament"),
     } as TournamentResponse;
   }
 };
@@ -91,9 +93,9 @@ export const updateTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to update tournament",
+      error: errorHandler(error, "Failed to update tournament"),
     } as TournamentResponse;
   }
 };
@@ -115,10 +117,10 @@ export const deleteTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       message: "",
-      error: error?.message || "Failed to delete tournament",
+      error: errorHandler(error, "Failed to delete tournament"),
     };
   }
 };
@@ -142,9 +144,9 @@ export const joinTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to join tournament",
+      error: errorHandler(error, "Failed to join tournament"),
     } as JoinTournamentResponse;
   }
 };
@@ -168,13 +170,13 @@ export const getTournamentParticipants = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       participants: [],
       page: 0,
       page_size: 0,
       total: 0,
-      error: error?.message || "Failed to fetch participants",
+      error: errorHandler(error, "Failed to fetch participants"),
     };
   }
 };
@@ -199,9 +201,9 @@ export const createGroupTournament = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create group",
+      error: errorHandler(error, "Failed to create group"),
     } as TournamentGroupsResponse;
   }
 };
@@ -224,10 +226,10 @@ export const deleteTournamentParticipant = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       message: "",
-      error: error?.message || "Failed to delete participant",
+      error: errorHandler(error, "Failed to delete participant"),
     };
   }
 };
@@ -249,8 +251,8 @@ export const getBrackets = async (
     );
 
     return response;
-  } catch (error: any) {
-    console.error("Failed to fetch brackets:", error);
+  } catch (error: unknown) {
+    console.error(errorHandler(error, "Failed to fetch brackets"));
     return [] as BracketsResponse;
   }
 };

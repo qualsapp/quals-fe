@@ -32,6 +32,7 @@ import { MultiSelectOption } from "../ui/multi-select";
 import { useDebounce } from "@uidotdev/usehooks";
 import { getTournamentParticipants } from "@/actions/tournament";
 import { GroupParticipantParams } from "@/types/match";
+import { Participant } from "@/types/bracket";
 
 const PlayerScheme = z.object({
   participant_a: z.array(z.string()).min(1),
@@ -65,10 +66,12 @@ const UpdateGroupParticipantForm = ({ open, setOpen, tournamentId }: Props) => {
         );
 
         if (response.participants) {
-          const participantOptions = response.participants.map((p: any) => ({
-            label: p.name,
-            value: p.id,
-          }));
+          const participantOptions = response.participants.map(
+            (p: Participant) => ({
+              label: String(p.name),
+              value: String(p.id),
+            }),
+          );
           setOptions(participantOptions);
         }
       } catch (error) {
@@ -90,6 +93,8 @@ const UpdateGroupParticipantForm = ({ open, setOpen, tournamentId }: Props) => {
         tournament_group_id: Number(0),
         participant_ids: data.participant_a.map((id) => Number(id)),
       };
+
+      console.log(params);
 
       startTransition(() => {
         // to do: update participant

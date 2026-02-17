@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Dialog, DialogContent, DialogOverlay } from "../ui/dialog";
+import { Dialog, DialogContent } from "../ui/dialog";
 import { useRouter } from "next/navigation";
 
 type Props = {

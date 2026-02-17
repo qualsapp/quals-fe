@@ -2,7 +2,6 @@ import React from "react";
 import {
   Card,
   CardAction,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -12,9 +11,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
-type Props = {};
-
-const EventCard = (props: Props) => {
+const EventCard = () => {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>

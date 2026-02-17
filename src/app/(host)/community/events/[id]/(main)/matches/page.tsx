@@ -6,7 +6,6 @@ import MatchCard from "@/components/commons/match-card";
 import Modal from "@/components/commons/state-modal";
 
 import { getEvent } from "@/actions/event";
-import { getHostProfile } from "@/actions/host";
 import { getMatches } from "@/actions/match";
 
 import { FilterParams } from "@/types/global";

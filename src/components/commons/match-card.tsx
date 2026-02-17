@@ -1,9 +1,7 @@
 import React from "react";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -11,27 +9,8 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Item, ItemContent, ItemMedia, ItemTitle } from "../ui/item";
 
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "../ui/item";
-
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Timer } from "lucide-react";
@@ -44,7 +23,6 @@ type Props = {
 };
 
 const MatchCard = ({ type, court_number, event_id, match_id }: Props) => {
-  const hasStarted = false;
   return (
     <Card className="w-full max-w-sm p-0">
       <CardHeader className="bg-primary rounded-t-lg pt-2 pb-1">

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
@@ -10,6 +12,7 @@ import { format } from "date-fns";
 export type DatePickerProps = {
   mode?: "single" | "range" | "multiple";
   selected?: Date | DateRange | Date[];
+
   onSelect?: (date: any) => void;
   className?: string;
   placeholder?: string;
@@ -89,6 +92,7 @@ const DatePicker = ({
             className={cn(
               "w-full justify-start text-left font-normal",
               !selected && "text-muted-foreground",
+              className,
             )}
             disabled={disabled}
           >
@@ -112,3 +116,5 @@ const DatePicker = ({
 };
 
 export default DatePicker;
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

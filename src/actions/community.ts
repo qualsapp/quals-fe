@@ -3,6 +3,7 @@
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { CommunityListResponse, CommunityResponse } from "@/types/community";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getCommunities = async (): Promise<CommunityListResponse> => {
   const token = await getCookies();
@@ -16,13 +17,13 @@ export const getCommunities = async (): Promise<CommunityListResponse> => {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       communities: [],
       page: 0,
       page_size: 0,
       total: 0,
-      error: error?.message || "Failed to fetch communities",
+      error: errorHandler(error, "Failed to fetch communities"),
     };
   }
 };
@@ -44,7 +45,7 @@ export const getCommunity = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: "",
       image_url: "",
@@ -52,7 +53,7 @@ export const getCommunity = async (
       sport_types: [],
       name: "",
       address: "",
-      error: error?.message || "Failed to fetch community details",
+      error: errorHandler(error, "Failed to fetch community details"),
     } as CommunityResponse;
   }
 };
@@ -72,9 +73,9 @@ export const createCommunity = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create community",
+      error: errorHandler(error, "Failed to create community"),
     } as CommunityResponse;
   }
 };
@@ -98,9 +99,9 @@ export const updateCommunity = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to update community",
+      error: errorHandler(error, "Failed to update community"),
     } as CommunityResponse;
   }
 };

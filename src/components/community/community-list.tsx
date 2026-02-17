@@ -11,14 +11,14 @@ type Props = {
 
 const CommunityList = ({ communities }: Props) => {
   const { mutate } = useMutation({
-    mutationFn: async (id: string) => await getCommunities(),
+    mutationFn: async () => await getCommunities(),
     onSuccess: () => {
       console.log("joined community");
     },
   });
 
-  const onJoin = (id: string) => {
-    mutate(id);
+  const onJoin = () => {
+    mutate();
   };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

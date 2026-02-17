@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
-// import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-// import { Button } from "../ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+
+import { Check } from "lucide-react";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -13,8 +11,6 @@ import {
 } from "../ui/command";
 import { cn } from "@/lib/utils";
 import MemberCard from "../commons/member-card";
-
-type Props = {};
 
 const frameworks: { value: string; label: string }[] = [
   // {
@@ -39,7 +35,7 @@ const frameworks: { value: string; label: string }[] = [
   // },
 ];
 
-const MembersForm = (props: Props) => {
+const MembersForm = () => {
   const [value, setValue] = React.useState<string[]>([]);
 
   const addMember = (member: string) => {
@@ -53,7 +49,6 @@ const MembersForm = (props: Props) => {
       <Command>
         <CommandInput placeholder="Search members..." className="h-9" />
         <CommandList>
-          {/* <CommandEmpty>No framework found.</CommandEmpty> */}
           <CommandGroup>
             {frameworks?.map((framework) => (
               <CommandItem
@@ -69,7 +64,7 @@ const MembersForm = (props: Props) => {
                     "ml-auto",
                     value.includes(framework.value)
                       ? "opacity-100"
-                      : "opacity-0"
+                      : "opacity-0",
                   )}
                 />
               </CommandItem>
@@ -82,7 +77,7 @@ const MembersForm = (props: Props) => {
         <p className="font-bold">New members</p>
         <div className="space-y-3">
           {value.map((val) => {
-            return <MemberCard name={val} />;
+            return <MemberCard key={val} name={val} />;
           })}
         </div>
       </div>

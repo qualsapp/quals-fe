@@ -28,7 +28,6 @@ import { Label } from "../ui/label";
 import { TimePicker } from "../ui/time-picker";
 import DatePicker from "../date-picker";
 
-import { useQuery } from "@tanstack/react-query";
 import { EventParams, EventResponse } from "@/types/event";
 import { useRouter } from "next/navigation";
 

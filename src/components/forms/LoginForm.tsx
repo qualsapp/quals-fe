@@ -33,9 +33,7 @@ const LoginScheme = z.object({
   user_type: z.enum(["player", "host", "admin"]),
 });
 
-type Props = {};
-
-const LoginForm = ({}: Props) => {
+const LoginForm = () => {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
@@ -58,7 +56,7 @@ const LoginForm = ({}: Props) => {
         setError(error);
         return;
       } else if (token) {
-        loginInState(data as any, token);
+        loginInState(data, token);
 
         if (data.user_type === "player") {
           router.push("/dashboard?welcome=true");

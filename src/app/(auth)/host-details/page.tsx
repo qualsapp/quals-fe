@@ -5,9 +5,7 @@ export const config = {
   bodyParser: false,
 };
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
   return (
     <div className=" py-10 md:py-16 space-y-10 max-w-xl mx-auto">
       <div className="container space-y-10">

@@ -3,9 +3,7 @@ import { getPlayerDetails } from "@/actions/player";
 import { getSports } from "@/actions/sport";
 import ProfileForm from "@/components/forms/ProfileForm";
 
-type Props = {};
-
-const page = async (props: Props) => {
+const page = async () => {
   const player = await getPlayerDetails();
 
   const { sport_types } = await getSports();

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { ArrowLeft } from "lucide-react";
-import FullScreenWrapper from "@/components/commons/full-screen";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -11,9 +10,10 @@ type Props = {
 };
 
 const page = async ({ params, searchParams }: Props) => {
-  const { id, match_id } = await params;
+  const { id } = await params;
   const { type } = await searchParams;
-  const hasStareted = false;
+
+  console.log(id, type);
 
   return (
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">

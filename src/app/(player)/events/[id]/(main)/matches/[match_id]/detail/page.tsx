@@ -1,4 +1,3 @@
-import EventForm from "@/components/forms/EventForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import React from "react";
@@ -11,6 +10,8 @@ type Props = {
 const page = async ({ params, searchParams }: Props) => {
   const { id, match_id } = await params;
   const { type } = await searchParams;
+
+  console.log(id, match_id, type);
 
   // to do: need match detail api
   return (

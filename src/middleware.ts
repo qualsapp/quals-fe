@@ -36,8 +36,10 @@ export default async function middleware(req: NextRequest) {
   if (token && userType) {
     // Determine which roles are allowed for the current pathname
     const allowedRolesForPath = Object.entries(ROLE_ROUTES)
-      .filter(([role, routes]) =>
-        routes.some((route) => pathname.startsWith(route)),
+      .filter(
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        ([_, routes]) => routes.some((route) => pathname.startsWith(route)),
+        /* eslint-enable @typescript-eslint/no-unused-vars */
       )
       .map(([role]) => role);
 

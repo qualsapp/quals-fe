@@ -8,9 +8,7 @@ import { getCommunity } from "@/actions/community";
 import { getHostProfile } from "@/actions/host";
 import { redirect } from "next/navigation";
 
-type Props = {};
-
-const page = async (props: Props) => {
+const page = async () => {
   const host = await getHostProfile();
 
   if (!host.community) {

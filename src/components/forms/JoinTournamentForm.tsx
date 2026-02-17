@@ -21,6 +21,7 @@ import { MultiSelect } from "../ui/multi-select";
 import { Button } from "../ui/button";
 import { searchPlayer } from "@/actions/player";
 import { useDebounce } from "@uidotdev/usehooks";
+import { Participant } from "@/types/bracket";
 
 type Props = {
   event: EventResponse;
@@ -70,7 +71,7 @@ const JoinTournamentForm = ({ event, playerId, closeModal }: Props) => {
       const res = await searchPlayer(searchValue);
 
       if (Array.isArray(res)) {
-        const participantOptions = res.map((p: any) => ({
+        const participantOptions = res.map((p: Participant) => ({
           label: p.display_name,
           value: p.id.toString(),
         }));

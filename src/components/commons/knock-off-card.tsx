@@ -3,9 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
-type Props = {};
-
-const KnockOffCard = (props: Props) => {
+const KnockOffCard = () => {
   return (
     <Table className="w-auto">
       <TableBody>

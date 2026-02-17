@@ -1,12 +1,9 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { ArrowRightLeft, EllipsisVertical, RotateCcw } from "lucide-react";
-import Shuttlecock from "@/icons/shuttlecock";
 import TennisBall from "@/icons/tennis-ball";
 
-type Props = {};
-
-const TennisBoard = (props: Props) => {
+const TennisBoard = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex border-4 border-primary-100 w-full">

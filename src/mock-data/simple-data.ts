@@ -1,4 +1,4 @@
-import { Match } from "../types/match";
+import { Match } from "@/types/bracket";
 
 export const walkOverData: Match[] = [
   {

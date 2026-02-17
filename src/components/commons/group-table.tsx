@@ -6,10 +6,10 @@ import { GroupResponse } from "@/types/group";
 
 type Props = {
   players?: GroupResponse["participants"][number][];
-  results?: string[][];
+  // results?: string[][];
 };
 
-const GroupTable = ({ players, results }: Props) => {
+const GroupTable = ({ players }: Props) => {
   if (!players) {
     return <div>no Player</div>;
   }

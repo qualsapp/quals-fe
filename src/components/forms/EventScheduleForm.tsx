@@ -12,12 +12,7 @@ import { Input } from "../ui/input";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
-import { on } from "events";
 import { useRouter } from "next/navigation";
-
-type EventScheduleFormProps = {
-  // onNext: (step: string) => void;
-};
 
 const days = [
   "Monday",
@@ -126,7 +121,7 @@ const ScheduleItem = ({
   );
 };
 
-const EventScheduleForm = ({}: EventScheduleFormProps) => {
+const EventScheduleForm = () => {
   const router = useRouter();
   const form = useForm<z.infer<typeof eventScheduleSchema>>({
     resolver: zodResolver(eventScheduleSchema),
@@ -135,7 +130,7 @@ const EventScheduleForm = ({}: EventScheduleFormProps) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof eventScheduleSchema>) => {
+  const onSubmit = () => {
     router.push("/communities/create/community-members");
   };
 

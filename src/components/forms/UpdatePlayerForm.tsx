@@ -26,6 +26,7 @@ import { Input } from "../ui/input";
 import { getTournamentParticipants } from "@/actions/tournament";
 import { createMatch } from "@/actions/match";
 import { MatchParams } from "@/types/match";
+import { Participant } from "@/types/tournament";
 
 type Props = {
   open: boolean;
@@ -73,10 +74,12 @@ const UpdatePlayerForm = ({
         });
 
         if (response.participants) {
-          const participantOptions = response.participants.map((p: any) => ({
-            label: p.name,
-            value: String(p.id),
-          }));
+          const participantOptions = response.participants.map(
+            (p: Participant) => ({
+              label: p.name,
+              value: String(p.id),
+            }),
+          );
 
           setOptions(participantOptions);
         }
@@ -200,6 +203,8 @@ const UpdatePlayerForm = ({
                 </FormItem>
               )}
             />
+
+            {error && <p className="text-red-500 text-center">{error}</p>}
 
             <div className="flex justify-center">
               <Button type="submit" disabled={isPending}>

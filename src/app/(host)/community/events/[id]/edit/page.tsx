@@ -31,7 +31,7 @@ const page = async ({ params }: Props) => {
             </Link>
           </div>
           <h2 className="capitalize text-2xl font-bold text-center">Events</h2>
-          <p className="text-center">Update your event's details</p>
+          <p className="text-center">Update your event&apos;s details</p>
         </div>
         {event ? (
           <EventForm event={event} sports={sport_types} />

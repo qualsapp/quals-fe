@@ -2,9 +2,7 @@ import React from "react";
 import Modal from "@/components/commons/welcome-pop-up";
 import Image from "next/image";
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
   return (
     <Modal>
       <Image

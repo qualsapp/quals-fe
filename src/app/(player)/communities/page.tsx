@@ -2,9 +2,7 @@ import { getCommunities } from "@/actions/community";
 import CommunityList from "@/components/community/community-list";
 import React from "react";
 
-type Props = {};
-
-const page = async (props: Props) => {
+const page = async () => {
   const { communities } = await getCommunities();
 
   return (

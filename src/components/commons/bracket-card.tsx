@@ -7,15 +7,16 @@ import { Eye, Video } from "lucide-react";
 
 interface BracketCardProps extends MatchComponentProps {
   open: boolean;
-  handleOpen: (matchId: number | string) => void;
+  isEditable?: boolean;
+  handleOpen: (matchId: string) => void;
 }
 
 function BracketCard({
+  isEditable,
   bottomHovered,
   bottomParty,
   bottomWon,
   match,
-  onMatchClick,
   onMouseEnter,
   onMouseLeave,
   onPartyClick,
@@ -28,9 +29,11 @@ function BracketCard({
   const isFirstRound = String(match.tournamentRoundText) === "1";
   return (
     <div
-      onClick={() => (isFirstRound ? handleOpen(match.id) : null)}
+      onClick={() =>
+        isFirstRound && isEditable ? handleOpen(String(match.id)) : null
+      }
       className={cn(
-        isFirstRound ? "cursor-pointer" : "",
+        isFirstRound && isEditable ? "cursor-pointer" : "",
         open ? "border-primary" : "",
         "relative",
       )}

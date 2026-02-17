@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TriangleAlert, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface AvatarUploadProps {
   maxSize?: number;
@@ -69,7 +70,7 @@ export default function AvatarUpload({
             isDragging
               ? "border-primary bg-primary/5"
               : "border-muted-foreground/25 hover:border-muted-foreground/20",
-            previewUrl && "border-solid"
+            previewUrl && "border-solid",
           )}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -80,10 +81,12 @@ export default function AvatarUpload({
           <input {...getInputProps()} className="sr-only" />
 
           {previewUrl ? (
-            <img
+            <Image
               src={previewUrl}
               alt="Avatar"
               className="h-full w-full object-cover"
+              width={100}
+              height={100}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">

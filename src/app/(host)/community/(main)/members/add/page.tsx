@@ -1,10 +1,7 @@
-import CommunityMembersForm from "@/components/forms/CommunityMembers";
 import MembersForm from "@/components/forms/MembersForm";
 import React from "react";
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>

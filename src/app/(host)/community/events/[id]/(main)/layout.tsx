@@ -10,10 +10,9 @@ import React from "react";
 type LayoutProps = {
   params: Promise<{ id: string }>;
   children: React.ReactNode;
-  searchParams: Promise<{ welcome: boolean }>;
 };
 
-const page = async ({ params, children, searchParams }: LayoutProps) => {
+const page = async ({ params, children }: LayoutProps) => {
   const { id } = await params;
   const menus = [
     { label: "Matches", href: `/community/events/${id}/matches` },

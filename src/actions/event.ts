@@ -2,6 +2,8 @@
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { EventParams, EventResponse, EventsResponse } from "@/types/event";
+import { errorHandler } from "@/lib/error-handler";
+import { Sport } from "@/types/global";
 
 export const getEvents = async (): Promise<EventsResponse> => {
   const token = await getCookies();
@@ -15,13 +17,13 @@ export const getEvents = async (): Promise<EventsResponse> => {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       events: [],
       page: 0,
       page_size: 0,
       total: 0,
-      error: error?.message || "Failed to fetch events",
+      error: errorHandler(error, "Failed to fetch events"),
     };
   }
 };
@@ -38,19 +40,19 @@ export const getEvent = async (eventId: string): Promise<EventResponse> => {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       id: "",
       community_id: "",
       start_date: "",
       end_date: "",
-      sport_type: {} as any,
+      sport_type: {} as Sport,
       event_type: "",
       title: "",
       sport_type_id: 0,
       location: "",
       description: "",
-      error: error?.message || "Failed to fetch event details",
+      error: errorHandler(error, "Failed to fetch event details"),
     } as EventResponse;
   }
 };
@@ -70,9 +72,9 @@ export const createEvent = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create event",
+      error: errorHandler(error, "Failed to create event"),
     } as EventResponse;
   }
 };
@@ -93,9 +95,9 @@ export const updateEvent = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to update event",
+      error: errorHandler(error, "Failed to update event"),
     } as EventResponse;
   }
 };
@@ -117,10 +119,10 @@ export const deleteEvent = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       message: "",
-      error: error?.message || "Failed to delete event",
+      error: errorHandler(error, "Failed to delete event"),
     };
   }
 };

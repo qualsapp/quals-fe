@@ -8,8 +8,6 @@ import { Input } from "../ui/input";
 
 import { CheckboxCard } from "../ui/checkbox";
 
-type Props = {};
-
 const memberFilterScheme = z.object({
   name: z.string().optional(),
 
@@ -37,7 +35,7 @@ const statusOption: Option[] = [
   { label: "Inactive", value: "inactive" },
 ];
 
-const MemberFilterForm = (props: Props) => {
+const MemberFilterForm = () => {
   const form = useForm<z.infer<typeof memberFilterScheme>>({
     resolver: zodResolver(memberFilterScheme),
     defaultValues: {
@@ -61,7 +59,7 @@ const MemberFilterForm = (props: Props) => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Search by name" />
+                <Input placeholder="Search by name" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -70,7 +68,7 @@ const MemberFilterForm = (props: Props) => {
         <FormField
           control={form.control}
           name="level"
-          render={({ field }) => (
+          render={() => (
             <FormItem className="flex">
               <FormLabel className="text-gray-400 font-semibold">
                 Event Type
@@ -93,8 +91,8 @@ const MemberFilterForm = (props: Props) => {
                               ? field.onChange([...field.value, level.value])
                               : field.onChange(
                                   field.value?.filter(
-                                    (value: any) => value !== level.value
-                                  )
+                                    (value: string) => value !== level.value,
+                                  ),
                                 );
                           }}
                         />
@@ -109,7 +107,7 @@ const MemberFilterForm = (props: Props) => {
         <FormField
           control={form.control}
           name="status"
-          render={({ field }) => (
+          render={() => (
             <FormItem className="flex">
               <FormLabel className="text-gray-400 font-semibold">
                 Status
@@ -132,8 +130,8 @@ const MemberFilterForm = (props: Props) => {
                               ? field.onChange([...field.value, state.value])
                               : field.onChange(
                                   field.value?.filter(
-                                    (value: any) => value !== state.value
-                                  )
+                                    (value: string) => value !== state.value,
+                                  ),
                                 );
                           }}
                         />

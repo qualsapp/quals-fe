@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { SingleEliminationBracket } from "@g-loot/react-tournament-brackets";
 
-import { useWindowSize } from "@uidotdev/usehooks";
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
 import { EventResponse } from "@/types/event";
-import { Match } from "@/types/bracket";
+import { Match, MatchComponentProps } from "@/types/bracket";
 
 type Props = {
   matches: Match[];
@@ -15,10 +14,10 @@ type Props = {
 };
 
 const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
-  const { height, width } = useWindowSize();
+  // const { height, width } = useWindowSize();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [selectedMatchId, setSelectedMatchId] = useState<any>(null);
+  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -26,7 +25,7 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
 
   if (!mounted) return null;
 
-  const handleMatchClick = (matchId: number) => {
+  const handleMatchClick = (matchId: string) => {
     setSelectedMatchId(matchId);
     setOpen(true);
   };
@@ -35,11 +34,12 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
     <>
       <SingleEliminationBracket
         matches={matches}
-        matchComponent={(props: any) => (
+        matchComponent={(props: MatchComponentProps) => (
           <BracketCard
             {...props}
             open={open}
-            handleOpen={isEditable ? handleMatchClick : () => {}}
+            isEditable={isEditable}
+            handleOpen={handleMatchClick}
           />
         )}
         options={{
@@ -52,18 +52,17 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
             connectorColorHighlight: "#123C67",
           },
         }}
-        svgWrapper={({ children, ...props }: any) => (
+        svgWrapper={({ children }: { children: React.ReactNode }) => (
           <div className="w-[90vw] h-full">
-            <div className="overflow-x-scroll" {...props}>
-              {children}
-            </div>
+            <div className="overflow-x-scroll">{children}</div>
           </div>
         )}
       />
       {isEditable &&
         event?.tournament &&
         event.tournament.id &&
-        event?.tournament?.match_rule?.id && (
+        event?.tournament?.match_rule?.id &&
+        selectedMatchId && (
           <UpdatePlayerForm
             open={open}
             setOpen={setOpen}

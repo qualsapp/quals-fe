@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -19,8 +21,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { ChevronDownIcon } from "lucide-react";
 import { CheckboxCard } from "../ui/checkbox";
-
-type Props = {};
 
 const eventFilterScheme = z.object({
   sports: z.string().optional(),
@@ -50,7 +50,7 @@ const statusOption: Option[] = [
   { label: "Complete", value: "complete" },
 ];
 
-const EventFilterForm = (props: Props) => {
+const EventFilterForm = () => {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -239,3 +239,4 @@ const EventFilterForm = (props: Props) => {
 };
 
 export default EventFilterForm;
+/* eslint-enabled */

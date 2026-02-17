@@ -1,13 +1,10 @@
-import DashboardNav from "@/components/commons/dashboard-nav";
 import MemberCard from "@/components/commons/member-card";
 import MemberFilterForm from "@/components/forms/MemberFilterForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
   return (
     <div className="container space-y-10">
       <div className="border rounded-lg p-6 space-y-6">

@@ -1,4 +1,3 @@
-import { getEvent } from "@/actions/event";
 import { redirect } from "next/navigation";
 
 type Props = {

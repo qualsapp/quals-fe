@@ -6,7 +6,9 @@ export type Participant = {
   name?: string;
   status?: "PLAYED" | "NO_SHOW" | "WALK_OVER" | "NO_PARTY" | string | null;
   resultText?: string | null;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   [key: string]: any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
 export type Match = {
@@ -19,7 +21,9 @@ export type Match = {
   startTime: string | null;
   state: "PLAYED" | "NO_SHOW" | "WALK_OVER" | "NO_PARTY" | string;
   participants: Participant[];
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   [key: string]: any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
 export type Options = {

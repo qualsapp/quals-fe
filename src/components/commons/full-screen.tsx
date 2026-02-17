@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useRef, useState } from "react";
 import { Button } from "../ui/button";
 import useFullScreen from "@/hooks/use-full-screen";
 
@@ -15,7 +14,7 @@ const FullScreenWrapper = ({ children }: Props) => {
       ref={ref}
       className={cn(
         "relative flex items-center justify-center",
-        isFullscreen && "h-full w-full fixed inset-0 z-50 bg-white"
+        isFullscreen && "h-full w-full fixed inset-0 z-50 bg-white",
       )}
     >
       <div className={cn("", isFullscreen && "rotate-90 w-[100vh] h-[100vw]")}>

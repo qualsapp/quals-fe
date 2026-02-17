@@ -2,6 +2,7 @@
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
 import { GroupResponse, GroupsResponse } from "@/types/group";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getGroups = async (
   tournamentId: string,
@@ -20,9 +21,9 @@ export const getGroups = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // GroupsResponse is an array, so we return empty array on error
-    console.error("Failed to fetch groups:", error);
+    console.error(errorHandler(error, "Failed to fetch groups"));
     return [] as GroupsResponse;
   }
 };
@@ -49,9 +50,9 @@ export const createGroupParticipants = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create group participants",
+      error: errorHandler(error, "Failed to create group participants"),
     } as GroupResponse;
   }
 };

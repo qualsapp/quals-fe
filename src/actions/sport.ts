@@ -3,6 +3,7 @@
 import { SportResponse } from "@/types/global";
 import { getCookies } from "./helper";
 import { apiClient } from "@/lib/api-client";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getSports = async (): Promise<SportResponse> => {
   const token = await getCookies();
@@ -16,10 +17,10 @@ export const getSports = async (): Promise<SportResponse> => {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       sport_types: [],
-      error: error?.message || "Failed to fetch sports",
+      error: errorHandler(error, "Failed to fetch sports"),
     };
   }
 };

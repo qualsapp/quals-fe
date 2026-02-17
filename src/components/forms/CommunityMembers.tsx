@@ -80,7 +80,7 @@ const Member = ({
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Select>
+              <Select {...field}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select one of the level" />
                 </SelectTrigger>

@@ -11,6 +11,7 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import Image from "next/image";
 
 type Props = {
   community: CommunityResponse;
@@ -21,10 +22,12 @@ const CommunityCard = ({ community, onJoin }: Props) => {
   return (
     <Card className="w-full h-full overflow-hidden">
       <div className="aspect-video w-full overflow-hidden">
-        <img
+        <Image
           src={community.image_url}
           alt={community.name}
           className="w-full h-full object-cover"
+          width={500}
+          height={500}
         />
       </div>
       <CardHeader>

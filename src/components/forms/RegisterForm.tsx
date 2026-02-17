@@ -75,7 +75,7 @@ const RegisterForm = () => {
 
       setError(error);
       if (token) {
-        loginInState(data as any, token);
+        loginInState(data, token);
         if (data.user_type === "player") {
           router.push("/player-details");
         } else if (data.user_type === "host") {

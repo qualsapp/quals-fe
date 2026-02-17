@@ -3,19 +3,16 @@ import { getPlayerDetails } from "@/actions/player";
 import DashboardNav from "@/components/commons/dashboard-nav";
 import JoinEvent from "@/components/event/join-event";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
-import Link from "next/link";
 
 import React from "react";
 
 type LayoutProps = {
   params: Promise<{ id: string }>;
   children: React.ReactNode;
-  searchParams: Promise<{ welcome: boolean }>;
 };
 
-const page = async ({ params, children, searchParams }: LayoutProps) => {
+const page = async ({ params, children }: LayoutProps) => {
   const { id } = await params;
 
   const { id: playerId } = await getPlayerDetails();

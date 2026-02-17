@@ -7,6 +7,7 @@ const TennisBall = (props: React.SVGProps<SVGSVGElement>) => (
     height="24"
     fill="none"
     viewBox="0 0 24 24"
+    {...props}
   >
     <path
       fill="currentColor"

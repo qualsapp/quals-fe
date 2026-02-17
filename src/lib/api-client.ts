@@ -1,9 +1,11 @@
 import { ApiUrl } from "./env";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiRequestInit extends RequestInit {
   params?: Record<string, any>;
   paramsSerializer?: (params: any) => string;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export async function apiClient<T>(
   endpoint: string,

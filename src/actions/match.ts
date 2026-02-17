@@ -8,6 +8,7 @@ import {
   MatchRuleParams,
   MatchRuleResponse,
 } from "@/types/tournament";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getMatches = async (
   filters: FilterParams,
@@ -24,13 +25,13 @@ export const getMatches = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       matches: [],
       page: 0,
       page_size: 0,
       total: 0,
-      error: error?.message || "Failed to fetch matches",
+      error: errorHandler(error, "Failed to fetch matches"),
     };
   }
 };
@@ -52,9 +53,9 @@ export const getMatch = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to fetch match details",
+      error: errorHandler(error, "Failed to fetch match details"),
     } as DetailMatchResponse;
   }
 };
@@ -78,9 +79,9 @@ export const createMatch = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create match",
+      error: errorHandler(error, "Failed to create match"),
     } as MatchResponse;
   }
 };
@@ -103,9 +104,9 @@ export const updateMatchRules = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to update match rules",
+      error: errorHandler(error, "Failed to update match rules"),
     } as MatchRuleResponse;
   }
 };

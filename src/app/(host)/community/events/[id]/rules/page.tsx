@@ -10,11 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { eventServices } from "@/services/event-services";
-import { hostServices } from "@/services/host-services";
-import { EventResponse } from "@/types/event";
-import { HostProfileModel } from "@/types/user";
-import { cookies } from "next/headers";
 
 import Link from "next/link";
 
@@ -47,18 +42,10 @@ const page = async ({ params, searchParams }: Props) => {
       </div>
       <div className="w-full sm:w-2/3 mx-auto">
         {type === "badminton" && (
-          <BadmintonRulesForm
-            communityId={community.id}
-            eventId={id}
-            tournament={event.tournament}
-          />
+          <BadmintonRulesForm eventId={id} tournament={event.tournament} />
         )}
         {type === "padel" && (
-          <PadelRulesForm
-            communityId={community.id}
-            eventId={id}
-            tournament={event.tournament}
-          />
+          <PadelRulesForm eventId={id} tournament={event.tournament} />
         )}
         {!type && (
           <div className="text-center py-10 space-y-4 border rounded-md p-4">

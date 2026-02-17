@@ -6,9 +6,7 @@ import Shuttlecock from "@/icons/shuttlecock";
 import useFullScreen from "@/hooks/use-full-screen";
 import { cn } from "@/lib/utils";
 
-type Props = {};
-
-const BadmintonBoard = (props: Props) => {
+const BadmintonBoard = () => {
   const { ref, isFullscreen, goFullscreen, exitFullscreen } = useFullScreen();
   return (
     <div

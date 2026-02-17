@@ -2,6 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { TokenExpirationDays } from "@/lib/env";
+import { errorHandler } from "@/lib/error-handler";
 import { AuthResponse, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
 
@@ -40,10 +41,10 @@ export const login = async (
     }
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to login",
-    };
+      error: errorHandler(error, "Failed to login"),
+    } as AuthResponse;
   }
 };
 
@@ -82,10 +83,10 @@ export const register = async (
     }
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to register",
-    };
+      error: errorHandler(error, "Failed to register"),
+    } as AuthResponse;
   }
 };
 
@@ -96,7 +97,8 @@ export const logout = async (): Promise<{ success: boolean }> => {
     cookie.delete("user_type");
 
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
+    console.log(error);
     return { success: false };
   }
 };

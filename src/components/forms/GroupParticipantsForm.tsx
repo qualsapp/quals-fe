@@ -18,6 +18,7 @@ import { Button } from "../ui/button";
 import { useDebounce } from "@uidotdev/usehooks";
 import { createGroupParticipants } from "@/actions/group";
 import { GroupParticipantsParams } from "@/types/group";
+import { Participant } from "@/types/tournament";
 
 type Props = {
   groupId: string;
@@ -82,10 +83,12 @@ const GroupParticipantForm = ({
         );
 
         if (response.participants) {
-          const participantOptions = response.participants.map((p: any) => ({
-            label: p.name,
-            value: p.id,
-          }));
+          const participantOptions = response.participants.map(
+            (p: Participant) => ({
+              label: p.name,
+              value: String(p.id),
+            }),
+          );
           setOptions(participantOptions);
         }
       } catch (error) {
@@ -120,13 +123,14 @@ const GroupParticipantForm = ({
         <FormField
           control={form.control}
           name="participant_ids"
-          render={({ field: { value, onChange, ...field } }) => (
+          render={({ field: { onChange, ...field } }) => (
             <FormItem>
               <FormControl>
                 <MultiSelect
                   {...field}
                   options={options}
                   onValueChange={onChange}
+                  value={field.value.toString()}
                   maxSelected={seatPerGroup}
                   onSearchValueChange={setSearch}
                   placeholder={`Select up to ${seatPerGroup} participants`}

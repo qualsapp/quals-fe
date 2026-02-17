@@ -4,15 +4,7 @@ import { Switch } from "@/components/ui/switch";
 
 import React from "react";
 
-type Props = {};
-
-const menus = [
-  { label: "Event", href: "/community/events" },
-  { label: "Members", href: "/community/members" },
-  { label: "Statistic", href: "/community/statistic" },
-];
-
-const page = (props: Props) => {
+const page = () => {
   return (
     <div className=" py-10 md:py-16 space-y-10">
       <div className="container space-y-10">

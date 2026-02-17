@@ -1,4 +1,3 @@
-import { ReactElement } from "react";
 import { BracketsResponse, MatchRuleResponse, Participant } from "./tournament";
 
 export type MatchParams = {

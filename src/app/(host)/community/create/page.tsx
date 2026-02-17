@@ -4,9 +4,7 @@ import CommunityDetailsForm from "@/components/forms/CommunityDetailsForm";
 import Heading from "@/components/commons/heading";
 import { getSports } from "@/actions/sport";
 
-type Props = {};
-
-const page = async (props: Props) => {
+const page = async () => {
   const sports = await getSports();
   return (
     <div className="container lg:py-16 py-8 space-y-10">

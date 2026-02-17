@@ -7,6 +7,7 @@ import {
   PlayerListResponse,
 } from "@/types/player";
 import { getCookies } from "./helper";
+import { errorHandler } from "@/lib/error-handler";
 
 export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
   const token = await getCookies();
@@ -20,9 +21,9 @@ export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to fetch player details",
+      error: errorHandler(error, "Failed to fetch player details"),
     } as PlayerDetailResponse;
   }
 };
@@ -44,9 +45,9 @@ export const searchPlayer = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to search players",
+      error: errorHandler(error, "Failed to search players"),
     };
   }
 };
@@ -66,9 +67,9 @@ export const createPlayerDetails = async (
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to create player details",
+      error: errorHandler(error, "Failed to create player details"),
     } as PlayerDetailResponse;
   }
 };
@@ -90,9 +91,9 @@ export const joinCommunity = async (
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      error: error?.message || "Failed to join community",
+      error: errorHandler(error, "Failed to join community"),
     } as JoinCommunityResponse;
   }
 };

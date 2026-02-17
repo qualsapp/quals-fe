@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import JoinTournamentForm from "../forms/JoinTournamentForm";
 import { Button } from "../ui/button";
 import { EventResponse } from "@/types/event";

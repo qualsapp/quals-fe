@@ -42,7 +42,7 @@ const CommunityDetailsForm = ({
     defaultValues: {
       name: community?.name || "",
       address: community?.address || "",
-      sports: community?.sports || [],
+      sports: community?.sport_types.map((sport) => sport.id.toString()) || [],
       description: community?.description || "",
       image: undefined,
     },
@@ -123,7 +123,9 @@ const CommunityDetailsForm = ({
                     value: sport.id.toString(),
                   }))}
                   value={field.value}
-                  defaultValue={community?.sports}
+                  defaultValue={community?.sport_types.map((sport) =>
+                    sport.id.toString(),
+                  )}
                   onValueChange={field.onChange}
                   placeholder="Choose sports..."
                 />
