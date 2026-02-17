@@ -1,0 +1,91 @@
+import { Participant, ParticipantsResponse } from "../types/tournament";
+
+export const dummyParticipants: Participant[] = [
+  {
+    id: 1,
+    name: "Alice Johnson",
+    type: "PLAYER",
+    score: 0,
+    seed: 1,
+    isWinner: false,
+  },
+  {
+    id: 2,
+    name: "Bob Smith",
+    type: "PLAYER",
+    score: 0,
+    seed: 2,
+    isWinner: false,
+  },
+  {
+    id: 3,
+    name: "Charlie Davis",
+    type: "PLAYER",
+    score: 0,
+    seed: 3,
+    isWinner: false,
+  },
+  {
+    id: 4,
+    name: "Diana Prince",
+    type: "PLAYER",
+    score: 0,
+    seed: 4,
+    isWinner: false,
+  },
+  {
+    id: 5,
+    name: "Ethan Hunt",
+    type: "PLAYER",
+    score: 0,
+    seed: 5,
+    isWinner: false,
+  },
+  {
+    id: 6,
+    name: "Fiona Gallagher",
+    type: "PLAYER",
+    score: 0,
+    seed: 6,
+    isWinner: false,
+  },
+  {
+    id: 7,
+    name: "George Costanza",
+    type: "PLAYER",
+    score: 0,
+    seed: 7,
+    isWinner: false,
+  },
+  {
+    id: 8,
+    name: "Hannah Abbott",
+    type: "PLAYER",
+    score: 0,
+    seed: 8,
+    isWinner: false,
+  },
+  {
+    id: 9,
+    name: "Ian McShane",
+    type: "PLAYER",
+    score: 0,
+    seed: 9,
+    isWinner: false,
+  },
+  {
+    id: 10,
+    name: "Jane Doe",
+    type: "PLAYER",
+    score: 0,
+    seed: 10,
+    isWinner: false,
+  },
+];
+
+export const dummyParticipantsResponse: ParticipantsResponse = {
+  participants: dummyParticipants,
+  page: 1,
+  page_size: 10,
+  total: 10,
+};
