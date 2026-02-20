@@ -1,13 +1,14 @@
 "use server";
 import { apiClient } from "@/lib/api-client";
 import { getCookies } from "./helper";
-import { MatchesResponse, MatchParams, MatchResponse } from "@/types/match";
-import { FilterParams } from "@/types/global";
 import {
-  DetailMatchResponse,
-  MatchRuleParams,
-  MatchRuleResponse,
-} from "@/types/tournament";
+  MatchesResponse,
+  MatchParams,
+  MatchResponse,
+  MatchSetParams,
+} from "@/types/match";
+import { FilterParams } from "@/types/global";
+import { MatchRuleParams, MatchRuleResponse } from "@/types/tournament";
 import { errorHandler } from "@/lib/error-handler";
 
 export const getMatches = async (
@@ -36,27 +37,22 @@ export const getMatches = async (
   }
 };
 
-export const getMatch = async (
-  matchId: string,
-): Promise<DetailMatchResponse> => {
+export const getMatch = async (matchId: string): Promise<MatchResponse> => {
   const token = await getCookies();
 
   try {
-    const response = await apiClient<DetailMatchResponse>(
-      `/matches/${matchId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
+    const response = await apiClient<MatchResponse>(`/matches/${matchId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token?.value}`,
       },
-    );
+    });
 
     return response;
   } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to fetch match details"),
-    } as DetailMatchResponse;
+    } as MatchResponse;
   }
 };
 
@@ -108,5 +104,58 @@ export const updateMatchRules = async (
     return {
       error: errorHandler(error, "Failed to update match rules"),
     } as MatchRuleResponse;
+  }
+};
+
+export const createMatchSet = async (
+  matchId: string,
+  params: MatchSetParams,
+): Promise<MatchResponse> => {
+  const token = await getCookies();
+
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/sets`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to create match"),
+    } as MatchResponse;
+  }
+};
+
+export const updateMatchSet = async (
+  matchId: string,
+  setId: string,
+  params: MatchSetParams,
+): Promise<MatchResponse> => {
+  const token = await getCookies();
+
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/sets/${setId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to create match"),
+    } as MatchResponse;
   }
 };

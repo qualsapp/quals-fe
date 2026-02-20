@@ -38,7 +38,6 @@ const page = async ({ params }: Props) => {
                 score: bracket.match.participant_a.score || null,
                 seed: null,
                 isWinner: bracket.match.participant_a.isWinner,
-                // sets: bracket.match.participant_a?.sets || null,
               },
             ]
           : []),
@@ -50,7 +49,6 @@ const page = async ({ params }: Props) => {
                 score: bracket.match.participant_b.score || null,
                 seed: null,
                 isWinner: bracket.match.participant_b.isWinner,
-                // sets: bracket.match.participant_a?.sets || null,
               },
             ]
           : []),

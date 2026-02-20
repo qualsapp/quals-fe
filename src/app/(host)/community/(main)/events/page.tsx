@@ -14,15 +14,34 @@ import Link from "next/link";
 import { getEvents } from "@/actions/event";
 import Modal from "@/components/commons/state-modal";
 import Image from "next/image";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type Props = {
-  searchParams: Promise<{ welcome: boolean }>;
+  searchParams: Promise<{ welcome: boolean; page: number; page_size: number }>;
 };
 
 const page = async ({ searchParams }: Props) => {
-  const { welcome } = await searchParams;
+  const { welcome, page = 1, page_size = 25 } = await searchParams;
 
-  const { events } = await getEvents();
+  const { events, ...meta } = await getEvents({
+    page,
+    page_size,
+  });
 
   return (
     <div className="container space-y-10">
@@ -53,7 +72,7 @@ const page = async ({ searchParams }: Props) => {
       </div>
 
       <div className="grid grid-cols-1 gap-0">
-        {events.map((event) => (
+        {events?.map((event) => (
           <Link
             href={`/community/events/${event.id}`}
             key={event.id}
@@ -62,6 +81,47 @@ const page = async ({ searchParams }: Props) => {
             <EventLineup event={event} />
           </Link>
         ))}
+
+        <div className="flex items-center justify-between">
+          <Field orientation="horizontal" className="w-fit">
+            <FieldLabel htmlFor="select-rows-per-page">
+              Rows per page
+            </FieldLabel>
+            <Select defaultValue="25">
+              <SelectTrigger className="w-20" id="select-rows-per-page">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent align="start">
+                <SelectGroup>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Pagination className="mx-0 w-auto">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href={page > 1 ? `?page=${page - 1}` : "#"}
+                />
+              </PaginationItem>
+              {page >= Math.ceil(meta.total / meta.page_size) && (
+                <PaginationItem>
+                  <PaginationNext
+                    href={
+                      page < Math.ceil(meta.total / meta.page_size)
+                        ? `?page=${page + 1}`
+                        : "#"
+                    }
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
       <Modal isOpen={welcome}>
         <Image

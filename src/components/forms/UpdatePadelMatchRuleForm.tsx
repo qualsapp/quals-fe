@@ -76,7 +76,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
         } else {
           form.reset();
           setOpen(false);
-          router.push(`${pathname}/play`);
+          router.push(`${pathname}/play?type=paddle`);
         }
       });
     } catch (error) {
@@ -88,7 +88,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Update Padel Match Rule</DialogTitle>
+          <DialogTitle>Update Paddle Match Rule</DialogTitle>
           <DialogDescription>
             Please check the match rule before starting the match.
           </DialogDescription>

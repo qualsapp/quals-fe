@@ -5,7 +5,13 @@ import { EventParams, EventResponse, EventsResponse } from "@/types/event";
 import { errorHandler } from "@/lib/error-handler";
 import { Sport } from "@/types/global";
 
-export const getEvents = async (): Promise<EventsResponse> => {
+export const getEvents = async ({
+  page,
+  page_size,
+}: {
+  page: number;
+  page_size: number;
+}): Promise<EventsResponse> => {
   const token = await getCookies();
 
   try {
@@ -13,6 +19,10 @@ export const getEvents = async (): Promise<EventsResponse> => {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token?.value}`,
+      },
+      params: {
+        page,
+        page_size,
       },
     });
 

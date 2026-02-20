@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { ArrowLeft } from "lucide-react";
+import { getMatch } from "@/actions/match";
+import TennisBoard from "@/components/score-boards/tennis";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -10,10 +12,16 @@ type Props = {
 };
 
 const page = async ({ params, searchParams }: Props) => {
-  const { id } = await params;
+  const { match_id } = await params;
   const { type } = await searchParams;
 
-  console.log(id, type);
+  const match = await getMatch(match_id);
+
+  console.log(match);
+
+  if (type === null) {
+    return <div>Sport type is failing, please redo the match</div>;
+  }
 
   return (
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">
@@ -24,9 +32,9 @@ const page = async ({ params, searchParams }: Props) => {
           </Button>
         </Link>
 
-        <BadmintonBoard />
+        {type === "badminton" && <BadmintonBoard />}
 
-        {/* <TennisBoard /> */}
+        {type === "paddle" && <TennisBoard />}
       </div>
     </div>
   );

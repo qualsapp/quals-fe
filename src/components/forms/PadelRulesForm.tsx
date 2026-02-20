@@ -79,7 +79,7 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       groups_count: tournament?.groups_count?.toString() || "",
       seat_per_group: tournament?.seat_per_group?.toString() || "",
       top_advancing_group: tournament?.top_advancing_group?.toString() || "",
-      deuce: tournament?.match_rule?.deuce || false,
+      deuce: !tournament?.match_rule?.deuce || false,
       best_of_sets: tournament?.match_rule?.best_of_sets?.toString() || "",
       race_to: tournament?.match_rule?.race_to?.toString() || "",
     },
@@ -94,7 +94,8 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       participants_count: Number(data.participants_count),
       ...(data.best_of_sets && { best_of_sets: Number(data.best_of_sets) }),
       ...(data.race_to && { race_to: Number(data.race_to) }),
-      deuce: data.deuce,
+      deuce: !data.deuce,
+      scoring_system: "rally",
     };
 
     startTransition(async () => {

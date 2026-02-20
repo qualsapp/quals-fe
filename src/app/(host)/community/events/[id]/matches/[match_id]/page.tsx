@@ -5,6 +5,8 @@ import { getMatch } from "@/actions/match";
 import Player from "@/components/commons/player";
 import BackButton from "@/components/commons/back-button";
 import { getEvent } from "@/actions/event";
+import { cn } from "@/lib/utils";
+import { MatchSetModel } from "@/types/match";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -14,6 +16,25 @@ const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
 
   const [match, event] = await Promise.all([getMatch(match_id), getEvent(id)]);
+
+  const setScore = (set: MatchSetModel[]) => {
+    let score_a = 0;
+    let score_b = 0;
+    set.forEach((set) => {
+      if (set.is_finished) {
+        if (set.score_a > set.score_b) {
+          score_a += 1;
+        } else {
+          score_b += 1;
+        }
+      }
+    });
+
+    return {
+      score_a,
+      score_b,
+    };
+  };
 
   if (!match || !event) {
     return <div>Match not found</div>;
@@ -41,15 +62,73 @@ const page = async ({ params }: Props) => {
         <div className="flex justify-between items-center rounded-lg p-6 border-y ">
           <Player names={match.participant_a.name.split("/")} />
 
-          <p className="text-2xl font-bold">VS</p>
+          {match.match_sets && match.match_sets?.length > 0 ? (
+            <div className="space-y-3 flex flex-col items-center">
+              <div className="flex gap-3">
+                <p
+                  className={cn(
+                    "w-16 h-24 flex items-center justify-center text-6xl border border-gray-400",
+                    setScore(match.match_sets).score_a >
+                      setScore(match.match_sets).score_b
+                      ? "bg-primary text-secondary"
+                      : "",
+                  )}
+                >
+                  {setScore(match.match_sets).score_a}
+                </p>
+                <p
+                  className={cn(
+                    "w-16 h-24 flex items-center justify-center text-6xl border border-gray-400",
+                    setScore(match.match_sets).score_a <
+                      setScore(match.match_sets).score_b
+                      ? "bg-primary text-secondary"
+                      : "",
+                  )}
+                >
+                  {setScore(match.match_sets).score_b}
+                </p>
+              </div>
+              <div className="flex gap-6">
+                {match.match_sets.map((set, index) => (
+                  <p key={index}>
+                    <span
+                      className={cn(
+                        "font-semibold",
+                        set.is_finished && set.score_a > set.score_b
+                          ? "text-red-400"
+                          : "text-gray-400",
+                      )}
+                    >
+                      {set.score_a}
+                    </span>
+                    &nbsp;:&nbsp;
+                    <span
+                      className={cn(
+                        "font-semibold",
+                        set.is_finished && set.score_a < set.score_b
+                          ? "text-red-400"
+                          : "text-gray-400",
+                      )}
+                    >
+                      {set.score_b}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-2xl font-bold">VS</p>
+          )}
 
           <Player names={match.participant_b.name.split("/")} />
         </div>
-        <UpdateRuleBeforeMatch
-          matchId={match_id}
-          rule={match.match_rule}
-          type={event.sport_type.slug}
-        />
+        {match.winner === null && (
+          <UpdateRuleBeforeMatch
+            matchId={match_id}
+            rule={match.match_rule}
+            type={event.sport_type.slug}
+          />
+        )}
       </div>
     </div>
   );
