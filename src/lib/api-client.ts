@@ -35,8 +35,13 @@ export async function apiClient<T>(
     // Next.js 14+ caching strategy
     cache: options.cache || "no-store",
   };
+  const url = new URL(`${ApiUrl}${endpoint}`);
+  url.search = new URLSearchParams(params).toString();
 
-  const response = await fetch(`${ApiUrl}${endpoint}${queryString}`, config);
+  console.log(url);
+
+  const response = await fetch(url, config);
+  console.log(response);
 
   if (!response.ok) {
     // Try to parse the error message if possible

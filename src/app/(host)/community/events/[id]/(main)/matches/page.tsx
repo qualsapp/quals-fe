@@ -24,6 +24,8 @@ const page = async ({ params, searchParams }: Props) => {
 
   const event = await getEvent(id);
 
+  console.log(event);
+
   if (!event) {
     return (
       <div className="py-8 md:py-10 space-y-10">
@@ -97,9 +99,7 @@ const page = async ({ params, searchParams }: Props) => {
             </div>
           </TabsContent>
           <TabsContent value="order_of_play">
-            <div
-              className={cn("grid gap-4", `grid-cols-${matchesByCourt.length}`)}
-            >
+            <div className={cn("grid gap-4", `grid-cols-3`)}>
               {matchesByCourt.map((court) => (
                 <div
                   key={court.court}

@@ -21,6 +21,7 @@ type Props = {
 };
 
 const MatchCard = ({ type, url, match }: Props) => {
+  console.log(match);
   return (
     <Card className="w-full max-w-sm p-0">
       <CardHeader className="bg-primary rounded-t-lg pt-2 pb-1">

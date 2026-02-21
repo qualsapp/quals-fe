@@ -15,14 +15,7 @@ import { getEvents } from "@/actions/event";
 import Modal from "@/components/commons/state-modal";
 import Image from "next/image";
 import { Field, FieldLabel } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import RowsPerPageSelect from "@/components/commons/rows-per-page-select";
 import {
   Pagination,
   PaginationContent,
@@ -37,11 +30,15 @@ type Props = {
 
 const page = async ({ searchParams }: Props) => {
   const { welcome, page = 1, page_size = 25 } = await searchParams;
+  const currentPage = Number(page);
+  const currentPageSize = Number(page_size);
 
   const { events, ...meta } = await getEvents({
-    page,
-    page_size,
+    page: currentPage,
+    page_size: currentPageSize,
   });
+
+  const totalPages = Math.ceil((meta.total || 0) / currentPageSize) || 1;
 
   return (
     <div className="container space-y-10">
@@ -74,7 +71,7 @@ const page = async ({ searchParams }: Props) => {
       <div className="grid grid-cols-1 gap-0">
         {events?.map((event) => (
           <Link
-            href={`/community/events/${event.id}`}
+            href={`/events/${event.id}`}
             key={event.id}
             className="hover:bg-gray-100"
           >
@@ -87,35 +84,21 @@ const page = async ({ searchParams }: Props) => {
             <FieldLabel htmlFor="select-rows-per-page">
               Rows per page
             </FieldLabel>
-            <Select defaultValue="25">
-              <SelectTrigger className="w-20" id="select-rows-per-page">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="start">
-                <SelectGroup>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <RowsPerPageSelect defaultValue={page_size.toString()} />
           </Field>
           <Pagination className="mx-0 w-auto">
             <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href={page > 1 ? `?page=${page - 1}` : "#"}
-                />
-              </PaginationItem>
-              {page >= Math.ceil(meta.total / meta.page_size) && (
+              {currentPage > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={`?page=${currentPage - 1}&page_size=${currentPageSize}`}
+                  />
+                </PaginationItem>
+              )}
+              {currentPage < totalPages && (
                 <PaginationItem>
                   <PaginationNext
-                    href={
-                      page < Math.ceil(meta.total / meta.page_size)
-                        ? `?page=${page + 1}`
-                        : "#"
-                    }
+                    href={`?page=${currentPage + 1}&page_size=${currentPageSize}`}
                   />
                 </PaginationItem>
               )}

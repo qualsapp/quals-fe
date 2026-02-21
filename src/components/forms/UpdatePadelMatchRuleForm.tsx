@@ -50,7 +50,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
   const form = useForm({
     resolver: zodResolver(PadelMatchRuleScheme),
     defaultValues: {
-      deuce: rule.deuce,
+      deuce: !rule.deuce || false,
       best_of_sets: rule.best_of_sets?.toString() || "",
       race_to: rule.race_to?.toString() || "",
     },
@@ -59,14 +59,13 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
   const onSubmit = (data: z.infer<typeof PadelMatchRuleScheme>) => {
     try {
       const params: MatchRuleParams = {
-        ...(data.deuce && {
-          deuce: data.deuce,
-        }),
+        deuce: data.deuce,
         ...(data.best_of_sets
           ? {
               best_of_sets: Number(data.best_of_sets),
             }
           : { race_to: Number(data.race_to) }),
+        scoring_system: "rally",
       };
 
       startTransition(async () => {
