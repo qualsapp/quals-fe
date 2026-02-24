@@ -18,10 +18,10 @@ type Props = {
   type: "live" | "order_of_play";
   match: MatchResponse;
   url: string;
+  index?: number;
 };
 
-const MatchCard = ({ type, url, match }: Props) => {
-  console.log(match);
+const MatchCard = ({ type, url, match, index }: Props) => {
   return (
     <Card className="w-full max-w-sm p-0">
       <CardHeader className="bg-primary rounded-t-lg pt-2 pb-1">
@@ -37,7 +37,7 @@ const MatchCard = ({ type, url, match }: Props) => {
             >
               {type === "live"
                 ? `Court ${match.court_number}`
-                : `Match ${match?.tournament_bracket?.match_number}`}
+                : `Match ${match?.tournament_bracket?.match_number || Number(index) + 1}`}
             </Button>
           </Link>
         </CardTitle>
@@ -95,7 +95,7 @@ const MatchCard = ({ type, url, match }: Props) => {
           Final .{" "}
           {type === "order_of_play"
             ? `Court ${match.court_number}`
-            : `Match ${match.tournament_bracket?.match_number}`}
+            : `Match ${match.tournament_bracket?.match_number || Number(index) + 1}`}
         </p>
         <p className="font-semibold flex items-center gap-1">
           <Timer /> {match.scheduled_at}

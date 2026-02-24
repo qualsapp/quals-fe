@@ -3,7 +3,7 @@
 import { apiClient } from "@/lib/api-client";
 import { TokenExpirationDays } from "@/lib/env";
 import { errorHandler } from "@/lib/error-handler";
-import { AuthResponse, LoginParams } from "@/types/auth";
+import { AuthResponse, LoginByGoogleParams, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
 
 export const login = async (
@@ -100,5 +100,60 @@ export const logout = async (): Promise<{ success: boolean }> => {
   } catch (error: unknown) {
     console.log(error);
     return { success: false };
+  }
+};
+
+export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
+  const cookieStore = await cookies();
+  try {
+    const response = await apiClient<AuthResponse>("/users/login/google", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+
+    if (response.token) {
+      cookieStore.set("token", response.token, {
+        path: "/",
+        expires: new Date(
+          Date.now() + Number(TokenExpirationDays) * 24 * 60 * 60 * 1000,
+        ),
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+
+      if (response.user_type) {
+        cookieStore.set("user_type", response.user_type, {
+          path: "/",
+          expires: new Date(
+            Date.now() + Number(TokenExpirationDays) * 24 * 60 * 60 * 1000,
+          ),
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
+    }
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to login with Google"),
+    } as AuthResponse;
+  }
+};
+
+export const loginByGoolge = async (params: LoginByGoogleParams) => {
+  try {
+    const response = await apiClient<AuthResponse>("/users/google", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to login by google"),
+    } as AuthResponse;
   }
 };

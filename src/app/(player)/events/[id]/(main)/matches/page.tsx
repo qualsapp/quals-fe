@@ -85,6 +85,7 @@ const page = async ({ params, searchParams }: Props) => {
               {matches.map((match, index) => (
                 <MatchCard
                   key={index}
+                  index={index}
                   match={match}
                   type="live"
                   url={`/events/${id}/matches/${match.id}`}
@@ -107,6 +108,7 @@ const page = async ({ params, searchParams }: Props) => {
                   {court.matches.map((match, index) => (
                     <MatchCard
                       key={index}
+                      index={index}
                       type="order_of_play"
                       match={match}
                       url={`/events/${id}/matches/${match.id}`}

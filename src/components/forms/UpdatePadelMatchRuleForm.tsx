@@ -75,7 +75,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
         } else {
           form.reset();
           setOpen(false);
-          router.push(`${pathname}/play?type=paddle`);
+          router.push(`${pathname}/play?type=paddle&left=a&right=b`);
         }
       });
     } catch (error) {

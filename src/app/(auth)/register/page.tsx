@@ -4,6 +4,7 @@ import { Divider } from "@/components/ui/divider";
 import { Google } from "@/icons";
 import Link from "next/link";
 import React from "react";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
 const page = () => {
   return (
@@ -20,10 +21,7 @@ const page = () => {
           <Divider />
         </div>
 
-        <Button variant="outline" size="lg" className="py-6">
-          <Google />
-          Google
-        </Button>
+        <GoogleLoginButton />
 
         <p className="text-center">
           Sudah punya akun?{" "}

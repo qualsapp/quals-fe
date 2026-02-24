@@ -50,10 +50,14 @@ const page = async ({ params }: Props) => {
           </p>
           <div className="h-2 w-2 rounded-full bg-gray-400"></div>
           <p className="text-lg font-semibold">Court {match.court_number}</p>
-          <div className="h-2 w-2 rounded-full bg-gray-400"></div>
-          <p className="text-lg font-semibold">
-            Match {match.tournament_bracket?.match_number}
-          </p>
+          {match.tournament_bracket?.match_number && (
+            <>
+              <div className="h-2 w-2 rounded-full bg-gray-400"></div>
+              <p className="text-lg font-semibold">
+                Match {match.tournament_bracket.match_number}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="flex justify-between items-center rounded-lg p-6 border-y ">
