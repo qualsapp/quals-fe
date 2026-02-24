@@ -5,7 +5,12 @@ import { ArrowRightLeft } from "lucide-react";
 import TennisBall from "@/icons/tennis-ball";
 import useFullScreen from "@/hooks/use-full-screen";
 import { getMatch, updateMatchSet } from "@/actions/match";
-import { redirect, useParams, useSearchParams } from "next/navigation";
+import {
+  redirect,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -13,11 +18,19 @@ import FirstServisForm from "../forms/FirstServisForm";
 
 const TennisBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
-  const [open, setOpen] = useState<boolean>(false);
-  const [endGame, setEndGame] = useState<boolean>(false);
-
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [open, setOpen] = useState<boolean>(false);
+  const [endGame, setEndGame] = useState<boolean>(false);
+  const [position, setPosition] = useState<{
+    left: "participant_a" | "participant_b";
+    right: "participant_a" | "participant_b";
+  }>({
+    left: searchParams.get("left") === "a" ? "participant_a" : "participant_b",
+    right:
+      searchParams.get("right") === "a" ? "participant_a" : "participant_b",
+  });
 
   const onGetMatch = useCallback(async () => {
     const match = await getMatch(String(params.match_id));
@@ -26,12 +39,23 @@ const TennisBoard = () => {
     }
 
     // if match is finished
-    if (
-      !match.error &&
-      match.match_sets?.every((set) => set.is_finished) &&
-      !match.winner
-    ) {
-      setOpen(true);
+    const left = position.left === "participant_a" ? "a" : "b";
+    const right = position.right === "participant_a" ? "a" : "b";
+
+    if (!searchParams.get("set_id")) {
+      router.push(
+        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+      );
+    }
+
+    const isCurrentSetFinished = match.match_sets?.find(
+      (set) => set.id === Number(searchParams.get("set_id")),
+    )?.is_finished;
+
+    if (isCurrentSetFinished && !match.winner) {
+      router.push(
+        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+      );
     }
 
     // if end game
@@ -50,6 +74,26 @@ const TennisBoard = () => {
     queryKey: ["match", params.match_id],
     queryFn: onGetMatch,
   });
+
+  const onChangePosition = () => {
+    if (position.left === "participant_a") {
+      setPosition({
+        left: "participant_b",
+        right: "participant_a",
+      });
+      redirect(
+        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+      );
+    } else {
+      setPosition({
+        left: "participant_a",
+        right: "participant_b",
+      });
+      redirect(
+        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+      );
+    }
+  };
 
   const matchSetMutation = async (server: string, currentSetId?: number) => {
     if (!match?.id) return;
@@ -122,14 +166,23 @@ const TennisBoard = () => {
       <div className="flex border-4 border-primary-100 w-full">
         <div className="w-full">
           <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">
-            {match?.participant_a?.name}
+            {position.left === "participant_a"
+              ? match?.participant_a?.name
+              : match?.participant_b?.name}
           </p>
           <div className="relative flex border-3 border-primary-100 bg-primary text-secondary items-center h-[200px] md:h-[300px]">
             <div
               className="grow text-4xl md:text-7xl font-bold text-center"
-              onClick={() => matchSetMutation("participant_a")}
+              onClick={() =>
+                matchSetMutation(
+                  position.left,
+                  Number(searchParams.get("set_id")),
+                )
+              }
             >
-              {curSet?.score_a}
+              {position.left === "participant_a"
+                ? curSet?.score_a
+                : curSet?.score_b || 0}
             </div>
             <div className="flex flex-col h-full">
               <Button
@@ -142,7 +195,9 @@ const TennisBoard = () => {
                 className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
                 size="lg"
               >
-                {setScore.score_a}
+                {position.left === "participant_a"
+                  ? setScore.score_a
+                  : setScore.score_b || 0}
               </Button>
 
               <Button
@@ -154,7 +209,7 @@ const TennisBoard = () => {
               </Button>
             </div>
 
-            {curSet?.current_server == "participant_a" && (
+            {curSet?.current_server == position.left && (
               <div className="absolute top-3 left-3">
                 <TennisBall />
               </div>
@@ -163,7 +218,9 @@ const TennisBoard = () => {
         </div>
         <div className="border border-secondary w-full">
           <p className="bg-secondary text-primary border-3 border-primary-100 text-2xl font-bold text-center">
-            {match?.participant_b?.name}
+            {position.right === "participant_b"
+              ? match?.participant_b?.name
+              : match?.participant_a?.name}
           </p>
           <div className="relative flex border-3 border-primary-100 bg-secondary text-primary items-center h-[200px] md:h-[300px]">
             <div className="flex flex-col h-full">
@@ -171,13 +228,17 @@ const TennisBoard = () => {
                 variant="secondary"
                 className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
               >
-                {setScore.score_b}
+                {position.right === "participant_b"
+                  ? setScore.score_b
+                  : setScore.score_a || 0}
               </Button>
               <Button
                 variant="secondary"
                 className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
               >
-                {setScore.score_b}
+                {position.right === "participant_b"
+                  ? setScore.score_b
+                  : setScore.score_a || 0}
               </Button>
 
               <Button
@@ -189,11 +250,20 @@ const TennisBoard = () => {
             </div>
             <div
               className="grow font-bold text-center text-4xl md:text-7xl "
-              onClick={() => matchSetMutation("participant_b")}
+              onClick={() =>
+                matchSetMutation(
+                  position.right,
+                  Number(searchParams.get("set_id")),
+                )
+              }
             >
-              <p>{curSet?.score_b}</p>
+              <p>
+                {position.right === "participant_b"
+                  ? curSet?.score_b
+                  : curSet?.score_a || 0}
+              </p>
             </div>
-            {curSet?.current_server == "participant_b" && (
+            {curSet?.current_server == position.right && (
               <div className="absolute top-3 right-3">
                 <TennisBall />
               </div>
@@ -203,7 +273,12 @@ const TennisBoard = () => {
       </div>
 
       <div className="flex gap-4 items-center justify-center">
-        <Button variant="outline" size="lg" aria-label="Switch Court">
+        <Button
+          variant="outline"
+          size="lg"
+          aria-label="Switch Court"
+          onClick={onChangePosition}
+        >
           <ArrowRightLeft />
         </Button>
       </div>

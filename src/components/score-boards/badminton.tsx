@@ -273,8 +273,6 @@ const BadmintonBoard = () => {
           >
             <ArrowRightLeft />
           </Button>
-
-          {!isFullscreen && <Button onClick={goFullscreen}>Enter</Button>}
         </div>
       </div>
       {match && (
