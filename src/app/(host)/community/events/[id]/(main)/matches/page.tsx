@@ -24,8 +24,6 @@ const page = async ({ params, searchParams }: Props) => {
 
   const event = await getEvent(id);
 
-  console.log(event);
-
   if (!event) {
     return (
       <div className="py-8 md:py-10 space-y-10">
@@ -40,6 +38,8 @@ const page = async ({ params, searchParams }: Props) => {
     tournament_id: event.tournament?.id,
     ...searchParamsData,
   });
+
+  console.log(matches);
 
   if (!matches || matches?.length === 0) {
     return (

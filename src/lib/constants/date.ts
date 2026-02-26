@@ -1,0 +1,1 @@
+export const SCHEDULED_AT_FORMAT = "DD MMM YYYY";

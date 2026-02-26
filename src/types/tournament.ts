@@ -1,4 +1,5 @@
 import { GroupResponse } from "./group";
+import { MatchSetModel } from "./match";
 
 export type MatchRuleParams = {
   deuce?: boolean;
@@ -99,6 +100,7 @@ export interface MatchResponse {
   started_at: string | null;
   status: string;
   winner: Participant | null;
+  match_sets: MatchSetModel[];
 }
 
 export interface DetailMatchResponse extends MatchResponse {

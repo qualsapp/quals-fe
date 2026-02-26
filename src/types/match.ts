@@ -14,12 +14,19 @@ export type MatchSetParams = {
 export type MatchSetModel = {
   id: number;
   match_id: number;
-  score_a: number;
-  score_b: number;
+  set_score_a: number;
+  set_score_b: number;
+  current_point_a: number;
+  current_point_b: number;
   set_number: number;
   current_server: string;
   second_service: boolean;
+  is_tiebreak: boolean;
   is_finished: boolean;
+  winner_side: string;
+  match_score_a: number;
+  match_score_b: number;
+  games: MatchSetModel | null;
   updated_at: string;
 };
 

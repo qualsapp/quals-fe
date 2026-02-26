@@ -13,6 +13,8 @@ import { Timer } from "lucide-react";
 import { MatchResponse } from "@/types/match";
 import Player from "./player";
 import { cn } from "@/lib/utils";
+import dayjs from "dayjs";
+import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 
 type Props = {
   type: "live" | "order_of_play";
@@ -67,22 +69,22 @@ const MatchCard = ({ type, url, match, index }: Props) => {
                 <p
                   className={cn(
                     "font-semibold",
-                    set.is_finished && set.score_a > set.score_b
+                    set.is_finished && set.set_score_a > set.set_score_b
                       ? "text-red-400"
                       : "",
                   )}
                 >
-                  {set.score_a}
+                  {set.set_score_a}
                 </p>
                 <p
                   className={cn(
                     "font-semibold",
-                    set.is_finished && set.score_a < set.score_b
+                    set.is_finished && set.set_score_a < set.set_score_b
                       ? "text-red-400"
                       : "",
                   )}
                 >
-                  {set.score_b}
+                  {set.set_score_b}
                 </p>
               </div>
             ))}
@@ -97,9 +99,11 @@ const MatchCard = ({ type, url, match, index }: Props) => {
             ? `Court ${match.court_number}`
             : `Match ${match.tournament_bracket?.match_number || Number(index) + 1}`}
         </p>
-        <p className="font-semibold flex items-center gap-1">
-          <Timer /> {match.scheduled_at}
-        </p>
+        {match.scheduled_at && (
+          <p className="text-sm font-semibold flex items-center gap-1">
+            {dayjs(match.scheduled_at).format(SCHEDULED_AT_FORMAT)}
+          </p>
+        )}
       </CardFooter>
     </Card>
   );

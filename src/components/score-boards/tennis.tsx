@@ -75,6 +75,8 @@ const TennisBoard = () => {
     queryFn: onGetMatch,
   });
 
+  console.log(match);
+
   const onChangePosition = () => {
     if (position.left === "participant_a") {
       setPosition({
@@ -123,13 +125,20 @@ const TennisBoard = () => {
     }
   }, [match?.match_sets, searchParams.get("set_id")]);
 
+  const scoreAlias: Record<number, number> = {
+    0: 0,
+    1: 15,
+    2: 30,
+    3: 40,
+  };
+
   const setScore = useMemo(() => {
     let score_a = 0;
     let score_b = 0;
 
     match?.match_sets?.forEach((set) => {
       if (set.is_finished) {
-        if (set.score_a > set.score_b) {
+        if (set.set_score_a > set.set_score_b) {
           score_a += 1;
         } else {
           score_b += 1;
@@ -163,124 +172,133 @@ const TennisBoard = () => {
         isFullscreen && "w-[100vw] h-[100vh] fixed inset-0 z-50 bg-white",
       )}
     >
-      <div className="flex border-4 border-primary-100 w-full">
-        <div className="w-full">
-          <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">
-            {position.left === "participant_a"
-              ? match?.participant_a?.name
-              : match?.participant_b?.name}
-          </p>
-          <div className="relative flex border-3 border-primary-100 bg-primary text-secondary items-center h-[200px] md:h-[300px]">
-            <div
-              className="grow text-4xl md:text-7xl font-bold text-center"
-              onClick={() =>
-                matchSetMutation(
-                  position.left,
-                  Number(searchParams.get("set_id")),
-                )
-              }
-            >
+      <div
+        className={cn(
+          "flex flex-col gap-6",
+          isFullscreen && "w-[100vw] h-[100vh]",
+        )}
+      >
+        <div className="flex border-4 border-primary-100 w-full">
+          <div className="w-full">
+            <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">
               {position.left === "participant_a"
-                ? curSet?.score_a
-                : curSet?.score_b || 0}
-            </div>
-            <div className="flex flex-col h-full">
-              <Button
-                className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
-              >
-                {setScore.score_a}
-              </Button>
-              <Button
-                className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
+                ? match?.participant_a?.name
+                : match?.participant_b?.name}
+            </p>
+            <div className="relative flex border-3 border-primary-100 bg-primary text-secondary items-center h-[200px] md:h-[300px]">
+              <div
+                className="grow text-4xl md:text-7xl font-bold text-center cursor-pointer"
+                onClick={() =>
+                  matchSetMutation(
+                    position.left,
+                    Number(searchParams.get("set_id")),
+                  )
+                }
               >
                 {position.left === "participant_a"
-                  ? setScore.score_a
-                  : setScore.score_b || 0}
-              </Button>
-
-              <Button
-                variant="destructive"
-                className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
-              >
-                -
-              </Button>
-            </div>
-
-            {curSet?.current_server == position.left && (
-              <div className="absolute top-3 left-3">
-                <TennisBall />
+                  ? scoreAlias[Number(curSet?.current_point_a || 0)]
+                  : scoreAlias[Number(curSet?.current_point_b || 0)]}
               </div>
-            )}
+              <div className="flex flex-col h-full">
+                <Button
+                  className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
+                  size="lg"
+                >
+                  {position.left === "participant_a"
+                    ? curSet?.set_score_a || 0
+                    : curSet?.set_score_b || 0}
+                </Button>
+                <Button
+                  className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
+                  size="lg"
+                >
+                  {position.left === "participant_a"
+                    ? setScore?.score_a || 0
+                    : setScore?.score_b || 0}
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  size="lg"
+                >
+                  -
+                </Button>
+              </div>
+
+              {curSet?.current_server == position.left && (
+                <div className="absolute top-3 left-3">
+                  <TennisBall />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="border border-secondary w-full">
+            <p className="bg-secondary text-primary border-3 border-primary-100 text-2xl font-bold text-center">
+              {position.right === "participant_b"
+                ? match?.participant_b?.name
+                : match?.participant_a?.name}
+            </p>
+            <div className="relative flex border-3 border-primary-100 bg-secondary text-primary items-center h-[200px] md:h-[300px]">
+              <div className="flex flex-col h-full">
+                <Button
+                  variant="secondary"
+                  className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
+                >
+                  {position.right === "participant_b"
+                    ? curSet?.set_score_b || 0
+                    : curSet?.set_score_a || 0}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
+                >
+                  {position.right === "participant_b"
+                    ? setScore?.score_b || 0
+                    : setScore?.score_a || 0}
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                >
+                  -
+                </Button>
+              </div>
+              <div
+                className="grow font-bold text-center text-4xl md:text-7xl cursor-pointer"
+                onClick={() =>
+                  matchSetMutation(
+                    position.right,
+                    Number(searchParams.get("set_id")),
+                  )
+                }
+              >
+                <p>
+                  {position.right === "participant_b"
+                    ? scoreAlias[Number(curSet?.current_point_b || 0)]
+                    : scoreAlias[Number(curSet?.current_point_a || 0)]}
+                </p>
+              </div>
+              {curSet?.current_server == position.right && (
+                <div className="absolute top-3 right-3">
+                  <TennisBall />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <div className="border border-secondary w-full">
-          <p className="bg-secondary text-primary border-3 border-primary-100 text-2xl font-bold text-center">
-            {position.right === "participant_b"
-              ? match?.participant_b?.name
-              : match?.participant_a?.name}
-          </p>
-          <div className="relative flex border-3 border-primary-100 bg-secondary text-primary items-center h-[200px] md:h-[300px]">
-            <div className="flex flex-col h-full">
-              <Button
-                variant="secondary"
-                className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
-              >
-                {position.right === "participant_b"
-                  ? setScore.score_b
-                  : setScore.score_a || 0}
-              </Button>
-              <Button
-                variant="secondary"
-                className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
-              >
-                {position.right === "participant_b"
-                  ? setScore.score_b
-                  : setScore.score_a || 0}
-              </Button>
 
-              <Button
-                variant="destructive"
-                className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
-              >
-                -
-              </Button>
-            </div>
-            <div
-              className="grow font-bold text-center text-4xl md:text-7xl "
-              onClick={() =>
-                matchSetMutation(
-                  position.right,
-                  Number(searchParams.get("set_id")),
-                )
-              }
-            >
-              <p>
-                {position.right === "participant_b"
-                  ? curSet?.score_b
-                  : curSet?.score_a || 0}
-              </p>
-            </div>
-            {curSet?.current_server == position.right && (
-              <div className="absolute top-3 right-3">
-                <TennisBall />
-              </div>
-            )}
-          </div>
+        <div className="flex gap-4 items-center justify-center">
+          <Button
+            variant="outline"
+            size="lg"
+            aria-label="Switch Court"
+            onClick={onChangePosition}
+          >
+            <ArrowRightLeft />
+          </Button>
         </div>
-      </div>
-
-      <div className="flex gap-4 items-center justify-center">
-        <Button
-          variant="outline"
-          size="lg"
-          aria-label="Switch Court"
-          onClick={onChangePosition}
-        >
-          <ArrowRightLeft />
-        </Button>
       </div>
 
       {match && (

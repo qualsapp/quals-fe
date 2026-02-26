@@ -7,6 +7,8 @@ import BackButton from "@/components/commons/back-button";
 import { getEvent } from "@/actions/event";
 import { cn } from "@/lib/utils";
 import { MatchSetModel } from "@/types/match";
+import dayjs from "dayjs";
+import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -22,7 +24,7 @@ const page = async ({ params }: Props) => {
     let score_b = 0;
     set.forEach((set) => {
       if (set.is_finished) {
-        if (set.score_a > set.score_b) {
+        if (set.set_score_a > set.set_score_b) {
           score_a += 1;
         } else {
           score_b += 1;
@@ -49,7 +51,9 @@ const page = async ({ params }: Props) => {
         />
         <div className="flex flex-row gap-3 justify-center items-center">
           <p className="text-lg font-semibold">
-            {match.scheduled_at || "Not Scheduled"}
+            {(match.scheduled_at &&
+              dayjs(match.scheduled_at).format(SCHEDULED_AT_FORMAT)) ||
+              "Not Scheduled"}
           </p>
           <div className="h-2 w-2 rounded-full bg-gray-400"></div>
           <p className="text-lg font-semibold">Court {match.court_number}</p>
@@ -63,7 +67,7 @@ const page = async ({ params }: Props) => {
           )}
         </div>
 
-        <div className="flex justify-between items-center rounded-lg p-6 border-y ">
+        <div className="flex md:flex-row flex-col justify-between items-center rounded-lg p-6 border-y ">
           <Player names={match.participant_a.name.split("/")} />
 
           {match.match_sets && match.match_sets?.length > 0 ? (
@@ -98,23 +102,23 @@ const page = async ({ params }: Props) => {
                     <span
                       className={cn(
                         "font-semibold",
-                        set.is_finished && set.score_a > set.score_b
+                        set.is_finished && set.set_score_a > set.set_score_b
                           ? "text-red-400"
                           : "text-gray-400",
                       )}
                     >
-                      {set.score_a}
+                      {set.set_score_a}
                     </span>
                     &nbsp;:&nbsp;
                     <span
                       className={cn(
                         "font-semibold",
-                        set.is_finished && set.score_a < set.score_b
+                        set.is_finished && set.set_score_a < set.set_score_b
                           ? "text-red-400"
                           : "text-gray-400",
                       )}
                     >
-                      {set.score_b}
+                      {set.set_score_b}
                     </span>
                   </p>
                 ))}

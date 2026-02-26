@@ -18,7 +18,7 @@ import FirstServisForm from "../forms/FirstServisForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 const BadmintonBoard = () => {
-  const { ref, isFullscreen, goFullscreen, exitFullscreen } = useFullScreen();
+  const { ref, isFullscreen, exitFullscreen } = useFullScreen();
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -131,7 +131,7 @@ const BadmintonBoard = () => {
 
     match?.match_sets?.forEach((set) => {
       if (set.is_finished) {
-        if (set.score_a > set.score_b) {
+        if (set.set_score_a > set.set_score_b) {
           score_a += 1;
         } else {
           score_b += 1;
@@ -190,8 +190,8 @@ const BadmintonBoard = () => {
                 }
               >
                 {position.left === "participant_a"
-                  ? curSet?.score_a
-                  : curSet?.score_b || 0}
+                  ? curSet?.set_score_a
+                  : curSet?.set_score_b || 0}
               </div>
               <div className="flex flex-col h-full">
                 <Button
@@ -251,8 +251,8 @@ const BadmintonBoard = () => {
                 }
               >
                 {position.right === "participant_b"
-                  ? curSet?.score_b
-                  : curSet?.score_a || 0}
+                  ? curSet?.set_score_b
+                  : curSet?.set_score_a || 0}
               </p>
 
               {curSet?.current_server === position.right && (

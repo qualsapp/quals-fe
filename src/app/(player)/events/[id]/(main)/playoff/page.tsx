@@ -3,6 +3,8 @@ import TournamentBracket from "@/components/commons/tournament-bracket";
 import { getEvent } from "@/actions/event";
 import { getBrackets } from "@/actions/tournament";
 import { Match } from "@/types/bracket";
+import dayjs from "dayjs";
+import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -18,6 +20,7 @@ const page = async ({ params }: Props) => {
   }
 
   const brackets = await getBrackets(event.tournament.id);
+  console.log(brackets);
 
   const matchData: Match[] = brackets?.map((bracket) => {
     return {
@@ -38,6 +41,15 @@ const page = async ({ params }: Props) => {
                 score: bracket.match.participant_a.score || null,
                 seed: null,
                 isWinner: bracket.match.participant_a.isWinner,
+                status: "PLAYED",
+                resultText: String(
+                  bracket.match.match_sets.reduce((acc, set) => {
+                    if (set.set_score_a > set.set_score_b) {
+                      acc += 1;
+                    }
+                    return acc;
+                  }, 0),
+                ),
               },
             ]
           : []),
@@ -49,6 +61,8 @@ const page = async ({ params }: Props) => {
                 score: bracket.match.participant_b.score || null,
                 seed: null,
                 isWinner: bracket.match.participant_b.isWinner,
+                status: "PLAYED",
+                resultText: "test",
               },
             ]
           : []),
@@ -57,7 +71,9 @@ const page = async ({ params }: Props) => {
       href: bracket.match?.id
         ? `/events/${id}/matches/${bracket.match?.id}`
         : undefined,
-      startTime: bracket.match?.scheduled_at,
+      startTime: bracket.match?.scheduled_at
+        ? dayjs(bracket.match?.scheduled_at).format(SCHEDULED_AT_FORMAT)
+        : "Not Scheduled",
     };
   });
 
