@@ -90,6 +90,7 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
             tournamentId={event?.tournament?.id}
             match_rule_id={String(event?.tournament?.match_rule?.id)}
             tournamentBracketId={selectedMatchId}
+            top_advancing_group={event?.tournament.format === "group_stage"}
           />
         )}
     </>

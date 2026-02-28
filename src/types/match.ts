@@ -9,6 +9,7 @@ export type MatchParams = {
 export type MatchSetParams = {
   current_server?: string;
   point_winner?: string;
+  score_side?: string;
 };
 
 export type MatchSetModel = {

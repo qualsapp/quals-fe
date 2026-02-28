@@ -19,6 +19,7 @@ export type FilterParams = {
   match_tab?: string;
   status?: string;
   tournament_id?: string;
+  top_advancing_group?: boolean;
   page?: number;
   page_size?: number;
   welcome?: boolean;

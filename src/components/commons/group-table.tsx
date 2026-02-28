@@ -28,7 +28,7 @@ const GroupTable = ({ players }: Props) => {
         <p
           key={index}
           className={cn(
-            "hover:bg-primary/90 font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
+            "hover:bg-primary/90 font-bold border p-3 text-center bg-primary text-secondary border-primary truncate",
             index === players.length - 1 ? "rounded-tr-md" : "",
           )}
         >
@@ -40,7 +40,7 @@ const GroupTable = ({ players }: Props) => {
         <>
           <p
             className={cn(
-              "font-bold border p-3 text-center bg-primary text-secondary border-primary whitespace-nowrap",
+              "font-bold border p-3 text-center bg-primary text-secondary border-primary  truncate",
               rowIndex === players?.length - 1 ? "rounded-bl-md" : "",
             )}
           >

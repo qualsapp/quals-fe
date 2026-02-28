@@ -31,6 +31,7 @@ import { Participant } from "@/types/tournament";
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
+  top_advancing_group: boolean;
   tournamentId: string;
   tournamentBracketId: string;
   match_rule_id: string;
@@ -45,6 +46,7 @@ const PlayerScheme = z.object({
 const UpdatePlayerForm = ({
   open,
   setOpen,
+  top_advancing_group,
   tournamentId,
   tournamentBracketId,
 }: Props) => {
@@ -68,6 +70,7 @@ const UpdatePlayerForm = ({
       if (!tournamentId) return;
       try {
         const response = await getTournamentParticipants(tournamentId, {
+          top_advancing_group: top_advancing_group,
           search: searchValue,
           page: 1,
           page_size: 20,

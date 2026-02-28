@@ -1,13 +1,11 @@
 import React from "react";
 import { getMatch } from "@/actions/match";
-import Player from "@/components/commons/player";
 import BackButton from "@/components/commons/back-button";
-import { cn } from "@/lib/utils";
-import { MatchSetModel } from "@/types/match";
 
 import LiveMatchScore from "@/components/matches/LiveMatchScore";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
+import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -25,10 +23,7 @@ const page = async ({ params }: Props) => {
   return (
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">
       <div className="flex flex-col space-y-8">
-        <BackButton
-          href={`/community/events/${id}/matches`}
-          label="Back to Matches"
-        />
+        <BackButton href={`/events/${id}/matches`} label="Back to Matches" />
         <div className="flex flex-row gap-3 justify-center items-center">
           <p className="text-lg font-semibold">
             {(match.scheduled_at &&
@@ -47,7 +42,11 @@ const page = async ({ params }: Props) => {
           )}
         </div>
 
-        <LiveMatchScore initialMatch={match} matchId={match_id} />
+        {match.status === "ongoing" ? (
+          <LiveMatchScore initialMatch={match} matchId={match_id} />
+        ) : (
+          <NotLiveMatchScore match={match} />
+        )}
       </div>
     </div>
   );

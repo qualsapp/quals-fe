@@ -81,6 +81,7 @@ export const createMatch = async (
     } as MatchResponse;
   }
 };
+
 export const updateMatchRules = async (
   matchId: string,
   params: MatchRuleParams,
@@ -156,6 +157,58 @@ export const updateMatchSet = async (
   } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to create match"),
+    } as MatchResponse;
+  }
+};
+
+export const decreaseMatchScore = async (
+  matchId: string,
+  setId: string,
+  params: MatchSetParams,
+): Promise<MatchResponse> => {
+  const token = await getCookies();
+
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/sets/${setId}/decrease`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to create match"),
+    } as MatchResponse;
+  }
+};
+
+export const tiebreakActivation = async (
+  matchId: string,
+  setId: string,
+): Promise<MatchResponse> => {
+  const token = await getCookies();
+
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/sets/${setId}/tiebreak`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token?.value}`,
+        },
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to activate tiebreak"),
     } as MatchResponse;
   }
 };

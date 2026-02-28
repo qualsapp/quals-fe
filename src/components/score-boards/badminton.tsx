@@ -5,7 +5,7 @@ import { ArrowRightLeft } from "lucide-react";
 import Shuttlecock from "@/icons/shuttlecock";
 import useFullScreen from "@/hooks/use-full-screen";
 import { cn } from "@/lib/utils";
-import { getMatch, updateMatchSet } from "@/actions/match";
+import { decreaseMatchScore, getMatch, updateMatchSet } from "@/actions/match";
 import {
   redirect,
   useParams,
@@ -46,7 +46,7 @@ const BadmintonBoard = () => {
 
     if (!searchParams.get("set_id")) {
       router.push(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -56,7 +56,7 @@ const BadmintonBoard = () => {
 
     if (isCurrentSetFinished && !match.winner) {
       router.push(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -84,7 +84,7 @@ const BadmintonBoard = () => {
         right: "participant_a",
       });
       redirect(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=b&right=a`,
       );
     } else {
       setPosition({
@@ -92,7 +92,7 @@ const BadmintonBoard = () => {
         right: "participant_b",
       });
       redirect(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=a&right=b`,
       );
     }
   };
@@ -109,6 +109,25 @@ const BadmintonBoard = () => {
     );
 
     if (!updatedSet.error) {
+      refetch();
+    }
+  };
+
+  const decreaseMatchMutation = async (
+    server: string,
+    currentSetId?: number,
+  ) => {
+    if (!match?.id) return;
+
+    const decreasedScore = await decreaseMatchScore(
+      String(match?.id),
+      String(currentSetId),
+      {
+        score_side: server,
+      },
+    );
+
+    if (!decreasedScore.error) {
       refetch();
     }
   };
@@ -205,8 +224,19 @@ const BadmintonBoard = () => {
 
                 <Button
                   variant="destructive"
-                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
+                  disabled={
+                    position.left === "participant_a"
+                      ? curSet?.set_score_a === 0
+                      : curSet?.set_score_b === 0
+                  }
+                  onClick={() =>
+                    decreaseMatchMutation(
+                      position.left,
+                      Number(searchParams.get("set_id")),
+                    )
+                  }
                 >
                   -
                 </Button>
@@ -236,7 +266,18 @@ const BadmintonBoard = () => {
                 </Button>
                 <Button
                   variant="destructive"
-                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  disabled={
+                    position.right === "participant_b"
+                      ? curSet?.set_score_b === 0
+                      : curSet?.set_score_a === 0
+                  }
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() =>
+                    decreaseMatchMutation(
+                      position.right,
+                      Number(searchParams.get("set_id")),
+                    )
+                  }
                 >
                   -
                 </Button>
