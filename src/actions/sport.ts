@@ -6,14 +6,9 @@ import { apiClient } from "@/lib/api-client";
 import { errorHandler } from "@/lib/error-handler";
 
 export const getSports = async (): Promise<SportResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<SportResponse>(`/sport_types`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;

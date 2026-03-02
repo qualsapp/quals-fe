@@ -20,14 +20,9 @@ export const getHostDetails = async (): Promise<HostDetailResponse> => {
 };
 
 export const getHostProfile = async (): Promise<HostProfileResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<HostProfileResponse>("/hosts/profile", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -41,14 +36,9 @@ export const getHostProfile = async (): Promise<HostProfileResponse> => {
 export const createHostDetails = async (
   formData: FormData,
 ): Promise<HostDetailResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<HostDetailResponse>("/hosts/", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: formData,
     });
 

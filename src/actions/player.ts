@@ -45,14 +45,9 @@ export const searchPlayer = async (
 export const createPlayerDetails = async (
   formData: FormData,
 ): Promise<PlayerDetailResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<PlayerDetailResponse>("/players/", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: formData,
     });
 
@@ -67,16 +62,11 @@ export const createPlayerDetails = async (
 export const joinCommunity = async (
   communityId: string,
 ): Promise<JoinCommunityResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<JoinCommunityResponse>(
       `/players/communities/${communityId}/join`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 

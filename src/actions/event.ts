@@ -12,14 +12,9 @@ export const getEvents = async ({
   page: number;
   page_size: number;
 }): Promise<EventsResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventsResponse>("/events", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       params: {
         page,
         page_size,
@@ -39,14 +34,9 @@ export const getEvents = async ({
 };
 
 export const getEvent = async (eventId: string): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>(`/events/${eventId}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -70,14 +60,9 @@ export const getEvent = async (eventId: string): Promise<EventResponse> => {
 export const createEvent = async (
   params: EventParams,
 ): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>("/events", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: JSON.stringify(params),
     });
 
@@ -93,14 +78,9 @@ export const updateEvent = async (
   params: EventParams,
   eventId: string,
 ): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>(`/events/${eventId}`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: JSON.stringify(params),
     });
 
@@ -115,16 +95,11 @@ export const updateEvent = async (
 export const deleteEvent = async (
   eventId: string,
 ): Promise<{ message: string; error?: string }> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<{ message: string }>(
       `/events/${eventId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 

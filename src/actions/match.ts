@@ -14,15 +14,10 @@ import { errorHandler } from "@/lib/error-handler";
 export const getMatches = async (
   filters: FilterParams,
 ): Promise<MatchesResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchesResponse>(`/matches`, {
       params: filters,
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -38,14 +33,9 @@ export const getMatches = async (
 };
 
 export const getMatch = async (matchId: string): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(`/matches/${matchId}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -60,16 +50,11 @@ export const createMatch = async (
   bracketId: string,
   params: MatchParams,
 ): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(
       `/tournament_brackets/${bracketId}/matches`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
         body: JSON.stringify(params),
       },
     );
@@ -86,16 +71,11 @@ export const updateMatchRules = async (
   matchId: string,
   params: MatchRuleParams,
 ): Promise<MatchRuleResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchRuleResponse>(
       `/matches/${matchId}/rules`,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
         body: JSON.stringify(params),
       },
     );
@@ -112,16 +92,11 @@ export const createMatchSet = async (
   matchId: string,
   params: MatchSetParams,
 ): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(
       `/matches/${matchId}/sets`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
         body: JSON.stringify(params),
       },
     );
@@ -139,16 +114,11 @@ export const updateMatchSet = async (
   setId: string,
   params: MatchSetParams,
 ): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(
       `/matches/${matchId}/sets/${setId}`,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
         body: JSON.stringify(params),
       },
     );
@@ -166,16 +136,11 @@ export const decreaseMatchScore = async (
   setId: string,
   params: MatchSetParams,
 ): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(
       `/matches/${matchId}/sets/${setId}/decrease`,
       {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
         body: JSON.stringify(params),
       },
     );
@@ -192,16 +157,11 @@ export const tiebreakActivation = async (
   matchId: string,
   setId: string,
 ): Promise<MatchResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<MatchResponse>(
       `/matches/${matchId}/sets/${setId}/tiebreak`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 

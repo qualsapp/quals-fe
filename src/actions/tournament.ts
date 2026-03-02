@@ -18,16 +18,11 @@ import { errorHandler } from "@/lib/error-handler";
 export const getTournament = async (
   tournamentId: string,
 ): Promise<TournamentResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<TournamentResponse>(
       `/tournaments/${tournamentId}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 
@@ -52,16 +47,12 @@ export const createTournament = async (
   eventId: string,
   params: TournamentParams,
 ): Promise<TournamentResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<TournamentResponse>(
       `/events/${eventId}/tournaments`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
+
         body: JSON.stringify(params),
       },
     );
@@ -78,16 +69,12 @@ export const updateTournament = async (
   tournamentId: string,
   params: TournamentParams,
 ): Promise<TournamentResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<TournamentResponse>(
       `/tournaments/${tournamentId}`,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
+
         body: JSON.stringify(params),
       },
     );
@@ -103,16 +90,11 @@ export const updateTournament = async (
 export const deleteTournament = async (
   tournamentId: string,
 ): Promise<{ message: string; error?: string }> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<{ message: string }>(
       `/tournaments/${tournamentId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 
@@ -129,16 +111,12 @@ export const joinTournament = async (
   tournamentId: string,
   params: JoinTournamentParams,
 ): Promise<JoinTournamentResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<JoinTournamentResponse>(
       `/tournaments/${tournamentId}/join`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
+
         body: JSON.stringify(params),
       },
     );
@@ -155,16 +133,12 @@ export const getTournamentParticipants = async (
   tournamentId: string,
   filters: FilterParams,
 ): Promise<ParticipantsResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<ParticipantsResponse>(
       `/tournaments/${tournamentId}/participants`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
+
         params: filters,
       },
     );
@@ -185,16 +159,11 @@ export const createGroupTournament = async (
   tournamentId: string,
   params: TournamentGroupParams,
 ): Promise<TournamentGroupsResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<TournamentGroupsResponse>(
       `/tournaments/${tournamentId}/group_participants`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
 
         body: JSON.stringify(params),
       },
@@ -212,16 +181,11 @@ export const deleteTournamentParticipant = async (
   tournamentId: string,
   participantId: string,
 ): Promise<{ message: string; error?: string }> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<{ message: string }>(
       `/tournaments/${tournamentId}/participants/${participantId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 
@@ -237,16 +201,11 @@ export const deleteTournamentParticipant = async (
 export const getBrackets = async (
   tournamentId: string,
 ): Promise<BracketsResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<BracketsResponse>(
       `/tournaments/${tournamentId}/brackets`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 

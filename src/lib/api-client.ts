@@ -35,7 +35,7 @@ export async function apiClient<T>(
     ...customConfig,
     headers: {
       ...headers,
-      Authorization: `Bearer ${token?.value}`,
+      ...(token?.value && { Authorization: `Bearer ${token?.value}` }),
     },
     body: body,
     // Next.js 14+ caching strategy
