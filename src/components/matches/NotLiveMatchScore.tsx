@@ -27,7 +27,7 @@ const NotLiveMatchScore = ({ match }: Props) => {
     };
   };
   return (
-    <div className="flex md:flex-row flex-col justify-between items-center rounded-lg p-6 border-y ">
+    <div className="flex md:flex-row flex-col justify-between items-center rounded-lg p-6 gap-6 md:gap-0 border-y">
       <Player names={match.participant_a.name.split("/")} />
 
       {match.match_sets && match.match_sets?.length > 0 ? (

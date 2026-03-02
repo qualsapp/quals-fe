@@ -1,4 +1,6 @@
+import { logout } from "@/actions/auth";
 import { ApiUrl } from "./env";
+import { getCookies } from "@/actions/helper";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiRequestInit extends RequestInit {
@@ -11,6 +13,7 @@ export async function apiClient<T>(
   endpoint: string,
   options: ApiRequestInit = {},
 ): Promise<T> {
+  const token = await getCookies();
   const { headers, params, paramsSerializer, body, ...customConfig } = options;
 
   let queryString = "";
@@ -30,7 +33,10 @@ export async function apiClient<T>(
 
   const config: RequestInit = {
     ...customConfig,
-    headers: headers,
+    headers: {
+      ...headers,
+      Authorization: `Bearer ${token?.value}`,
+    },
     body: body,
     // Next.js 14+ caching strategy
     cache: options.cache || "no-store",
@@ -38,16 +44,15 @@ export async function apiClient<T>(
   const url = new URL(`${ApiUrl}${endpoint}`);
   url.search = new URLSearchParams(params).toString();
 
-  console.log(url);
-
   const response = await fetch(url, config);
-  console.log(response);
 
   if (!response.ok) {
-    // Try to parse the error message if possible
     try {
       const errorData = await response.json();
-      console.log(errorData);
+      if (response.status === 401) {
+        console.log("401");
+        logout();
+      }
       return Promise.reject(errorData);
     } catch {
       return Promise.reject(response);

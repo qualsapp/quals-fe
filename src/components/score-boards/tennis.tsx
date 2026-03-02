@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { ArrowRightLeft } from "lucide-react";
 import TennisBall from "@/icons/tennis-ball";
 import useFullScreen from "@/hooks/use-full-screen";
-import { getMatch, updateMatchSet } from "@/actions/match";
+import { getMatch, tiebreakActivation, updateMatchSet } from "@/actions/match";
 import {
   redirect,
   useParams,
@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import FirstServisForm from "../forms/FirstServisForm";
+import { paddleScoreAlias } from "@/lib/constants/score";
 
 const TennisBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
@@ -23,6 +24,7 @@ const TennisBoard = () => {
   const router = useRouter();
   const [open, setOpen] = useState<boolean>(false);
   const [endGame, setEndGame] = useState<boolean>(false);
+  const [activateTiebreak, setActivateTiebreak] = useState<boolean>(false);
   const [position, setPosition] = useState<{
     left: "participant_a" | "participant_b";
     right: "participant_a" | "participant_b";
@@ -44,8 +46,14 @@ const TennisBoard = () => {
 
     if (!searchParams.get("set_id")) {
       router.push(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
+    }
+
+    if (
+      match.match_sets?.find((set) => !set.is_finished)?.can_activate_tiebreak
+    ) {
+      setActivateTiebreak(true);
     }
 
     const isCurrentSetFinished = match.match_sets?.find(
@@ -54,7 +62,7 @@ const TennisBoard = () => {
 
     if (isCurrentSetFinished && !match.winner) {
       router.push(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -75,8 +83,6 @@ const TennisBoard = () => {
     queryFn: onGetMatch,
   });
 
-  console.log(match);
-
   const onChangePosition = () => {
     if (position.left === "participant_a") {
       setPosition({
@@ -84,7 +90,7 @@ const TennisBoard = () => {
         right: "participant_a",
       });
       redirect(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
       );
     } else {
       setPosition({
@@ -92,9 +98,21 @@ const TennisBoard = () => {
         right: "participant_b",
       });
       redirect(
-        `/community/events/${params.event_id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
       );
     }
+  };
+
+  const onActivateTiebreak = async () => {
+    if (!match?.id || !searchParams.get("set_id")) return;
+    const tiebreak = await tiebreakActivation(
+      String(match?.id),
+      String(searchParams.get("set_id")),
+    );
+    if (!tiebreak.error) {
+      refetch();
+    }
+    setActivateTiebreak(false);
   };
 
   const matchSetMutation = async (server: string, currentSetId?: number) => {
@@ -124,33 +142,6 @@ const TennisBoard = () => {
       return currentset;
     }
   }, [match?.match_sets, searchParams.get("set_id")]);
-
-  const scoreAlias: Record<number, number> = {
-    0: 0,
-    1: 15,
-    2: 30,
-    3: 40,
-  };
-
-  const setScore = useMemo(() => {
-    let score_a = 0;
-    let score_b = 0;
-
-    match?.match_sets?.forEach((set) => {
-      if (set.is_finished) {
-        if (set.set_score_a > set.set_score_b) {
-          score_a += 1;
-        } else {
-          score_b += 1;
-        }
-      }
-    });
-
-    return {
-      score_a,
-      score_b,
-    };
-  }, [match?.match_sets]);
 
   if (isLoading) {
     return (
@@ -195,9 +186,15 @@ const TennisBoard = () => {
                   )
                 }
               >
-                {position.left === "participant_a"
-                  ? scoreAlias[Number(curSet?.current_point_a || 0)]
-                  : scoreAlias[Number(curSet?.current_point_b || 0)]}
+                {curSet?.is_tiebreak
+                  ? position.left === "participant_a"
+                    ? curSet?.current_point_a || 0
+                    : curSet?.current_point_b || 0
+                  : paddleScoreAlias[
+                      position.left === "participant_a"
+                        ? Number(curSet?.current_point_a || 0)
+                        : Number(curSet?.current_point_b || 0)
+                    ]}
               </div>
               <div className="flex flex-col h-full">
                 <Button
@@ -207,14 +204,6 @@ const TennisBoard = () => {
                   {position.left === "participant_a"
                     ? curSet?.set_score_a || 0
                     : curSet?.set_score_b || 0}
-                </Button>
-                <Button
-                  className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
-                  size="lg"
-                >
-                  {position.left === "participant_a"
-                    ? setScore?.score_a || 0
-                    : setScore?.score_b || 0}
                 </Button>
 
                 <Button
@@ -249,14 +238,6 @@ const TennisBoard = () => {
                     ? curSet?.set_score_b || 0
                     : curSet?.set_score_a || 0}
                 </Button>
-                <Button
-                  variant="secondary"
-                  className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
-                >
-                  {position.right === "participant_b"
-                    ? setScore?.score_b || 0
-                    : setScore?.score_a || 0}
-                </Button>
 
                 <Button
                   variant="destructive"
@@ -275,9 +256,15 @@ const TennisBoard = () => {
                 }
               >
                 <p>
-                  {position.right === "participant_b"
-                    ? scoreAlias[Number(curSet?.current_point_b || 0)]
-                    : scoreAlias[Number(curSet?.current_point_a || 0)]}
+                  {curSet?.is_tiebreak
+                    ? position.right === "participant_b"
+                      ? curSet?.current_point_b || 0
+                      : curSet?.current_point_a || 0
+                    : paddleScoreAlias[
+                        position.right === "participant_b"
+                          ? Number(curSet?.current_point_b || 0)
+                          : Number(curSet?.current_point_a || 0)
+                      ]}
                 </p>
               </div>
               {curSet?.current_server == position.right && (
@@ -332,6 +319,37 @@ const TennisBoard = () => {
                   variant="outline"
                 >
                   Exit
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
+      {curSet?.can_activate_tiebreak && (
+        <Dialog open={activateTiebreak} onOpenChange={setActivateTiebreak}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Activate Tiebreak?
+              </DialogTitle>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    onActivateTiebreak();
+                  }}
+                  variant="outline"
+                >
+                  Yes
+                </Button>
+                <Button
+                  onClick={() => {
+                    setActivateTiebreak(false);
+                    setEndGame(true);
+                  }}
+                  variant="destructive"
+                >
+                  No
                 </Button>
               </div>
             </DialogHeader>

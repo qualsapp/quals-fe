@@ -10,14 +10,9 @@ import { getCookies } from "./helper";
 import { errorHandler } from "@/lib/error-handler";
 
 export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<PlayerDetailResponse>("/players", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -31,17 +26,12 @@ export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
 export const searchPlayer = async (
   search: string,
 ): Promise<PlayerListResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<PlayerListResponse>(`/players/search`, {
       params: {
         q: search,
       },
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;

@@ -13,9 +13,11 @@ type Props = {
   matchId: string;
 };
 
-const LiveMatchScore = ({ initialMatch, matchId }: Props) => {
+const LiveMatchScoreBadminton = ({ initialMatch, matchId }: Props) => {
   const [match, setMatch] = useState<MatchResponse>(initialMatch);
   const router = useRouter();
+
+  console.log("initialMatch", initialMatch);
 
   useEffect(() => {
     const ws = new WebSocket(`${WsBaseUrl}/matches/${matchId}/live`);
@@ -27,6 +29,7 @@ const LiveMatchScore = ({ initialMatch, matchId }: Props) => {
     ws.onmessage = (event) => {
       try {
         const updatedMatch: { data: MatchResponse } = JSON.parse(event.data);
+        console.log("updatedMatch", updatedMatch);
         if (updatedMatch.data.status !== "ongoing") {
           ws.close();
           router.refresh();
@@ -112,4 +115,4 @@ const LiveMatchScore = ({ initialMatch, matchId }: Props) => {
   );
 };
 
-export default LiveMatchScore;
+export default LiveMatchScoreBadminton;

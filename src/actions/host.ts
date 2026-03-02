@@ -6,14 +6,9 @@ import { getCookies } from "./helper";
 import { errorHandler } from "@/lib/error-handler";
 
 export const getHostDetails = async (): Promise<HostDetailResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<HostDetailResponse>("/hosts", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;

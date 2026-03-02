@@ -27,6 +27,7 @@ export type MatchSetModel = {
   winner_side: string;
   match_score_a: number;
   match_score_b: number;
+  can_activate_tiebreak: boolean;
   games: MatchSetModel | null;
   updated_at: string;
 };

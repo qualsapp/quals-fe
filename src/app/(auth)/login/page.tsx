@@ -26,7 +26,6 @@ const Login = () => {
             <p>atau&nbsp;lanjutkan&nbsp;dengan</p>
           </div>
           <Divider />
-          {/* <Divider /> */}
         </div>
 
         <GoogleLoginButton />

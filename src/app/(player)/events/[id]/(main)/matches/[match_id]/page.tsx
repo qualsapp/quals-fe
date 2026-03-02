@@ -2,10 +2,13 @@ import React from "react";
 import { getMatch } from "@/actions/match";
 import BackButton from "@/components/commons/back-button";
 
-import LiveMatchScore from "@/components/matches/LiveMatchScore";
+import LiveMatchScoreBadminton from "@/components/matches/LiveMatchScoreBadminton";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
+import { getEvent } from "@/actions/event";
+import LiveMatchScorePaddle from "@/components/matches/LiveMatchScorePaddle";
+import NotLiveMatchScorePaddle from "@/components/matches/NotLiveMatchScorePaddle";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -13,6 +16,8 @@ type Props = {
 
 const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
+
+  const event = await getEvent(id);
 
   const match = await getMatch(match_id);
 
@@ -43,9 +48,24 @@ const page = async ({ params }: Props) => {
         </div>
 
         {match.status === "ongoing" ? (
-          <LiveMatchScore initialMatch={match} matchId={match_id} />
+          <div>
+            {event.event_type === "badminton" ? (
+              <LiveMatchScoreBadminton
+                initialMatch={match}
+                matchId={match_id}
+              />
+            ) : (
+              <LiveMatchScorePaddle initialMatch={match} matchId={match_id} />
+            )}
+          </div>
         ) : (
-          <NotLiveMatchScore match={match} />
+          <div>
+            {event.event_type === "badminton" ? (
+              <NotLiveMatchScore match={match} />
+            ) : (
+              <NotLiveMatchScorePaddle match={match} />
+            )}
+          </div>
         )}
       </div>
     </div>

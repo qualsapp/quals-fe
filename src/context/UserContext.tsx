@@ -6,15 +6,23 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useState,
 } from "react";
 
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
 import { logout as onLogout } from "@/actions/auth";
+import { getPlayerDetails } from "@/actions/player";
+import { getHostDetails } from "@/actions/host";
 
 const UserContext = createContext<AuthState | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const auth = useAuthStore();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     const res = await onLogout();
@@ -24,15 +32,34 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [auth]);
 
-  // Use useEffect for operations that run after initial render, like fetching data or checking localStorage
   useEffect(() => {
-    // Example: Fetch user data from an API or check local storage on mount
-    const fetchUserData = async () => {
-      // Your data fetching logic here
-    };
+    if (auth.isAuthenticated && auth.user) {
+      const fetchUserDetails = async () => {
+        if (auth.user?.user_type === "player") {
+          await getPlayerDetails().then((res) => {
+            if (!res.error) {
+              auth.setPlayer(res);
+            } else {
+              auth.logout();
+            }
+          });
+        } else if (auth.user?.user_type === "host") {
+          await getHostDetails().then((res) => {
+            if (!res.error) {
+              auth.setHost(res);
+            } else {
+              auth.logout();
+            }
+          });
+        }
+      };
+      fetchUserDetails();
+    }
+  }, [auth.isAuthenticated, auth.user]);
 
-    fetchUserData();
-  }, []);
+  if (!isHydrated) {
+    return null;
+  }
 
   const contextValue = {
     ...auth,

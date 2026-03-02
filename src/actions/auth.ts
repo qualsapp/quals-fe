@@ -3,6 +3,7 @@
 import { apiClient } from "@/lib/api-client";
 import { TokenExpirationDays } from "@/lib/env";
 import { errorHandler } from "@/lib/error-handler";
+import { useAuthStore } from "@/store/useAuthStore";
 import { AuthResponse, LoginByGoogleParams, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
 
@@ -93,12 +94,12 @@ export const register = async (
 export const logout = async (): Promise<{ success: boolean }> => {
   try {
     const cookie = await cookies();
+
     cookie.delete("token");
     cookie.delete("user_type");
 
     return { success: true };
   } catch (error: unknown) {
-    console.log(error);
     return { success: false };
   }
 };

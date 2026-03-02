@@ -28,11 +28,12 @@ const navItemHighlight =
 
 const DesktopMenu = (props: Props) => {
   const { isAuthenticated, logout, role } = props;
+
   return (
     <NavigationMenu className="h-[72px]">
       <NavigationMenuList>
         {isAuthenticated ? (
-          <>
+          <React.Fragment key="auth">
             <NavigationMenuItem className="rounded-none hidden md:flex">
               <NavigationMenuLink asChild className="rounded-none border-3">
                 {role === "host" ? (
@@ -43,7 +44,7 @@ const DesktopMenu = (props: Props) => {
                     Community
                   </Link>
                 ) : role === "admin" ? (
-                  <>
+                  <React.Fragment key="admin">
                     <Link
                       href="/events"
                       className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
@@ -68,9 +69,9 @@ const DesktopMenu = (props: Props) => {
                     >
                       Admin
                     </Link>
-                  </>
+                  </React.Fragment>
                 ) : (
-                  <>
+                  <React.Fragment key="user">
                     <Link
                       href="/events"
                       className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
@@ -83,7 +84,7 @@ const DesktopMenu = (props: Props) => {
                     >
                       Dashboard
                     </Link>
-                  </>
+                  </React.Fragment>
                 )}
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -105,7 +106,7 @@ const DesktopMenu = (props: Props) => {
                         Community
                       </Link>
                     ) : role === "admin" ? (
-                      <>
+                      <React.Fragment key="admin">
                         <Link
                           href="/events"
                           className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
@@ -130,9 +131,9 @@ const DesktopMenu = (props: Props) => {
                         >
                           Admin
                         </Link>
-                      </>
+                      </React.Fragment>
                     ) : (
-                      <>
+                      <React.Fragment key="user">
                         <Link
                           href="/events"
                           className="block py-4 px-6 hover:bg-transparent hover:text-secondary border-none font-bold "
@@ -145,7 +146,7 @@ const DesktopMenu = (props: Props) => {
                         >
                           Dashboard
                         </Link>
-                      </>
+                      </React.Fragment>
                     )}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -178,9 +179,9 @@ const DesktopMenu = (props: Props) => {
                 </NavigationMenuItem>
               </NavigationMenuContent>
             </NavigationMenuItem>
-          </>
+          </React.Fragment>
         ) : (
-          <>
+          <React.Fragment key="guest">
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navItemClasses}>
                 <Link href="/login" className="text-secondary">
@@ -195,7 +196,7 @@ const DesktopMenu = (props: Props) => {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-          </>
+          </React.Fragment>
         )}
       </NavigationMenuList>
     </NavigationMenu>
