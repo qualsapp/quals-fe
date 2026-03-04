@@ -72,7 +72,7 @@ const TennisBoard = () => {
     }
 
     return match;
-  }, [params.match_id]);
+  }, [params, position.left, position.right, router, searchParams]);
 
   const {
     data: match,
@@ -141,7 +141,7 @@ const TennisBoard = () => {
     if (currentset) {
       return currentset;
     }
-  }, [match?.match_sets, searchParams.get("set_id")]);
+  }, [match?.match_sets, searchParams]);
 
   if (isLoading) {
     return (

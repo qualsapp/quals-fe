@@ -9,7 +9,6 @@ import {
 
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { Timer } from "lucide-react";
 import { MatchResponse } from "@/types/match";
 import Player from "./player";
 import { cn } from "@/lib/utils";

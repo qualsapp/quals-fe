@@ -20,7 +20,6 @@ const page = async ({ params }: Props) => {
   }
 
   const brackets = await getBrackets(event.tournament.id);
-  console.log(brackets);
 
   const matchData: Match[] = brackets?.map((bracket) => {
     return {

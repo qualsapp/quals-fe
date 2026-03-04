@@ -1,3 +1,5 @@
+import { MatchResponse } from "./match";
+
 export type GroupsResponse = GroupResponse[];
 
 export type GroupResponse = {
@@ -8,7 +10,7 @@ export type GroupResponse = {
     name: string;
     type: "single" | "double";
   }[];
-  matches: null;
+  matches: MatchResponse[];
   error?: string;
 };
 

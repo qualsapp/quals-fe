@@ -6,20 +6,26 @@ import {
   PlayerDetailResponse,
   PlayerListResponse,
 } from "@/types/player";
-import { getCookies } from "./helper";
 import { errorHandler } from "@/lib/error-handler";
+import { ApiResponse } from "@/types/global";
 
-export const getPlayerDetails = async (): Promise<PlayerDetailResponse> => {
+export const getPlayerDetails = async (): Promise<
+  ApiResponse<PlayerDetailResponse>
+> => {
   try {
-    const response = await apiClient<PlayerDetailResponse>("/players", {
-      method: "GET",
-    });
+    const response = await apiClient<ApiResponse<PlayerDetailResponse>>(
+      "/players",
+      {
+        method: "GET",
+      },
+    );
 
     return response;
-  } catch (error: unknown) {
+  } catch (error: any) {
     return {
       error: errorHandler(error, "Failed to fetch player details"),
-    } as PlayerDetailResponse;
+      status: error?.status,
+    } as ApiResponse<PlayerDetailResponse>;
   }
 };
 

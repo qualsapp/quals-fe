@@ -90,7 +90,7 @@ const UpdatePlayerForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [tournamentId],
+    [tournamentId, top_advancing_group],
   );
 
   const [mounted, setMounted] = React.useState(false);

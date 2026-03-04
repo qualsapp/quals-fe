@@ -3,7 +3,6 @@
 import { apiClient } from "@/lib/api-client";
 import { TokenExpirationDays } from "@/lib/env";
 import { errorHandler } from "@/lib/error-handler";
-import { useAuthStore } from "@/store/useAuthStore";
 import { AuthResponse, LoginByGoogleParams, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
 
@@ -93,23 +92,26 @@ export const register = async (
 
 export const logout = async (): Promise<{ success: boolean }> => {
   try {
-    const cookie = await cookies();
+    const cookieStore = await cookies();
 
-    cookie.delete("token");
-    cookie.delete("user_type");
+    cookieStore.delete("token");
+    cookieStore.delete("user_type");
 
     return { success: true };
   } catch (error: unknown) {
+    console.error(error);
     return { success: false };
   }
 };
 
-export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
+export const loginWithGoogle = async (
+  params: LoginByGoogleParams,
+): Promise<AuthResponse> => {
   const cookieStore = await cookies();
   try {
     const response = await apiClient<AuthResponse>("/users/login/google", {
       method: "POST",
-      body: JSON.stringify({ code }),
+      body: JSON.stringify(params),
     });
 
     if (response.token) {
@@ -140,21 +142,6 @@ export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
   } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to login with Google"),
-    } as AuthResponse;
-  }
-};
-
-export const loginByGoolge = async (params: LoginByGoogleParams) => {
-  try {
-    const response = await apiClient<AuthResponse>("/users/google", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
-
-    return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to login by google"),
     } as AuthResponse;
   }
 };

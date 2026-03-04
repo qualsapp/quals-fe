@@ -1,6 +1,5 @@
 "use server";
 import { apiClient } from "@/lib/api-client";
-import { getCookies } from "./helper";
 import { EventParams, EventResponse, EventsResponse } from "@/types/event";
 import { errorHandler } from "@/lib/error-handler";
 import { Sport } from "@/types/global";
@@ -8,9 +7,14 @@ import { Sport } from "@/types/global";
 export const getEvents = async ({
   page,
   page_size,
+  filter,
 }: {
   page: number;
   page_size: number;
+  filter: {
+    status?: string;
+    sport_type?: string;
+  };
 }): Promise<EventsResponse> => {
   try {
     const response = await apiClient<EventsResponse>("/events", {
@@ -18,6 +22,7 @@ export const getEvents = async ({
       params: {
         page,
         page_size,
+        ...filter,
       },
     });
 

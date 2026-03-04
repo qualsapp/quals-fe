@@ -1,7 +1,5 @@
 import RegisterForm from "@/components/forms/RegisterForm";
-import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
-import { Google } from "@/icons";
 import Link from "next/link";
 import React from "react";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";

@@ -50,7 +50,7 @@ const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
     return () => {
       ws.close();
     };
-  }, [matchId]);
+  }, [matchId, router]);
 
   const curSet = useMemo(() => {
     return match.match_sets?.find((set) => !set.is_finished);

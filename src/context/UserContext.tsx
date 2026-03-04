@@ -33,29 +33,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [auth]);
 
   useEffect(() => {
-    if (auth.isAuthenticated && auth.user) {
-      const fetchUserDetails = async () => {
-        if (auth.user?.user_type === "player") {
-          await getPlayerDetails().then((res) => {
-            if (!res.error) {
-              auth.setPlayer(res);
-            } else {
-              auth.logout();
-            }
-          });
-        } else if (auth.user?.user_type === "host") {
-          await getHostDetails().then((res) => {
-            if (!res.error) {
-              auth.setHost(res);
-            } else {
-              auth.logout();
-            }
-          });
-        }
-      };
-      fetchUserDetails();
-    }
-  }, [auth.isAuthenticated, auth.user]);
+    const fetchUserDetails = async () => {
+      if (auth.user?.user_type === "player") {
+        await getPlayerDetails().then((res) => {
+          if (!res.error) {
+            auth.setPlayer(res);
+          } else if (res.status === 401) {
+            auth.logout();
+          }
+        });
+      } else if (auth.user?.user_type === "host") {
+        await getHostDetails().then((res) => {
+          if (!res.error) {
+            auth.setHost(res);
+          } else if (res.status === 401) {
+            auth.logout();
+          }
+        });
+      }
+    };
+    fetchUserDetails();
+  }, [auth.user?.user_type]);
 
   if (!isHydrated) {
     return null;

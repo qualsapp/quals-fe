@@ -17,8 +17,6 @@ const LiveMatchScoreBadminton = ({ initialMatch, matchId }: Props) => {
   const [match, setMatch] = useState<MatchResponse>(initialMatch);
   const router = useRouter();
 
-  console.log("initialMatch", initialMatch);
-
   useEffect(() => {
     const ws = new WebSocket(`${WsBaseUrl}/matches/${matchId}/live`);
 
@@ -51,7 +49,7 @@ const LiveMatchScoreBadminton = ({ initialMatch, matchId }: Props) => {
     return () => {
       ws.close();
     };
-  }, [matchId]);
+  }, [matchId, router]);
 
   const curSet = useMemo(() => {
     return match.match_sets?.find((set) => !set.is_finished);

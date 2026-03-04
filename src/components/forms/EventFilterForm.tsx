@@ -21,13 +21,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { ChevronDownIcon } from "lucide-react";
 import { CheckboxCard } from "../ui/checkbox";
+import { usePathname, useRouter } from "next/navigation";
 
 const eventFilterScheme = z.object({
-  sports: z.string().optional(),
-  dates: z.string().optional(),
-  type: z.array(z.string()).min(1, {
-    message: "You must select at least one item.",
-  }),
+  sport_type: z.string().optional(),
+  // dates: z.string().optional(),
+  // type: z.array(z.string()).min(1, {
+  //   message: "You must select at least one item.",
+  // }),
   status: z.array(z.string()).min(1, {
     message: "You must select at least one item.",
   }),
@@ -39,50 +40,74 @@ type Option = {
   disabled?: boolean;
 };
 
-const typeOption: Option[] = [
-  { label: "Weekly", value: "weekly" },
-  { label: "Tournament", value: "tournament" },
-  { label: "Friendly", value: "friendly", disabled: true },
-];
+// const typeOption: Option[] = [
+//   { label: "Weekly", value: "weekly" },
+//   { label: "Tournament", value: "tournament" },
+//   { label: "Friendly", value: "friendly", disabled: true },
+// ];
+
 const statusOption: Option[] = [
   { label: "Upcoming", value: "upcoming" },
-  { label: "On going", value: "on-going" },
+  { label: "On going", value: "ongoing" },
   { label: "Complete", value: "complete" },
 ];
 
 const EventFilterForm = () => {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
+  const router = useRouter();
+  const pathname = usePathname();
+  // const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+  //   from: undefined,
+  //   to: undefined,
+  // });
 
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
 
   const form = useForm<z.infer<typeof eventFilterScheme>>({
     resolver: zodResolver(eventFilterScheme),
     defaultValues: {
-      sports: "",
-      dates: "",
-      type: [],
+      sport_type: "",
+      // dates: "",
+      // type: [],
       status: [],
     },
   });
 
-  const onSelectDate = (range: DateRange | undefined) => {
-    setDateRange(range);
-    if (range?.from && range?.to) {
-      form.setValue(
-        "dates",
-        `${range.from.toISOString()} - ${range.to.toISOString()}`,
-      );
-    } else {
-      form.setValue("dates", "");
-    }
-  };
+  // const onSelectDate = (range: DateRange | undefined) => {
+  //   setDateRange(range);
+  //   if (range?.from && range?.to) {
+  //     form.setValue(
+  //       "dates",
+  //       `${range.from.toISOString()} - ${range.to.toISOString()}`,
+  //     );
+  //   } else {
+  //     form.setValue("dates", "");
+  //   }
+  // };
 
   const onSubmit = (data: z.infer<typeof eventFilterScheme>) => {
-    // router.push("/communities/create/community-schedule");
-    console.log(data);
+    const url = new URLSearchParams();
+    if (data.sport_type) {
+      url.set("sport_type", data.sport_type);
+    } else {
+      url.delete("sport_type");
+    }
+    if (data.status.length > 0) {
+      url.set("status", data.status.join(","));
+    } else {
+      url.delete("status");
+    }
+
+    router.push(`${pathname}?${url.toString()}`);
+  };
+
+  const onChangeStatus = (value: string) => {
+    form.setValue("status", [value]);
+    form.handleSubmit(onSubmit)();
+  };
+
+  const onChangeSportType = (value: string) => {
+    form.setValue("sport_type", value);
+    form.handleSubmit(onSubmit)();
   };
 
   return (
@@ -93,11 +118,11 @@ const EventFilterForm = () => {
       >
         <FormField
           control={form.control}
-          name="sports"
+          name="sport_type"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Select>
+                <Select {...field} onValueChange={onChangeSportType}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Filter by sport" />
                   </SelectTrigger>
@@ -112,7 +137,7 @@ const EventFilterForm = () => {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="dates"
           render={({ field }) => (
@@ -149,9 +174,9 @@ const EventFilterForm = () => {
               className="rounded-lg border shadow-sm"
             />
           </PopoverContent>
-        </Popover>
+        </Popover> */}
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="type"
           render={({ field }) => (
@@ -191,7 +216,7 @@ const EventFilterForm = () => {
               </div>
             </FormItem>
           )}
-        />
+        /> */}
         <FormField
           control={form.control}
           name="status"
@@ -216,12 +241,8 @@ const EventFilterForm = () => {
                             disabled={state?.disabled}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, state.value])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value: any) => value !== state.value,
-                                    ),
-                                  );
+                                ? onChangeStatus(state.value)
+                                : onChangeStatus("");
                             }}
                           />
                         </FormControl>

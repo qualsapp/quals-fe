@@ -39,8 +39,6 @@ const page = async ({ params, searchParams }: Props) => {
     ...searchParamsData,
   });
 
-  console.log(matches);
-
   if (!matches || matches?.length === 0) {
     return (
       <div className="py-8 md:py-10 space-y-10">

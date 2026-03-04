@@ -15,6 +15,7 @@ export type HostDetailResponse = {
   bio?: string;
   photo_url?: string;
   error?: string;
+  status?: number;
 };
 
 export type HostProfileResponse = {

@@ -1,12 +1,8 @@
 import React from "react";
-
 import UpdateRuleBeforeMatch from "@/components/match/update-rule-before-match";
 import { getMatch } from "@/actions/match";
-import Player from "@/components/commons/player";
 import BackButton from "@/components/commons/back-button";
 import { getEvent } from "@/actions/event";
-import { cn } from "@/lib/utils";
-import { MatchSetModel } from "@/types/match";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
@@ -20,8 +16,6 @@ const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
 
   const [match, event] = await Promise.all([getMatch(match_id), getEvent(id)]);
-
-  console.log(match);
 
   if (!match || !event) {
     return <div>Match not found</div>;

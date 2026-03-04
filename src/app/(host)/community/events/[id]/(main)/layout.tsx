@@ -1,11 +1,12 @@
-import { getEvent } from "@/actions/event";
-import DashboardNav from "@/components/commons/dashboard-nav";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import dayjs from "dayjs";
-import Link from "next/link";
-
 import React from "react";
+import Link from "next/link";
+import { getEvent } from "@/actions/event";
+import BackButton from "@/components/commons/back-button";
+import DashboardNav from "@/components/commons/dashboard-nav";
+import EventNotFound from "@/components/event/event-not-found";
+import LayoutActions from "@/components/event/layout-actions";
+import LayoutHead from "@/components/event/layout-head";
+import { Button } from "@/components/ui/button";
 
 type LayoutProps = {
   params: Promise<{ id: string }>;
@@ -23,15 +24,7 @@ const page = async ({ params, children }: LayoutProps) => {
   const event = await getEvent(id);
 
   if (!event) {
-    return (
-      <div className=" py-10 md:py-16 space-y-10">
-        <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-          <div className="space-y-3">
-            <h2 className="text-lg font-bold">Event not found</h2>
-          </div>
-        </div>
-      </div>
-    );
+    return <EventNotFound />;
   }
 
   if (
@@ -40,27 +33,18 @@ const page = async ({ params, children }: LayoutProps) => {
   ) {
     return (
       <div className=" py-10 md:py-16 space-y-10">
-        <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-          <div className="space-y-3">
-            <h2 className="text-lg font-bold">{event.title}</h2>
-
-            <Badge variant="gray" className="font-bold ">
-              {dayjs(event.start_time).format("DD MMM")} -{" "}
-              {dayjs(event.end_time).format("DD MMM")}
-            </Badge>
-
-            <p>{event.description}</p>
+        <div className="container">
+          <div className="mb-2">
+            <BackButton
+              href={`/community/events`}
+              variant="link"
+              label="Back to Community"
+              className="!px-0"
+            />
           </div>
-          <div className="flex gap-3 lg:flex-col">
-            <Link href={`/community/events/${id}/edit`}>
-              <Button variant="outline">Edit Event</Button>
-            </Link>
-            <Link
-              href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-            >
-              <Button variant="outline">Edit Rules</Button>
-            </Link>
-            <Button variant="destructive">Delete Event</Button>
+          <div className="flex flex-col lg:flex-row gap-5 justify-between">
+            <LayoutHead event={event} />
+            <LayoutActions event={event} />
           </div>
         </div>
 
@@ -76,27 +60,18 @@ const page = async ({ params, children }: LayoutProps) => {
 
   return (
     <div className=" py-10 md:py-16 space-y-10">
-      <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-        <div className="space-y-3">
-          <h2 className="text-lg font-bold">{event.title}</h2>
-
-          <Badge variant="gray" className="font-bold ">
-            {dayjs(event.start_time).format("DD MMM")} -{" "}
-            {dayjs(event.end_time).format("DD MMM")}
-          </Badge>
-
-          <p>{event.description}</p>
+      <div className="container">
+        <div className="mb-2">
+          <BackButton
+            href={`/community/events`}
+            variant="link"
+            label="Back to Community"
+            className="!px-0"
+          />
         </div>
-        <div className="flex gap-3 lg:flex-col">
-          <Link href={`/community/events/${id}/edit`}>
-            <Button variant="outline">Edit Event</Button>
-          </Link>
-          <Link
-            href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-          >
-            <Button variant="outline">Edit Rules</Button>
-          </Link>
-          <Button variant="destructive">Delete Event</Button>
+        <div className="flex flex-col lg:flex-row gap-5 justify-between">
+          <LayoutHead event={event} />
+          <LayoutActions event={event} />
         </div>
       </div>
       <div className="bg-primary-50">

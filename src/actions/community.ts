@@ -33,6 +33,8 @@ export const getCommunity = async (
       },
     );
 
+    console.log(response);
+
     return response;
   } catch (error: unknown) {
     return {

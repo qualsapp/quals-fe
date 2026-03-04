@@ -18,9 +18,16 @@ export type FilterParams = {
   search?: string;
   match_tab?: string;
   status?: string;
+  sport_type?: string;
+  sports?: string;
   tournament_id?: string;
   top_advancing_group?: boolean;
   page?: number;
   page_size?: number;
   welcome?: boolean;
 };
+
+export type ApiResponse<T> = {
+  error?: string;
+  status: number;
+} & T;

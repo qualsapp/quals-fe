@@ -23,19 +23,43 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { FilterParams } from "@/types/global";
 
 type Props = {
-  searchParams: Promise<{ welcome: boolean; page: number; page_size: number }>;
+  searchParams: Promise<{
+    welcome: boolean;
+    page: number;
+    page_size: number;
+    status?: string;
+    sport_type?: string;
+  }>;
 };
 
 const page = async ({ searchParams }: Props) => {
-  const { welcome, page = 1, page_size = 25 } = await searchParams;
+  const {
+    welcome,
+    page = 1,
+    page_size = 25,
+    status,
+    sport_type,
+  } = await searchParams;
   const currentPage = Number(page);
   const currentPageSize = Number(page_size);
+
+  const filter: FilterParams = {};
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (sport_type) {
+    filter.sport_type = sport_type;
+  }
 
   const { events, ...meta } = await getEvents({
     page: currentPage,
     page_size: currentPageSize,
+    filter,
   });
 
   const totalPages = Math.ceil((meta.total || 0) / currentPageSize) || 1;

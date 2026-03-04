@@ -66,7 +66,7 @@ const BadmintonBoard = () => {
     }
 
     return match;
-  }, [params.match_id]);
+  }, [params, position.left, position.right, router, searchParams]);
 
   const {
     data: match,

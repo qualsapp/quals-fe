@@ -4,6 +4,7 @@ import React from "react";
 
 import { useUser } from "@/context/UserContext";
 import DesktopMenu from "./header-components/desktop";
+import Logo from "@/assets/logo";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useUser();
@@ -12,8 +13,8 @@ const Header = () => {
     <header className="bg-primary sticky top-0 z-50 text-white">
       <nav className="flex justify-between items-center px-6 py-2 lg:py-0">
         <div>
-          <Link href="/" className="text-secondary font-bold">
-            QUALS
+          <Link href="/">
+            <Logo className="w-32 h-auto" />
           </Link>
         </div>
         <DesktopMenu

@@ -1,6 +1,5 @@
 "use server";
 import { apiClient } from "@/lib/api-client";
-import { getCookies } from "./helper";
 import { GroupResponse, GroupsResponse } from "@/types/group";
 import { errorHandler } from "@/lib/error-handler";
 

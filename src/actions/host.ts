@@ -2,34 +2,46 @@
 
 import { apiClient } from "@/lib/api-client";
 import { HostDetailResponse, HostProfileResponse } from "@/types/host";
-import { getCookies } from "./helper";
 import { errorHandler } from "@/lib/error-handler";
+import { ApiResponse } from "@/types/global";
 
-export const getHostDetails = async (): Promise<HostDetailResponse> => {
+export const getHostDetails = async (): Promise<
+  ApiResponse<HostDetailResponse>
+> => {
   try {
-    const response = await apiClient<HostDetailResponse>("/hosts", {
-      method: "GET",
-    });
+    const response = await apiClient<ApiResponse<HostDetailResponse>>(
+      "/hosts",
+      {
+        method: "GET",
+      },
+    );
 
     return response;
-  } catch (error: unknown) {
+  } catch (error: any) {
     return {
       error: errorHandler(error, "Failed to fetch host details"),
-    };
+      status: error?.status,
+    } as ApiResponse<HostDetailResponse>;
   }
 };
 
-export const getHostProfile = async (): Promise<HostProfileResponse> => {
+export const getHostProfile = async (): Promise<
+  ApiResponse<HostProfileResponse>
+> => {
   try {
-    const response = await apiClient<HostProfileResponse>("/hosts/profile", {
-      method: "GET",
-    });
+    const response = await apiClient<ApiResponse<HostProfileResponse>>(
+      "/hosts/profile",
+      {
+        method: "GET",
+      },
+    );
 
     return response;
-  } catch (error: unknown) {
+  } catch (error: any) {
     return {
       error: errorHandler(error, "Failed to fetch host profile"),
-    };
+      status: error?.status,
+    } as ApiResponse<HostProfileResponse>;
   }
 };
 

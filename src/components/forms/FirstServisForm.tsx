@@ -29,8 +29,8 @@ type Props = {
   matchId: number;
   refetch: () => void;
 };
-
-const FirstServisScheme = z.object({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const firstServisScheme = z.object({
   first_server: z.string().min(1, "First server is required"),
 });
 
@@ -43,14 +43,14 @@ const FirstServisForm = (props: Props) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const form = useForm<z.infer<typeof FirstServisScheme>>({
+  const form = useForm<z.infer<typeof firstServisScheme>>({
     defaultValues: {
       first_server: "",
     },
   });
 
   const firstServerMutation = async (
-    data: z.infer<typeof FirstServisScheme>,
+    data: z.infer<typeof firstServisScheme>,
   ) => {
     const first_server = data.first_server;
 

@@ -4,14 +4,17 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { Button } from "@/components/ui/button";
 import { Google } from "@/icons";
 import { loginWithGoogle } from "@/actions/auth";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
+import { LoginByGoogleParams } from "@/types/auth";
 
-export default function GoogleLoginButton() {
+type Props = {
+  userType: "host" | "player";
+};
+
+export default function GoogleLoginButton({ userType }: Props) {
   const router = useRouter();
-  const setLogin = useAuthStore((state) => state.login);
   const [isLoading, setIsLoading] = useState(false);
 
   const login = useGoogleLogin({
@@ -19,7 +22,13 @@ export default function GoogleLoginButton() {
     onSuccess: async (codeResponse) => {
       try {
         setIsLoading(true);
-        const response = await loginWithGoogle(codeResponse.code);
+        const params: LoginByGoogleParams = {
+          code: codeResponse.code,
+          redirect_uri: window.location.origin,
+          user_type: userType,
+        };
+        const response = await loginWithGoogle(params);
+        console.log(response);
 
         if (response.error) {
           toast.error(response.error);
@@ -32,6 +41,7 @@ export default function GoogleLoginButton() {
           router.refresh();
         }
       } catch (error) {
+        console.error(error);
         toast.error("An error occurred during Google Login");
       } finally {
         setIsLoading(false);
@@ -53,7 +63,7 @@ export default function GoogleLoginButton() {
       type="button"
     >
       <Google />
-      {isLoading ? "Loading..." : "Google"}
+      {isLoading ? "Loading..." : `Login with Google as ${userType}`}
     </Button>
   );
 }
