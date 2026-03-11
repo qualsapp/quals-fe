@@ -19,6 +19,8 @@ const page = async ({ params }: Props) => {
 
   const event = await getEvent(id);
 
+  console.log("Event data in match page:", event);
+
   const match = await getMatch(match_id);
 
   if (!match) {
@@ -49,7 +51,7 @@ const page = async ({ params }: Props) => {
 
         {match.status === "ongoing" ? (
           <div>
-            {event.event_type === "badminton" ? (
+            {event.sport_type.slug === "badminton" ? (
               <LiveMatchScoreBadminton
                 initialMatch={match}
                 matchId={match_id}
@@ -60,7 +62,7 @@ const page = async ({ params }: Props) => {
           </div>
         ) : (
           <div>
-            {event.event_type === "badminton" ? (
+            {event.sport_type.slug === "badminton" ? (
               <NotLiveMatchScore match={match} />
             ) : (
               <NotLiveMatchScorePaddle match={match} />

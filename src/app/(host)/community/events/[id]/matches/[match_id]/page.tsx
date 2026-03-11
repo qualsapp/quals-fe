@@ -46,7 +46,7 @@ const page = async ({ params }: Props) => {
           )}
         </div>
 
-        {event.event_type === "badminton" ? (
+        {event.sport_type.slug === "badminton" ? (
           <NotLiveMatchScore match={match} />
         ) : (
           <NotLiveMatchScorePaddle match={match} />

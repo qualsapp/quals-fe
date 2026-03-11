@@ -28,6 +28,7 @@ export type MatchSetModel = {
   match_score_a: number;
   match_score_b: number;
   can_activate_tiebreak: boolean;
+  needs_deuce_decision: boolean;
   games: MatchSetModel | null;
   updated_at: string;
 };

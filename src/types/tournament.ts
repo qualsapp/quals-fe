@@ -41,6 +41,7 @@ export interface TournamentResponse extends TournamentParams {
   match_rule: MatchRuleResponse;
   tournament_brackets: TournamentBracketsResponse[];
   tournament_groups: TournamentGroupsResponse[];
+  is_player_joined: boolean;
   error?: string;
   message?: string;
 }

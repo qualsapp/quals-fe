@@ -21,10 +21,9 @@ export const getPlayerDetails = async (): Promise<
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to fetch player details"),
-      status: error?.status,
     } as ApiResponse<PlayerDetailResponse>;
   }
 };

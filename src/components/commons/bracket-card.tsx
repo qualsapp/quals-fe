@@ -27,14 +27,17 @@ function BracketCard({
   handleOpen,
 }: BracketCardProps) {
   const isFirstRound = String(match.tournamentRoundText) === "1";
+  const isFinished = topWon || bottomWon;
 
   return (
     <div
       onClick={() =>
-        isFirstRound && isEditable ? handleOpen(String(match.id)) : null
+        isFirstRound && isEditable && !isFinished
+          ? handleOpen(String(match.id))
+          : null
       }
       className={cn(
-        isFirstRound && isEditable ? "cursor-pointer" : "",
+        isFirstRound && isEditable && !isFinished ? "cursor-pointer" : "",
         open ? "border-primary" : "",
         "relative",
       )}
@@ -125,7 +128,12 @@ function BracketCard({
             <Video className="w-4 h-4 text-destructive" />
           </span>
         ) : match.href ? (
-          <a href={match.href} aria-label="match detail" className="ml-auto">
+          <a
+            href={match.href}
+            aria-label="match detail"
+            className="ml-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Eye className="w-4 h-4" />
           </a>
         ) : (

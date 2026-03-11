@@ -57,6 +57,7 @@ export const getEvent = async (eventId: string): Promise<EventResponse> => {
       sport_type_id: 0,
       location: "",
       description: "",
+      is_player_joined: false,
       error: errorHandler(error, "Failed to fetch event details"),
     } as EventResponse;
   }

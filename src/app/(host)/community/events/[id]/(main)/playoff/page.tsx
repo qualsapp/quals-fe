@@ -77,7 +77,9 @@ const page = async ({ params }: Props) => {
       href: bracket.match?.id
         ? `/community/events/${id}/matches/${bracket.match?.id}`
         : undefined,
-      startTime: dayjs(bracket.match?.scheduled_at).format(SCHEDULED_AT_FORMAT),
+      startTime: bracket.match?.scheduled_at
+        ? dayjs(bracket.match?.scheduled_at).format(SCHEDULED_AT_FORMAT)
+        : "",
       sets: bracket.match?.match_sets || [],
     };
   });

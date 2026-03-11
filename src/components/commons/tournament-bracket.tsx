@@ -37,7 +37,7 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   // const { height, width } = useWindowSize();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -46,7 +46,11 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   if (!mounted) return null;
 
   const handleMatchClick = (matchId: string) => {
-    setSelectedMatchId(matchId);
+    const match = matches.find((m) => String(m.id) === matchId);
+
+    if (!match) return;
+
+    setSelectedMatch(match);
     setOpen(true);
   };
 
@@ -83,14 +87,16 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
         event?.tournament &&
         event.tournament.id &&
         event?.tournament?.match_rule?.id &&
-        selectedMatchId && (
+        selectedMatch && (
           <UpdatePlayerForm
             open={open}
             setOpen={setOpen}
             tournamentId={event?.tournament?.id}
             match_rule_id={String(event?.tournament?.match_rule?.id)}
-            tournamentBracketId={selectedMatchId}
+            tournamentBracketId={String(selectedMatch.id)}
             top_advancing_group={event?.tournament.format === "group_stage"}
+            participants={selectedMatch.participants}
+            court={selectedMatch.court_number}
           />
         )}
     </>

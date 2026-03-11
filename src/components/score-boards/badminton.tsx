@@ -5,7 +5,12 @@ import { ArrowRightLeft } from "lucide-react";
 import Shuttlecock from "@/icons/shuttlecock";
 import useFullScreen from "@/hooks/use-full-screen";
 import { cn } from "@/lib/utils";
-import { decreaseMatchScore, getMatch, updateMatchSet } from "@/actions/match";
+import {
+  activeDeuceApi,
+  decreaseMatchScore,
+  getMatch,
+  updateMatchSet,
+} from "@/actions/match";
 import {
   redirect,
   useParams,
@@ -16,6 +21,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import FirstServisForm from "../forms/FirstServisForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import WinnerDecider from "../forms/WinnerDecider";
+import { se } from "date-fns/locale";
 
 const BadmintonBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
@@ -23,7 +30,9 @@ const BadmintonBoard = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState<boolean>(false);
+  const [openDeuce, setOpenDeuce] = useState<boolean>(false);
   const [endGame, setEndGame] = useState<boolean>(false);
+  const [isWinnerOpen, setIsWinnerOpen] = useState<boolean>(false);
   const [position, setPosition] = useState<{
     left: "participant_a" | "participant_b";
     right: "participant_a" | "participant_b";
@@ -50,14 +59,18 @@ const BadmintonBoard = () => {
       );
     }
 
-    const isCurrentSetFinished = match.match_sets?.find(
+    const curSet = match.match_sets?.find(
       (set) => set.id === Number(searchParams.get("set_id")),
-    )?.is_finished;
+    );
 
-    if (isCurrentSetFinished && !match.winner) {
+    if (curSet?.is_finished && !match.winner) {
       router.push(
         `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
+    }
+
+    if (curSet?.needs_deuce_decision) {
+      setOpenDeuce(true);
     }
 
     // if end game
@@ -76,6 +89,8 @@ const BadmintonBoard = () => {
     queryKey: ["match", params.match_id],
     queryFn: onGetMatch,
   });
+
+  console.log("match", match);
 
   const onChangePosition = () => {
     if (position.left === "participant_a") {
@@ -110,6 +125,23 @@ const BadmintonBoard = () => {
 
     if (!updatedSet.error) {
       refetch();
+    }
+  };
+
+  const deuceMutation = async (deuce: boolean, currentSetId?: number) => {
+    if (!match?.id) return;
+
+    const updatedSet = await activeDeuceApi(
+      String(match?.id),
+      String(currentSetId),
+      {
+        enabled: deuce,
+      },
+    );
+
+    if (!updatedSet.error) {
+      refetch();
+      setOpenDeuce(false);
     }
   };
 
@@ -314,6 +346,15 @@ const BadmintonBoard = () => {
           >
             <ArrowRightLeft />
           </Button>
+
+          <Button
+            variant="destructive"
+            size="lg"
+            aria-label="Switch Court"
+            onClick={() => setIsWinnerOpen(true)}
+          >
+            End Match
+          </Button>
         </div>
       </div>
       {match && (
@@ -352,6 +393,47 @@ const BadmintonBoard = () => {
             </DialogHeader>
           </DialogContent>
         </Dialog>
+      )}
+
+      {curSet?.needs_deuce_decision && (
+        <Dialog open={openDeuce} onOpenChange={setOpenDeuce}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Enter deuce?
+              </DialogTitle>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    deuceMutation(true, curSet.id);
+                  }}
+                  variant="outline"
+                >
+                  Yes
+                </Button>
+                <Button
+                  onClick={() => {
+                    deuceMutation(false, curSet.id);
+                  }}
+                  variant="outline"
+                >
+                  No
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
+      {match && isWinnerOpen && (
+        <WinnerDecider
+          participant_a={match.participant_a.name}
+          participant_b={match.participant_b.name}
+          open={isWinnerOpen}
+          setOpen={setIsWinnerOpen}
+          matchId={match.id}
+          eventId={Number(params.id)}
+        />
       )}
     </div>
   );

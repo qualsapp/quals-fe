@@ -60,7 +60,7 @@ const page = async ({ params, children }: LayoutProps) => {
 
   return (
     <div className=" py-10 md:py-16 space-y-10">
-      <div className="container flex flex-col lg:flex-row gap-5 justify-between">
+      <div className="container flex flex-col lg:flex-row gap-5 justify-between items-center">
         <LayoutHead event={event} />
         <div className="flex gap-3 lg:flex-col">
           <JoinEvent event={event} playerId={playerId} />

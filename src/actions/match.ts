@@ -171,3 +171,45 @@ export const tiebreakActivation = async (
     } as MatchResponse;
   }
 };
+
+export const activeDeuceApi = async (
+  matchId: string,
+  setId: string,
+  params: { enabled: boolean },
+): Promise<MatchResponse> => {
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/sets/${setId}/deuce`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to activate deuce"),
+    } as MatchResponse;
+  }
+};
+export const finishMatchApi = async (
+  matchId: string,
+  params: { condition: string; winner_side?: string },
+): Promise<MatchResponse> => {
+  try {
+    const response = await apiClient<MatchResponse>(
+      `/matches/${matchId}/finish`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: unknown) {
+    return {
+      error: errorHandler(error, "Failed to end match"),
+    } as MatchResponse;
+  }
+};

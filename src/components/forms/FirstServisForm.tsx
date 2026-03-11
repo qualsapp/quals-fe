@@ -75,7 +75,7 @@ const FirstServisForm = (props: Props) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>First Servis</DialogTitle>
+          <DialogTitle>First Server</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(firstServerMutation)}>

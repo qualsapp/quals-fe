@@ -17,10 +17,9 @@ export const getHostDetails = async (): Promise<
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to fetch host details"),
-      status: error?.status,
     } as ApiResponse<HostDetailResponse>;
   }
 };
@@ -37,10 +36,9 @@ export const getHostProfile = async (): Promise<
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       error: errorHandler(error, "Failed to fetch host profile"),
-      status: error?.status,
     } as ApiResponse<HostProfileResponse>;
   }
 };

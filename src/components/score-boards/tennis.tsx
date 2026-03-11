@@ -4,7 +4,12 @@ import { Button } from "../ui/button";
 import { ArrowRightLeft } from "lucide-react";
 import TennisBall from "@/icons/tennis-ball";
 import useFullScreen from "@/hooks/use-full-screen";
-import { getMatch, tiebreakActivation, updateMatchSet } from "@/actions/match";
+import {
+  activeDeuceApi,
+  getMatch,
+  tiebreakActivation,
+  updateMatchSet,
+} from "@/actions/match";
 import {
   redirect,
   useParams,
@@ -16,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import FirstServisForm from "../forms/FirstServisForm";
 import { paddleScoreAlias } from "@/lib/constants/score";
+import WinnerDecider from "../forms/WinnerDecider";
 
 const TennisBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
@@ -23,6 +29,8 @@ const TennisBoard = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState<boolean>(false);
+  const [openDeuce, setOpenDeuce] = useState<boolean>(true);
+  const [isWinnerOpen, setIsWinnerOpen] = useState<boolean>(false);
   const [endGame, setEndGame] = useState<boolean>(false);
   const [activateTiebreak, setActivateTiebreak] = useState<boolean>(false);
   const [position, setPosition] = useState<{
@@ -56,14 +64,18 @@ const TennisBoard = () => {
       setActivateTiebreak(true);
     }
 
-    const isCurrentSetFinished = match.match_sets?.find(
+    const curSet = match.match_sets?.find(
       (set) => set.id === Number(searchParams.get("set_id")),
-    )?.is_finished;
+    );
 
-    if (isCurrentSetFinished && !match.winner) {
+    if (curSet?.is_finished && !match.winner) {
       router.push(
         `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
+    }
+
+    if (curSet?.needs_deuce_decision) {
+      setOpenDeuce(true);
     }
 
     // if end game
@@ -131,6 +143,23 @@ const TennisBoard = () => {
     }
   };
 
+  const deuceMutation = async (deuce: boolean, currentSetId?: number) => {
+    if (!match?.id) return;
+
+    const updatedSet = await activeDeuceApi(
+      String(match?.id),
+      String(currentSetId),
+      {
+        enabled: deuce,
+      },
+    );
+
+    if (!updatedSet.error) {
+      refetch();
+      setOpenDeuce(false);
+    }
+  };
+
   const curSet = useMemo(() => {
     if (!match?.match_sets || !searchParams.get("set_id")) return undefined;
 
@@ -166,7 +195,7 @@ const TennisBoard = () => {
       <div
         className={cn(
           "flex flex-col gap-6",
-          isFullscreen && "w-[100vw] h-[100vh]",
+          isFullscreen && "w-screen h-screen",
         )}
       >
         <div className="flex border-4 border-primary-100 w-full">
@@ -210,6 +239,11 @@ const TennisBoard = () => {
                   variant="destructive"
                   className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
                   size="lg"
+                  disabled={
+                    position.right === "participant_a"
+                      ? curSet?.set_score_a === 0
+                      : curSet?.set_score_b === 0
+                  }
                 >
                   -
                 </Button>
@@ -242,6 +276,11 @@ const TennisBoard = () => {
                 <Button
                   variant="destructive"
                   className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  disabled={
+                    position.right === "participant_b"
+                      ? curSet?.set_score_b === 0
+                      : curSet?.set_score_a === 0
+                  }
                 >
                   -
                 </Button>
@@ -285,6 +324,14 @@ const TennisBoard = () => {
           >
             <ArrowRightLeft />
           </Button>
+          <Button
+            variant="destructive"
+            size="lg"
+            aria-label="Switch Court"
+            onClick={() => setIsWinnerOpen(true)}
+          >
+            End Match
+          </Button>
         </div>
       </div>
 
@@ -298,6 +345,7 @@ const TennisBoard = () => {
           refetch={refetch}
         />
       )}
+
       {match?.winner && (
         <Dialog open={endGame} onOpenChange={setEndGame}>
           <DialogContent>
@@ -325,6 +373,7 @@ const TennisBoard = () => {
           </DialogContent>
         </Dialog>
       )}
+
       {curSet?.can_activate_tiebreak && (
         <Dialog open={activateTiebreak} onOpenChange={setActivateTiebreak}>
           <DialogContent>
@@ -350,6 +399,48 @@ const TennisBoard = () => {
                   variant="destructive"
                 >
                   No
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {match && (
+        <WinnerDecider
+          participant_a={match?.participant_a?.name}
+          participant_b={match?.participant_b?.name}
+          open={isWinnerOpen}
+          setOpen={setIsWinnerOpen}
+          matchId={match?.id || 0}
+          eventId={Number(params.id) || 0}
+        />
+      )}
+
+      {curSet?.needs_deuce_decision && (
+        <Dialog open={openDeuce} onOpenChange={setOpenDeuce}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Pick Mode
+              </DialogTitle>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    deuceMutation(false, curSet.id);
+                  }}
+                  variant="default"
+                >
+                  Golden Point
+                </Button>
+                <Button
+                  onClick={() => {
+                    deuceMutation(true, curSet.id);
+                  }}
+                  variant="default"
+                >
+                  Deuce
                 </Button>
               </div>
             </DialogHeader>

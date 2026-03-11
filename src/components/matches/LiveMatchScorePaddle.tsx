@@ -16,6 +16,7 @@ type Props = {
 
 const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
   const [match, setMatch] = useState<MatchResponse>(initialMatch);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
         )}
         <Player
           names={match.participant_b.name.split("/")}
-          className="flex-col md:flex-row md:flex-row-reverse"
+          className="flex-col md:flex-row-reverse"
         />
       </div>
       <div className="flex gap-6 justify-center border-y">

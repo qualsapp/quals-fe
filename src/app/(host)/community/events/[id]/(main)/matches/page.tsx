@@ -98,7 +98,12 @@ const page = async ({ params, searchParams }: Props) => {
             </div>
           </TabsContent>
           <TabsContent value="order_of_play">
-            <div className={cn("grid gap-4", `grid-cols-3`)}>
+            <div
+              className={cn(
+                "grid gap-16 md:gap-4",
+                `grid-cols-1 md:grid-cols-3`,
+              )}
+            >
               {matchesByCourt.map((court) => (
                 <div
                   key={court.court}

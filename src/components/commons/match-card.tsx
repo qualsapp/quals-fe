@@ -46,8 +46,18 @@ const MatchCard = ({ type, url, match, index }: Props) => {
 
       <CardContent className="flex justify-between items-center py-0">
         <div>
-          <Player names={match.participant_a.name.split("/")} image={""} />
-          <Player names={match.participant_b.name.split("/")} image={""} />
+          {match.participant_a && (
+            <Player
+              names={match.participant_a.name?.split("/") || []}
+              image={""}
+            />
+          )}
+          {match.participant_b && (
+            <Player
+              names={match.participant_b.name?.split("/") || []}
+              image={""}
+            />
+          )}
         </div>
         {match.match_sets !== null && (
           <div className="flex items-center gap-3">
@@ -93,8 +103,7 @@ const MatchCard = ({ type, url, match, index }: Props) => {
 
       <CardFooter className="bg-primary-100 rounded-b-lg py-2 flex justify-between items-center">
         <p className="font-bold">
-          Final .{" "}
-          {type === "order_of_play"
+          {type === "live"
             ? `Court ${match.court_number}`
             : `Match ${match.tournament_bracket?.match_number || Number(index) + 1}`}
         </p>

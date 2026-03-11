@@ -3,8 +3,11 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import JoinTournamentForm from "../forms/JoinTournamentForm";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { EventResponse } from "@/types/event";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 type Props = {
   event: EventResponse;
@@ -12,6 +15,20 @@ type Props = {
 };
 
 const JoinEvent = ({ event, playerId }: Props) => {
+  if (event.tournament?.is_player_joined) {
+    return (
+      <Badge
+        className={cn(
+          "px-3 py-1 text-sm font-semibold uppercase tracking-wide rounded-none",
+          "bg-white text-green-700 border-2 border-green-600",
+          "shadow-sm",
+        )}
+      >
+        <Check className="w-4 h-4 mr-1" />
+        Joined
+      </Badge>
+    );
+  }
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCloseModal = () => {
