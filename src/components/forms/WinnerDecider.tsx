@@ -26,7 +26,7 @@ import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { finishMatchApi } from "@/actions/match";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Props = {
   participant_a: string;
@@ -45,10 +45,6 @@ const winnerDeciderScheme = z.object({
 const conditionOptions = [
   { value: "retired", label: "Retired" },
   { value: "walkover", label: "Walkover" },
-  { value: "disqualified", label: "Disqualified" },
-  { value: "injury", label: "Injury" },
-  { value: "time_limit", label: "Time Limit" },
-  { value: "normal_end", label: "Normal" },
   { value: "manual", label: "Manual" },
 ];
 

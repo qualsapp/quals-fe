@@ -36,32 +36,48 @@ const page = async ({ params, searchParams }: Props) => {
 
   const { matches } = await getMatches({
     tournament_id: event.tournament?.id,
-    ...searchParamsData,
+    ...(searchParamsData.match_tab === "order_of_play"
+      ? { ...searchParamsData }
+      : { ...searchParamsData, status: "ongoing" }),
   });
 
-  if (!matches || matches?.length === 0) {
-    return (
-      <div className="py-8 md:py-10 space-y-10">
-        <div className="container flex flex-col items-center">
-          <p>No matches found</p>
-        </div>
-      </div>
-    );
-  }
+  const matchesByRound = () => {
+    if (!matches) return [];
 
-  const matchesByCourt = Object.values(
-    matches.reduce(
-      (acc, match) => {
-        const court = match.court_number;
-        if (!acc[court]) {
-          acc[court] = { court, matches: [] };
-        }
-        acc[court].matches.push(match);
-        return acc;
-      },
-      {} as Record<number, { court: number; matches: MatchResponse[] }>,
-    ),
-  );
+    const round = Object.values(
+      matches.reduce(
+        (acc, match) => {
+          const round = match.tournament_bracket?.round_name || "Unknown Round";
+          if (!acc[round]) {
+            acc[round] = { round, matches: [] };
+          }
+          acc[round].matches.push(match);
+          return acc;
+        },
+        {} as Record<string, { round: string; matches: MatchResponse[] }>,
+      ),
+    );
+
+    return round;
+  };
+
+  const matchesByCourt = (matches: MatchResponse[]) => {
+    if (!matches) return [];
+
+    return Object.values(
+      matches.reduce(
+        (acc, match) => {
+          const court = match.court_number;
+          if (!acc[court]) {
+            acc[court] = { court, matches: [] };
+          }
+          acc[court].matches.push(match);
+          return acc;
+        },
+        {} as Record<number, { court: number; matches: MatchResponse[] }>,
+      ),
+    );
+  };
 
   return (
     <div className="py-8 md:py-10 space-y-10">
@@ -86,7 +102,15 @@ const page = async ({ params, searchParams }: Props) => {
           </TabsList>
           <TabsContent value="live">
             <div className="grid grid-cols-1 gap-4 place-items-center">
-              {matches.map((match, index) => (
+              {(matches === null || matches?.length === 0) && (
+                <div className="py-8 md:py-10 space-y-10">
+                  <div className="container flex flex-col items-center">
+                    <p>No matches live yet</p>
+                  </div>
+                </div>
+              )}
+
+              {matches?.map((match, index) => (
                 <MatchCard
                   key={index}
                   index={index}
@@ -97,33 +121,48 @@ const page = async ({ params, searchParams }: Props) => {
               ))}
             </div>
           </TabsContent>
-          <TabsContent value="order_of_play">
-            <div
-              className={cn(
-                "grid gap-16 md:gap-4",
-                `grid-cols-1 md:grid-cols-3`,
-              )}
-            >
-              {matchesByCourt.map((court) => (
+          <TabsContent value="order_of_play" className="flex flex-col gap-16">
+            {(matches === null || matches?.length === 0) && (
+              <div className="py-8 md:py-10 space-y-10">
+                <div className="container flex flex-col items-center">
+                  <p>No matches yet</p>
+                </div>
+              </div>
+            )}
+
+            {matchesByRound().map((round) => (
+              <div key={round.round} className="space-y-4">
+                <h3 className="text-4xl font-bold text-center text-neutral-300 border-y py-3">
+                  {round.round}
+                </h3>
                 <div
-                  key={court.court}
-                  className="space-y-4 flex flex-col items-center"
+                  className={cn(
+                    "grid gap-y-16 md:gap-8 md:gap-y-16",
+                    `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`,
+                  )}
                 >
-                  <h3 className="text-xl font-bold text-center">
-                    Court {court.court}
-                  </h3>
-                  {court.matches.map((match, index) => (
-                    <MatchCard
-                      key={index}
-                      index={index}
-                      type="order_of_play"
-                      match={match}
-                      url={`/community/events/${id}/matches/${match.id}`}
-                    />
+                  {matchesByCourt(round.matches).map((court) => (
+                    <div
+                      key={court.court}
+                      className="space-y-4 flex flex-col items-center"
+                    >
+                      <h3 className="text-xl font-bold text-center">
+                        Court {court.court}
+                      </h3>
+                      {court.matches.map((match, index) => (
+                        <MatchCard
+                          key={index}
+                          index={index}
+                          type="order_of_play"
+                          match={match}
+                          url={`/community/events/${id}/matches/${match.id}`}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )) || []}
           </TabsContent>
         </Tabs>
       </div>

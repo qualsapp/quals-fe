@@ -20,8 +20,8 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import FirstServisForm from "../forms/FirstServisForm";
-import { paddleScoreAlias } from "@/lib/constants/score";
 import WinnerDecider from "../forms/WinnerDecider";
+import { MatchSetModel } from "@/types/match";
 
 const TennisBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
@@ -172,6 +172,12 @@ const TennisBoard = () => {
     }
   }, [match?.match_sets, searchParams]);
 
+  const scoreGenerator = (pos: "left" | "right", set: MatchSetModel) => {
+    return position[pos] === "participant_a"
+      ? set?.current_point_display_a || "0"
+      : set?.current_point_display_b || "0";
+  };
+
   if (isLoading) {
     return (
       <div
@@ -189,7 +195,7 @@ const TennisBoard = () => {
       ref={ref}
       className={cn(
         "relative flex items-center justify-center",
-        isFullscreen && "w-[100vw] h-[100vh] fixed inset-0 z-50 bg-white",
+        isFullscreen && "w-screen h-screen fixed inset-0 z-50 bg-white",
       )}
     >
       <div
@@ -215,15 +221,7 @@ const TennisBoard = () => {
                   )
                 }
               >
-                {curSet?.is_tiebreak
-                  ? position.left === "participant_a"
-                    ? curSet?.current_point_a || 0
-                    : curSet?.current_point_b || 0
-                  : paddleScoreAlias[
-                      position.left === "participant_a"
-                        ? Number(curSet?.current_point_a || 0)
-                        : Number(curSet?.current_point_b || 0)
-                    ]}
+                {scoreGenerator("left", curSet!)}
               </div>
               <div className="flex flex-col h-full">
                 <Button
@@ -294,17 +292,7 @@ const TennisBoard = () => {
                   )
                 }
               >
-                <p>
-                  {curSet?.is_tiebreak
-                    ? position.right === "participant_b"
-                      ? curSet?.current_point_b || 0
-                      : curSet?.current_point_a || 0
-                    : paddleScoreAlias[
-                        position.right === "participant_b"
-                          ? Number(curSet?.current_point_b || 0)
-                          : Number(curSet?.current_point_a || 0)
-                      ]}
-                </p>
+                <p>{scoreGenerator("right", curSet!)}</p>
               </div>
               {curSet?.current_server == position.right && (
                 <div className="absolute top-3 right-3">

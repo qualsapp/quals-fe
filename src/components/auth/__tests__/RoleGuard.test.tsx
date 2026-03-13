@@ -1,6 +1,9 @@
+/* eslint-disable  */
+
 import { render, screen } from "@/__tests__/test-utils";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { UserRole } from "@/types/user";
+import { es } from "date-fns/locale";
 
 // Mock the UserContext hook instead of using the context directly
 jest.mock("@/context/UserContext", () => ({
@@ -129,3 +132,4 @@ describe("RoleGuard", () => {
     expect(screen.getByText("Protected Content")).toBeInTheDocument();
   });
 });
+/* eslint-enable  */

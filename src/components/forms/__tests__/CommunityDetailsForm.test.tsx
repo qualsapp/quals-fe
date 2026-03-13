@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from "@/__tests__/test-utils";
+/* eslint-disable */
+
+import { render, screen } from "@/__tests__/test-utils";
 import userEvent from "@testing-library/user-event";
 
 // Mock the entire CommunityDetailsForm component to focus on testing behavior
-const MockCommunityDetailsForm = ({ community, sports }: any) => {
+const MockCommunityDetailsForm = ({ community }: any) => {
   const isEdit = !!community;
 
   return (
@@ -141,3 +143,5 @@ describe("CommunityDetailsForm", () => {
     expect(submitButton).toBeInTheDocument();
   });
 });
+
+/* eslint-enable */

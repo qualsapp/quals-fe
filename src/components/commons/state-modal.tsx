@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -25,6 +25,7 @@ const Modal = (props: Props) => {
   return (
     <Dialog defaultOpen={open} open={open} onOpenChange={handleOnOpenChange}>
       <DialogContent className="overflow-y-hidden !p-0">
+        <DialogTitle></DialogTitle>
         {props.children}
       </DialogContent>
     </Dialog>

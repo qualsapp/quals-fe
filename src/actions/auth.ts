@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { TokenExpirationDays } from "@/lib/env";
-import { errorHandler } from "@/lib/error-handler";
+import { errorResponseHandler } from "@/lib/error-handler";
 import { AuthResponse, LoginByGoogleParams, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
 
@@ -41,10 +41,8 @@ export const login = async (
     }
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to login"),
-    } as AuthResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<AuthResponse>(error, "Failed to login");
   }
 };
 
@@ -83,10 +81,8 @@ export const register = async (
     }
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to register"),
-    } as AuthResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<AuthResponse>(error, "Failed to register");
   }
 };
 
@@ -98,8 +94,8 @@ export const logout = async (): Promise<{ success: boolean }> => {
     cookieStore.delete("user_type");
 
     return { success: true };
-  } catch (error: unknown) {
-    console.error(error);
+  } catch (error: Response | Error | unknown) {
+    console.error("Logout failed:", error);
     return { success: false };
   }
 };
@@ -139,9 +135,10 @@ export const loginWithGoogle = async (
     }
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to login with Google"),
-    } as AuthResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<AuthResponse>(
+      error,
+      "Failed to login with Google",
+    );
   }
 };

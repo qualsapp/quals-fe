@@ -1,3 +1,5 @@
+/* eslint-disable  */
+
 import React from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -73,3 +75,4 @@ describe("test-utils", () => {
     expect(typeof customRender).toBe("function");
   });
 });
+/* eslint-enable  */

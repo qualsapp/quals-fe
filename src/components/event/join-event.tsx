@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import JoinTournamentForm from "../forms/JoinTournamentForm";
-import { Button, buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { EventResponse } from "@/types/event";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ type Props = {
 };
 
 const JoinEvent = ({ event, playerId }: Props) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   if (event.tournament?.is_player_joined) {
     return (
       <Badge
@@ -29,8 +30,6 @@ const JoinEvent = ({ event, playerId }: Props) => {
       </Badge>
     );
   }
-  const [isOpen, setIsOpen] = useState(false);
-
   const handleCloseModal = () => {
     setIsOpen(false);
   };

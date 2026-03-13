@@ -22,4 +22,5 @@ export type CommunityListResponse = {
   page_size: number;
   total: number;
   error?: string;
+  status?: number;
 };
