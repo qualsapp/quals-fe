@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve("."),
+  },
   outputFileTracingRoot: path.join(__dirname, "../../"),
   crossOrigin: "anonymous",
   experimental: {

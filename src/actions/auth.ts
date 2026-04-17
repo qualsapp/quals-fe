@@ -16,6 +16,8 @@ export const login = async (
       body: JSON.stringify(credentials),
     });
 
+    console.log(response);
+
     if (response.token) {
       cookieStore.set("token", response.token, {
         path: "/",
@@ -42,6 +44,7 @@ export const login = async (
 
     return response;
   } catch (error: Response | Error | unknown) {
+    console.error("Login failed:", error);
     return errorResponseHandler<AuthResponse>(error, "Failed to login");
   }
 };
@@ -82,6 +85,7 @@ export const register = async (
 
     return response;
   } catch (error: Response | Error | unknown) {
+    console.error("Register failed:", error);
     return errorResponseHandler<AuthResponse>(error, "Failed to register");
   }
 };

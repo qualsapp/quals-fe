@@ -54,10 +54,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         auth.logout();
       }
     };
-    if (isHydrated) {
+
+    if (isHydrated && auth.user?.user_type) {
       fetchUserDetails();
     }
-  }, [auth.user?.user_type, auth, isHydrated]);
+  }, [auth, isHydrated]);
 
   if (!isHydrated) {
     return null;
