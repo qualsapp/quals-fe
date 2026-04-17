@@ -59,7 +59,7 @@ const LoginForm = () => {
         loginInState(data, token);
 
         if (data.user_type === "player") {
-          router.push("/dashboard?welcome=true");
+          router.push("/dashboard/events?welcome=true");
         } else if (data.user_type === "host") {
           router.push("/community/events?welcome=true");
         } else if (data.user_type === "admin") {

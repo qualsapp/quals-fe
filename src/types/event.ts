@@ -14,13 +14,14 @@ export type EventParams = {
   isRepeat?: boolean;
 };
 
-export type EventResponse = Omit<EventParams, "dates"> & {
+export type EventResponse = Omit<EventParams, "dates" | "sport_type_id"> & {
   id: string;
   community_id: string;
   start_date: string;
   end_date: string;
   sport_type: Sport;
   tournament?: TournamentResponse;
+
   error?: string;
 };
 

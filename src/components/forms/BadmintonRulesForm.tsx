@@ -305,7 +305,12 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                     <Switch
                       id="deuce"
                       checked={field.value}
-                      onCheckedChange={field.onChange}
+                      onCheckedChange={(value) => {
+                        form.setValue("deuce", value);
+                        if (!value) {
+                          form.setValue("max_deuce_point", "");
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormLabel htmlFor="deuce">Enable Deuce?</FormLabel>
@@ -317,10 +322,14 @@ const RulesForm = ({ eventId, tournament }: Props) => {
               control={form.control}
               name="max_deuce_point"
               render={({ field }) => (
-                <FormItem>
+                <FormItem hidden={!form.watch("deuce")}>
                   <FormLabel>Max Deuce Point</FormLabel>
                   <FormControl>
-                    <Input placeholder="Input max deuce point" {...field} />
+                    <Input
+                      placeholder={"Input max deuce point"}
+                      disabled={!form.watch("deuce")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

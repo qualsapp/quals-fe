@@ -90,17 +90,3 @@ export interface UserDetailParams {
   bio?: string;
   photo_url?: string;
 }
-
-export interface HostDetailResponse extends UserDetailParams {
-  id: string;
-  user_id: string;
-  user_type?: UserRole;
-}
-
-export interface PlayerDetailResponse extends UserDetailParams {
-  id: string;
-  user_id: string;
-  user_type?: UserRole;
-  phone_number: string;
-  sport_types: Sport[];
-}

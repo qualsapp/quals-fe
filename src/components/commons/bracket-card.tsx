@@ -27,13 +27,17 @@ function BracketCard({
   handleOpen,
 }: BracketCardProps) {
   const isFirstRound = String(match.tournamentRoundText) === "1";
+  const isFinished = topWon || bottomWon;
+
   return (
     <div
       onClick={() =>
-        isFirstRound && isEditable ? handleOpen(String(match.id)) : null
+        isFirstRound && isEditable && !isFinished
+          ? handleOpen(String(match.id))
+          : null
       }
       className={cn(
-        isFirstRound && isEditable ? "cursor-pointer" : "",
+        isFirstRound && isEditable && !isFinished ? "cursor-pointer" : "",
         open ? "border-primary" : "",
         "relative",
       )}
@@ -41,7 +45,7 @@ function BracketCard({
       <div className="border rounded-md flex flex-col">
         <Item
           className={cn(
-            "p-2 flex flex-nowrap rounded-t-md rounded-b-none",
+            "p-0 gap-1 flex flex-nowrap rounded-t-md rounded-b-none",
             topHovered ? "bg-gray-100" : "",
             topWon ? "bg-primary text-secondary" : "",
           )}
@@ -51,27 +55,30 @@ function BracketCard({
             onPartyClick?.(topParty, topWon);
           }}
         >
-          {topParty?.name && (
-            <ItemMedia>
-              <Avatar className="size-6">
-                <AvatarImage src={topParty.picture} />
-                <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
-                  {topParty.name?.split("")[0]}
-                </AvatarFallback>
-              </Avatar>
-            </ItemMedia>
-          )}
-          <ItemContent>
-            <ItemTitle>{topParty?.name}</ItemTitle>
+          <ItemMedia className="p-2">
+            <Avatar className="size-5">
+              <AvatarImage src={topParty.picture} />
+              <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
+                {topParty.name?.split("")[0]}
+              </AvatarFallback>
+            </Avatar>
+          </ItemMedia>
+
+          <ItemContent className="py-2">
+            <ItemTitle className="line-clamp-1 text-xs">
+              {topParty?.name}
+            </ItemTitle>
           </ItemContent>
-          <ItemContent>
-            <ItemTitle>{topParty?.resultText}</ItemTitle>
+          <ItemContent className="p-2 border-l">
+            <ItemTitle className="font-bold">
+              {topParty?.resultText || "-"}
+            </ItemTitle>
           </ItemContent>
         </Item>
-        <div className="h-[1px] border-t border-gray-200" />
+        <hr />
         <Item
           className={cn(
-            "p-2 flex flex-nowrap rounded-b-md rounded-t-none",
+            "p-0 gap-1 flex flex-nowrap rounded-b-md rounded-t-none",
             bottomHovered ? "bg-gray-100" : "",
             bottomWon ? "bg-primary text-secondary" : "",
           )}
@@ -79,8 +86,8 @@ function BracketCard({
           onMouseLeave={onMouseLeave}
           onClick={() => onPartyClick?.(bottomParty, bottomWon)}
         >
-          <ItemMedia>
-            <Avatar className="size-6">
+          <ItemMedia className="p-2">
+            <Avatar className="size-5">
               <AvatarImage src={bottomParty.picture} />
               <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
                 {bottomParty.name?.split("")[0] || "Q"}
@@ -88,10 +95,14 @@ function BracketCard({
             </Avatar>
           </ItemMedia>
           <ItemContent>
-            <ItemTitle>{bottomParty?.name}</ItemTitle>
+            <ItemTitle className="line-clamp-1 text-xs">
+              {bottomParty?.name}
+            </ItemTitle>
           </ItemContent>
-          <ItemContent>
-            <ItemTitle>{bottomParty?.resultText}</ItemTitle>
+          <ItemContent className="border-l p-2">
+            <ItemTitle className="font-bold">
+              {bottomParty?.resultText || "-"}
+            </ItemTitle>
           </ItemContent>
         </Item>
       </div>
@@ -105,7 +116,7 @@ function BracketCard({
         )}
         {match.startTime ? (
           <>
-            <span>|</span>
+            {match?.court_number && <span>|</span>}
             <span>{match.startTime}</span>
           </>
         ) : (
@@ -117,7 +128,12 @@ function BracketCard({
             <Video className="w-4 h-4 text-destructive" />
           </span>
         ) : match.href ? (
-          <a href={match.href} aria-label="match detail" className="ml-auto">
+          <a
+            href={match.href}
+            aria-label="match detail"
+            className="ml-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Eye className="w-4 h-4" />
           </a>
         ) : (

@@ -109,7 +109,8 @@ const UpdateBadmintonMatchRuleForm = ({
         } else {
           form.reset();
           setOpen(false);
-          router.push(`${pathname}/play`);
+
+          router.push(`${pathname}/play?type=badminton&left=a&right=b`);
         }
       });
     } catch (error) {

@@ -1,9 +1,9 @@
 import RegisterForm from "@/components/forms/RegisterForm";
-import { Button } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
-import { Google } from "@/icons";
 import Link from "next/link";
 import React from "react";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const page = () => {
   return (
@@ -20,10 +20,22 @@ const page = () => {
           <Divider />
         </div>
 
-        <Button variant="outline" size="lg" className="py-6">
-          <Google />
-          Google
-        </Button>
+        <Tabs defaultValue={"player"} className="w-full ">
+          <TabsList className="mx-auto">
+            <TabsTrigger value="player">Player</TabsTrigger>
+            <TabsTrigger value="host">Host</TabsTrigger>
+          </TabsList>
+          <TabsContent value="player">
+            <div className="flex justify-center py-6">
+              <GoogleLoginButton userType="player" />
+            </div>
+          </TabsContent>
+          <TabsContent value="host">
+            <div className="flex justify-center py-6">
+              <GoogleLoginButton userType="host" />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <p className="text-center">
           Sudah punya akun?{" "}

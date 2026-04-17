@@ -37,7 +37,7 @@ type Props = {
 
 const PadelMatchRuleScheme = z.object({
   deuce: z.boolean(),
-  best_of_sets: z.string().optional(),
+  total_of: z.string().optional(),
   race_to: z.string().optional(),
 });
 
@@ -50,8 +50,8 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
   const form = useForm({
     resolver: zodResolver(PadelMatchRuleScheme),
     defaultValues: {
-      deuce: rule.deuce,
-      best_of_sets: rule.best_of_sets?.toString() || "",
+      deuce: !rule.deuce || false,
+      total_of: rule.total_of?.toString() || "",
       race_to: rule.race_to?.toString() || "",
     },
   });
@@ -59,14 +59,14 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
   const onSubmit = (data: z.infer<typeof PadelMatchRuleScheme>) => {
     try {
       const params: MatchRuleParams = {
-        ...(data.deuce && {
-          deuce: data.deuce,
-        }),
-        ...(data.best_of_sets
+        deuce: data.deuce,
+        ...(data.total_of
           ? {
-              best_of_sets: Number(data.best_of_sets),
+              total_of: Number(data.total_of),
             }
           : { race_to: Number(data.race_to) }),
+        total_of: 3,
+        scoring_system: "rally",
       };
 
       startTransition(async () => {
@@ -76,7 +76,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
         } else {
           form.reset();
           setOpen(false);
-          router.push(`${pathname}/play`);
+          router.push(`${pathname}/play?type=paddle&left=a&right=b`);
         }
       });
     } catch (error) {
@@ -88,7 +88,7 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Update Padel Match Rule</DialogTitle>
+          <DialogTitle>Update Paddle Match Rule</DialogTitle>
           <DialogDescription>
             Please check the match rule before starting the match.
           </DialogDescription>
@@ -115,22 +115,19 @@ const UpdatePadelMatchRuleForm = ({ open, setOpen, rule, matchId }: Props) => {
                   )}
                 />
 
-                <Tabs defaultValue="best_of" className="w-full">
+                <Tabs defaultValue="total_of" className="w-full">
                   <TabsList>
-                    <TabsTrigger value="best_of">Best of</TabsTrigger>
+                    <TabsTrigger value="total_of">Total of</TabsTrigger>
                     <TabsTrigger value="race_to">Race to</TabsTrigger>
                   </TabsList>
-                  <TabsContent value="best_of">
+                  <TabsContent value="total_of">
                     <FormField
                       control={form.control}
-                      name="best_of_sets"
+                      name="total_of"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input
-                              placeholder="Input best of point"
-                              {...field}
-                            />
+                            <Input placeholder="Input total of" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

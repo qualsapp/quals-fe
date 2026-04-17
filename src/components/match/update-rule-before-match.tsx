@@ -29,7 +29,7 @@ const UpdateRuleBeforeMatch = ({ type, rule, matchId }: Props) => {
         />
       )}
 
-      {type === "padel" && (
+      {type === "paddle" && (
         <UpdatePadelMatchRuleForm
           matchId={matchId}
           rule={rule}

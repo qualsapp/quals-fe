@@ -1,98 +1,440 @@
-import React from "react";
+"use client";
+import React, { useCallback, useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { ArrowRightLeft, EllipsisVertical, RotateCcw } from "lucide-react";
+import { ArrowRightLeft } from "lucide-react";
 import TennisBall from "@/icons/tennis-ball";
+import useFullScreen from "@/hooks/use-full-screen";
+import {
+  activeDeuceApi,
+  getMatch,
+  tiebreakActivation,
+  updateMatchSet,
+} from "@/actions/match";
+import {
+  redirect,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import FirstServisForm from "../forms/FirstServisForm";
+import WinnerDecider from "../forms/WinnerDecider";
+import { MatchSetModel } from "@/types/match";
 
 const TennisBoard = () => {
+  const { ref, isFullscreen, exitFullscreen } = useFullScreen();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [open, setOpen] = useState<boolean>(false);
+  const [openDeuce, setOpenDeuce] = useState<boolean>(true);
+  const [isWinnerOpen, setIsWinnerOpen] = useState<boolean>(false);
+  const [endGame, setEndGame] = useState<boolean>(false);
+  const [activateTiebreak, setActivateTiebreak] = useState<boolean>(false);
+  const [position, setPosition] = useState<{
+    left: "participant_a" | "participant_b";
+    right: "participant_a" | "participant_b";
+  }>({
+    left: searchParams.get("left") === "a" ? "participant_a" : "participant_b",
+    right:
+      searchParams.get("right") === "a" ? "participant_a" : "participant_b",
+  });
+
+  const onGetMatch = useCallback(async () => {
+    const match = await getMatch(String(params.match_id));
+    if (!match.error && (match.match_sets?.length == 0 || !match.match_sets)) {
+      setOpen(true);
+    }
+
+    // if match is finished
+    const left = position.left === "participant_a" ? "a" : "b";
+    const right = position.right === "participant_a" ? "a" : "b";
+
+    if (!searchParams.get("set_id")) {
+      router.push(
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+      );
+    }
+
+    if (
+      match.match_sets?.find((set) => !set.is_finished)?.can_activate_tiebreak
+    ) {
+      setActivateTiebreak(true);
+    }
+
+    const curSet = match.match_sets?.find(
+      (set) => set.id === Number(searchParams.get("set_id")),
+    );
+
+    if (curSet?.is_finished && !match.winner) {
+      router.push(
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+      );
+    }
+
+    if (curSet?.needs_deuce_decision) {
+      setOpenDeuce(true);
+    }
+
+    // if end game
+    if (match.winner) {
+      setEndGame(true);
+    }
+
+    return match;
+  }, [params, position.left, position.right, router, searchParams]);
+
+  const {
+    data: match,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["match", params.match_id],
+    queryFn: onGetMatch,
+  });
+
+  const onChangePosition = () => {
+    if (position.left === "participant_a") {
+      setPosition({
+        left: "participant_b",
+        right: "participant_a",
+      });
+      redirect(
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+      );
+    } else {
+      setPosition({
+        left: "participant_a",
+        right: "participant_b",
+      });
+      redirect(
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+      );
+    }
+  };
+
+  const onActivateTiebreak = async () => {
+    if (!match?.id || !searchParams.get("set_id")) return;
+    const tiebreak = await tiebreakActivation(
+      String(match?.id),
+      String(searchParams.get("set_id")),
+    );
+    if (!tiebreak.error) {
+      refetch();
+    }
+    setActivateTiebreak(false);
+  };
+
+  const matchSetMutation = async (server: string, currentSetId?: number) => {
+    if (!match?.id) return;
+
+    const updatedSet = await updateMatchSet(
+      String(match?.id),
+      String(currentSetId),
+      {
+        point_winner: server,
+      },
+    );
+
+    if (!updatedSet.error) {
+      refetch();
+    }
+  };
+
+  const deuceMutation = async (deuce: boolean, currentSetId?: number) => {
+    if (!match?.id) return;
+
+    const updatedSet = await activeDeuceApi(
+      String(match?.id),
+      String(currentSetId),
+      {
+        enabled: deuce,
+      },
+    );
+
+    if (!updatedSet.error) {
+      refetch();
+      setOpenDeuce(false);
+    }
+  };
+
+  const curSet = useMemo(() => {
+    if (!match?.match_sets || !searchParams.get("set_id")) return undefined;
+
+    const currentset = match?.match_sets?.find(
+      (set) => set.id == Number(searchParams.get("set_id")),
+    );
+
+    if (currentset) {
+      return currentset;
+    }
+  }, [match?.match_sets, searchParams]);
+
+  const scoreGenerator = (pos: "left" | "right", set: MatchSetModel) => {
+    return position[pos] === "participant_a"
+      ? set?.current_point_display_a || "0"
+      : set?.current_point_display_b || "0";
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "relative flex items-center justify-center",
+          isFullscreen && "w-[100vw] h-[100vh] fixed inset-0 z-50 bg-white",
+        )}
+      >
+        Loading...
+      </div>
+    );
+  }
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex border-4 border-primary-100 w-full">
-        <div className="w-full">
-          <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">
-            Steve
-          </p>
-          <div className="relative flex border-3 border-primary-100 bg-primary text-secondary items-center h-[200px] md:h-[300px]">
-            <div className="grow text-4xl md:text-7xl font-bold text-center">
-              30
-            </div>
-            <div className="flex flex-col h-full">
-              <Button
-                className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
+    <div
+      ref={ref}
+      className={cn(
+        "relative flex items-center justify-center",
+        isFullscreen && "w-screen h-screen fixed inset-0 z-50 bg-white",
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-6",
+          isFullscreen && "w-screen h-screen",
+        )}
+      >
+        <div className="flex border-4 border-primary-100 w-full">
+          <div className="w-full">
+            <p className="bg-primary text-secondary border-3 border-primary-100 text-2xl font-bold text-center">
+              {position.left === "participant_a"
+                ? match?.participant_a?.name
+                : match?.participant_b?.name}
+            </p>
+            <div className="relative flex border-3 border-primary-100 bg-primary text-secondary items-center h-[200px] md:h-[300px]">
+              <div
+                className="grow text-4xl md:text-7xl font-bold text-center cursor-pointer"
+                onClick={() =>
+                  matchSetMutation(
+                    position.left,
+                    Number(searchParams.get("set_id")),
+                  )
+                }
               >
-                1
-              </Button>
-              <Button
-                className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
-              >
-                4
-              </Button>
+                {scoreGenerator("left", curSet!)}
+              </div>
+              <div className="flex flex-col h-full">
+                <Button
+                  className="rounded-none border border-secondary grow px-5 md:px-10 text-2xl md:text-4xl"
+                  size="lg"
+                >
+                  {position.left === "participant_a"
+                    ? curSet?.set_score_a || 0
+                    : curSet?.set_score_b || 0}
+                </Button>
 
-              <Button
-                variant="destructive"
-                className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
-                size="lg"
-              >
-                -
-              </Button>
-            </div>
+                <Button
+                  variant="destructive"
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  size="lg"
+                  disabled={
+                    position.right === "participant_a"
+                      ? curSet?.set_score_a === 0
+                      : curSet?.set_score_b === 0
+                  }
+                >
+                  -
+                </Button>
+              </div>
 
-            <div className="absolute top-3 left-3">
-              <TennisBall />
+              {curSet?.current_server == position.left && (
+                <div className="absolute top-3 left-3">
+                  <TennisBall />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="border border-secondary w-full">
+            <p className="bg-secondary text-primary border-3 border-primary-100 text-2xl font-bold text-center">
+              {position.right === "participant_b"
+                ? match?.participant_b?.name
+                : match?.participant_a?.name}
+            </p>
+            <div className="relative flex border-3 border-primary-100 bg-secondary text-primary items-center h-[200px] md:h-[300px]">
+              <div className="flex flex-col h-full">
+                <Button
+                  variant="secondary"
+                  className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
+                >
+                  {position.right === "participant_b"
+                    ? curSet?.set_score_b || 0
+                    : curSet?.set_score_a || 0}
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
+                  disabled={
+                    position.right === "participant_b"
+                      ? curSet?.set_score_b === 0
+                      : curSet?.set_score_a === 0
+                  }
+                >
+                  -
+                </Button>
+              </div>
+              <div
+                className="grow font-bold text-center text-4xl md:text-7xl cursor-pointer"
+                onClick={() =>
+                  matchSetMutation(
+                    position.right,
+                    Number(searchParams.get("set_id")),
+                  )
+                }
+              >
+                <p>{scoreGenerator("right", curSet!)}</p>
+              </div>
+              {curSet?.current_server == position.right && (
+                <div className="absolute top-3 right-3">
+                  <TennisBall />
+                </div>
+              )}
             </div>
           </div>
         </div>
-        <div className="border border-secondary w-full">
-          <p className="bg-secondary text-primary border-3 border-primary-100 text-2xl font-bold text-center">
-            Jay
-          </p>
-          <div className="relative flex border-3 border-primary-100 bg-secondary text-primary items-center h-[200px] md:h-[300px]">
-            <div className="flex flex-col h-full">
-              <Button
-                variant="secondary"
-                className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
-              >
-                1
-              </Button>
-              <Button
-                variant="secondary"
-                className="rounded-none border border-primary grow px-5 md:px-10 text-2xl md:text-4xl text-primary"
-              >
-                3
-              </Button>
 
-              <Button
-                variant="destructive"
-                className="rounded-none grow px-5 md:px-10 text-2xl md:text-4xl"
-              >
-                -
-              </Button>
-            </div>
-            <div className="grow font-bold text-center text-4xl md:text-7xl ">
-              <p>30</p>
-            </div>
-            <div className="absolute top-3 right-3">
-              <TennisBall />
-            </div>
-          </div>
+        <div className="flex gap-4 items-center justify-center">
+          <Button
+            variant="outline"
+            size="lg"
+            aria-label="Switch Court"
+            onClick={onChangePosition}
+          >
+            <ArrowRightLeft />
+          </Button>
+          <Button
+            variant="destructive"
+            size="lg"
+            aria-label="Switch Court"
+            onClick={() => setIsWinnerOpen(true)}
+          >
+            End Match
+          </Button>
         </div>
       </div>
 
-      <div className="flex gap-4 items-center justify-center">
-        <Button variant="outline" size="lg" aria-label="Reset">
-          <RotateCcw />
-        </Button>
-        <Button variant="outline" size="lg" aria-label="Game">
-          <TennisBall />
-        </Button>
-        <Button variant="outline" size="lg" aria-label="Switch Court">
-          <ArrowRightLeft />
-        </Button>
-        <Button variant="outline" size="lg" aria-label="Menu">
-          <EllipsisVertical />
-        </Button>
-      </div>
+      {match && (
+        <FirstServisForm
+          participant_a={match?.participant_a?.name}
+          participant_b={match?.participant_b?.name}
+          open={open}
+          setOpen={setOpen}
+          matchId={match?.id}
+          refetch={refetch}
+        />
+      )}
+
+      {match?.winner && (
+        <Dialog open={endGame} onOpenChange={setEndGame}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Game Over
+              </DialogTitle>
+              <p className="text-2xl font-bold text-center text-primary">
+                Winner: {match?.winner?.name}
+              </p>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    setEndGame(false);
+                    exitFullscreen();
+                    redirect(`/community/events/${params.id}/matches`);
+                  }}
+                  variant="outline"
+                >
+                  Exit
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {curSet?.can_activate_tiebreak && (
+        <Dialog open={activateTiebreak} onOpenChange={setActivateTiebreak}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Activate Tiebreak?
+              </DialogTitle>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    onActivateTiebreak();
+                  }}
+                  variant="outline"
+                >
+                  Yes
+                </Button>
+                <Button
+                  onClick={() => {
+                    setActivateTiebreak(false);
+                    setEndGame(true);
+                  }}
+                  variant="destructive"
+                >
+                  No
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {match && (
+        <WinnerDecider
+          participant_a={match?.participant_a?.name}
+          participant_b={match?.participant_b?.name}
+          open={isWinnerOpen}
+          setOpen={setIsWinnerOpen}
+          matchId={match?.id || 0}
+          eventId={Number(params.id) || 0}
+        />
+      )}
+
+      {curSet?.needs_deuce_decision && (
+        <Dialog open={openDeuce} onOpenChange={setOpenDeuce}>
+          <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-4">
+              <DialogTitle className="text-2xl font-bold text-center">
+                Pick Mode
+              </DialogTitle>
+
+              <div className="flex gap-4 items-center justify-center">
+                <Button
+                  onClick={() => {
+                    deuceMutation(false, curSet.id);
+                  }}
+                  variant="default"
+                >
+                  Golden Point
+                </Button>
+                <Button
+                  onClick={() => {
+                    deuceMutation(true, curSet.id);
+                  }}
+                  variant="default"
+                >
+                  Deuce
+                </Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

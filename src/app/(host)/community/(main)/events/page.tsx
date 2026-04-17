@@ -14,15 +14,55 @@ import Link from "next/link";
 import { getEvents } from "@/actions/event";
 import Modal from "@/components/commons/state-modal";
 import Image from "next/image";
+import { Field, FieldLabel } from "@/components/ui/field";
+import RowsPerPageSelect from "@/components/commons/rows-per-page-select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { FilterParams } from "@/types/global";
 
 type Props = {
-  searchParams: Promise<{ welcome: boolean }>;
+  searchParams: Promise<{
+    welcome: boolean;
+    page: number;
+    page_size: number;
+    status?: string;
+    sport_type?: string;
+  }>;
 };
 
 const page = async ({ searchParams }: Props) => {
-  const { welcome } = await searchParams;
+  const {
+    welcome,
+    page = 1,
+    page_size = 25,
+    status,
+    sport_type,
+  } = await searchParams;
+  const currentPage = Number(page);
+  const currentPageSize = Number(page_size);
 
-  const { events } = await getEvents();
+  const filter: FilterParams = {};
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (sport_type) {
+    filter.sport_type = sport_type;
+  }
+
+  const { events, ...meta } = await getEvents({
+    page: currentPage,
+    page_size: currentPageSize,
+    filter,
+  });
+
+  const totalPages = Math.ceil((meta.total || 0) / currentPageSize) || 1;
 
   return (
     <div className="container space-y-10">
@@ -53,7 +93,7 @@ const page = async ({ searchParams }: Props) => {
       </div>
 
       <div className="grid grid-cols-1 gap-0">
-        {events.map((event) => (
+        {events?.map((event) => (
           <Link
             href={`/community/events/${event.id}`}
             key={event.id}
@@ -62,6 +102,33 @@ const page = async ({ searchParams }: Props) => {
             <EventLineup event={event} />
           </Link>
         ))}
+
+        <div className="flex items-center justify-between">
+          <Field orientation="horizontal" className="w-fit">
+            <FieldLabel htmlFor="select-rows-per-page">
+              Rows per page
+            </FieldLabel>
+            <RowsPerPageSelect defaultValue={page_size.toString()} />
+          </Field>
+          <Pagination className="mx-0 w-auto">
+            <PaginationContent>
+              {currentPage > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={`?page=${currentPage - 1}&page_size=${currentPageSize}`}
+                  />
+                </PaginationItem>
+              )}
+              {currentPage < totalPages && (
+                <PaginationItem>
+                  <PaginationNext
+                    href={`?page=${currentPage + 1}&page_size=${currentPageSize}`}
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
       <Modal isOpen={welcome}>
         <Image

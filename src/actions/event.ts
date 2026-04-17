@@ -1,18 +1,28 @@
 "use server";
 import { apiClient } from "@/lib/api-client";
-import { getCookies } from "./helper";
 import { EventParams, EventResponse, EventsResponse } from "@/types/event";
 import { errorHandler } from "@/lib/error-handler";
 import { Sport } from "@/types/global";
 
-export const getEvents = async (): Promise<EventsResponse> => {
-  const token = await getCookies();
-
+export const getEvents = async ({
+  page,
+  page_size,
+  filter,
+}: {
+  page: number;
+  page_size: number;
+  filter?: {
+    status?: string;
+    sport_type?: string;
+  };
+}): Promise<EventsResponse> => {
   try {
     const response = await apiClient<EventsResponse>("/events", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
+      params: {
+        page,
+        page_size,
+        ...(filter ? filter : {}),
       },
     });
 
@@ -29,14 +39,9 @@ export const getEvents = async (): Promise<EventsResponse> => {
 };
 
 export const getEvent = async (eventId: string): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>(`/events/${eventId}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
     });
 
     return response;
@@ -52,6 +57,7 @@ export const getEvent = async (eventId: string): Promise<EventResponse> => {
       sport_type_id: 0,
       location: "",
       description: "",
+      is_player_joined: false,
       error: errorHandler(error, "Failed to fetch event details"),
     } as EventResponse;
   }
@@ -60,14 +66,9 @@ export const getEvent = async (eventId: string): Promise<EventResponse> => {
 export const createEvent = async (
   params: EventParams,
 ): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>("/events", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: JSON.stringify(params),
     });
 
@@ -83,14 +84,9 @@ export const updateEvent = async (
   params: EventParams,
   eventId: string,
 ): Promise<EventResponse> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<EventResponse>(`/events/${eventId}`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
       body: JSON.stringify(params),
     });
 
@@ -105,16 +101,11 @@ export const updateEvent = async (
 export const deleteEvent = async (
   eventId: string,
 ): Promise<{ message: string; error?: string }> => {
-  const token = await getCookies();
-
   try {
     const response = await apiClient<{ message: string }>(
       `/events/${eventId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token?.value}`,
-        },
       },
     );
 

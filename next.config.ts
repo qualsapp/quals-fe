@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingRoot: __dirname,
   crossOrigin: "anonymous",
   experimental: {
     staleTimes: {
@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "localhost",
         port: "3000",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8080",
       },
     ],
   },

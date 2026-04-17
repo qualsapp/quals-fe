@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { SingleEliminationBracket } from "@g-loot/react-tournament-brackets";
+import {
+  SingleEliminationBracket,
+  createTheme,
+} from "@g-loot/react-tournament-brackets";
 
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
@@ -13,11 +16,28 @@ type Props = {
   isEditable?: boolean;
 };
 
+const WhiteTheme = createTheme({
+  textColor: { main: "#000000", highlighted: "#07090D", dark: "#3E414D" },
+  matchBackground: { wonColor: "#daebf9", lostColor: "#96c6da" },
+  score: {
+    background: { wonColor: "#87b2c4", lostColor: "#87b2c4" },
+    text: { highlightedWonColor: "#7BF59D", highlightedLostColor: "#FB7E94" },
+  },
+  border: {
+    color: "#CED1F2",
+    highlightedColor: "#da96c6",
+  },
+  roundHeader: { backgroundColor: "#da96c6", fontColor: "#000" },
+  connectorColor: "#CED1F2",
+  connectorColorHighlight: "#da96c6",
+  svgBackground: "#FAFAFA",
+});
+
 const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   // const { height, width } = useWindowSize();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -26,7 +46,11 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
   if (!mounted) return null;
 
   const handleMatchClick = (matchId: string) => {
-    setSelectedMatchId(matchId);
+    const match = matches.find((m) => String(m.id) === matchId);
+
+    if (!match) return;
+
+    setSelectedMatch(match);
     setOpen(true);
   };
 
@@ -42,10 +66,11 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
             handleOpen={handleMatchClick}
           />
         )}
+        theme={WhiteTheme}
         options={{
           style: {
             roundHeader: {
-              backgroundColor: "#7f0d0d",
+              backgroundColor: "#d9cdcdff",
               fontColor: "#f3ec19",
             },
             connectorColor: "#ccc",
@@ -62,13 +87,16 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
         event?.tournament &&
         event.tournament.id &&
         event?.tournament?.match_rule?.id &&
-        selectedMatchId && (
+        selectedMatch && (
           <UpdatePlayerForm
             open={open}
             setOpen={setOpen}
             tournamentId={event?.tournament?.id}
             match_rule_id={String(event?.tournament?.match_rule?.id)}
-            tournamentBracketId={selectedMatchId}
+            tournamentBracketId={String(selectedMatch.id)}
+            top_advancing_group={event?.tournament.format === "group_stage"}
+            participants={selectedMatch.participants}
+            court={selectedMatch.court_number}
           />
         )}
     </>

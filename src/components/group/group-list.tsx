@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import GroupParticipantForm from "../forms/GroupParticipantsForm";
+import { Participant } from "@/types/tournament";
 
 type Props = {
   groups: GroupsResponse;
@@ -40,10 +41,19 @@ const GroupList = ({
           <h3 className="text-xl font-bold text-center py-3">{group.name}</h3>
           <div className="overflow-x-auto w-full">
             {group.participants && group.matches ? (
-              <GroupTable players={group.participants} />
-            ) : isEditable ? (
+              <GroupTable group={group} />
+            ) : (
               <div className="flex flex-col items-center justify-center gap-3">
-                <p>No participants found yet</p>
+                <p>Group is not ready yet</p>
+              </div>
+            )}
+
+            {isEditable && (
+              <div className="flex flex-col items-center justify-center gap-3 mt-3">
+                {group.participants.length < seatPerGroup && (
+                  <p>No participants found yet</p>
+                )}
+
                 <Button
                   onClick={() => {
                     setSelectedGroup(group);
@@ -52,10 +62,6 @@ const GroupList = ({
                 >
                   Update group participants
                 </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3">
-                <p>Group is not ready yet</p>
               </div>
             )}
           </div>
@@ -76,6 +82,7 @@ const GroupList = ({
                 groupId={String(selectedGroup.id)}
                 tournamentId={tournamentId}
                 seatPerGroup={seatPerGroup}
+                participants={selectedGroup.participants as Participant[]}
                 closeModal={() => setOpen(false)}
               />
             )}

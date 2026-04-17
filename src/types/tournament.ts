@@ -1,4 +1,5 @@
 import { GroupResponse } from "./group";
+import { MatchSetModel } from "./match";
 
 export type MatchRuleParams = {
   deuce?: boolean;
@@ -7,6 +8,7 @@ export type MatchRuleParams = {
   max_point_per_set?: number;
   best_of_sets?: number;
   race_to?: number;
+  total_of?: number;
 };
 
 export interface TournamentParams {
@@ -40,6 +42,7 @@ export interface TournamentResponse extends TournamentParams {
   match_rule: MatchRuleResponse;
   tournament_brackets: TournamentBracketsResponse[];
   tournament_groups: TournamentGroupsResponse[];
+  is_player_joined: boolean;
   error?: string;
   message?: string;
 }
@@ -99,6 +102,7 @@ export interface MatchResponse {
   started_at: string | null;
   status: string;
   winner: Participant | null;
+  match_sets: MatchSetModel[];
 }
 
 export interface DetailMatchResponse extends MatchResponse {
@@ -112,6 +116,8 @@ export interface BracketResponse {
   id: number;
   match_number: number;
   round: number;
+  round_code: string;
+  round_name: string;
   next_bracket_id: number;
   matches: MatchResponse;
 }

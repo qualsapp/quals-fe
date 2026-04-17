@@ -1,10 +1,9 @@
 import { getEvent } from "@/actions/event";
 import { getPlayerDetails } from "@/actions/player";
 import DashboardNav from "@/components/commons/dashboard-nav";
+import EventNotFound from "@/components/event/event-not-found";
 import JoinEvent from "@/components/event/join-event";
-import { Badge } from "@/components/ui/badge";
-import dayjs from "dayjs";
-
+import LayoutHead from "@/components/event/layout-head";
 import React from "react";
 
 type LayoutProps = {
@@ -38,15 +37,7 @@ const page = async ({ params, children }: LayoutProps) => {
   const event = await getEvent(id);
 
   if (!event) {
-    return (
-      <div className=" py-10 md:py-16 space-y-10">
-        <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-          <div className="space-y-3">
-            <h2 className="text-lg font-bold">Event not found</h2>
-          </div>
-        </div>
-      </div>
-    );
+    return <EventNotFound />;
   }
 
   if (
@@ -56,16 +47,7 @@ const page = async ({ params, children }: LayoutProps) => {
     return (
       <div className=" py-10 md:py-16 space-y-10">
         <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-          <div className="space-y-3">
-            <h2 className="text-lg font-bold">{event.title}</h2>
-
-            <Badge variant="gray" className="font-bold ">
-              {dayjs(event.start_time).format("DD MMM")} -{" "}
-              {dayjs(event.end_time).format("DD MMM")}
-            </Badge>
-
-            <p>{event.description}</p>
-          </div>
+          <LayoutHead event={event} />
           <div className="flex gap-3 lg:flex-col">
             <JoinEvent event={event} playerId={playerId} />
           </div>
@@ -78,17 +60,8 @@ const page = async ({ params, children }: LayoutProps) => {
 
   return (
     <div className=" py-10 md:py-16 space-y-10">
-      <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-        <div className="space-y-3">
-          <h2 className="text-lg font-bold">{event.title}</h2>
-
-          <Badge variant="gray" className="font-bold ">
-            {dayjs(event.start_time).format("DD MMM")} -{" "}
-            {dayjs(event.end_time).format("DD MMM")}
-          </Badge>
-
-          <p>{event.description}</p>
-        </div>
+      <div className="container flex flex-col lg:flex-row gap-5 justify-between items-center">
+        <LayoutHead event={event} />
         <div className="flex gap-3 lg:flex-col">
           <JoinEvent event={event} playerId={playerId} />
         </div>

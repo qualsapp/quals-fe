@@ -1,8 +1,6 @@
-import {
-  AuthResponse,
-  HostDetailResponse,
-  PlayerDetailResponse,
-} from "@/types/user";
+import { HostDetailResponse } from "@/types/host";
+import { PlayerDetailResponse } from "@/types/player";
+import { AuthResponse } from "@/types/user";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 

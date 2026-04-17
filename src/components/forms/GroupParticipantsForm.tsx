@@ -9,12 +9,12 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { MultiSelect } from "../ui/multi-select";
-import { Button } from "../ui/button";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Button } from "@/components/ui/button";
 import { useDebounce } from "@uidotdev/usehooks";
 import { createGroupParticipants } from "@/actions/group";
 import { GroupParticipantsParams } from "@/types/group";
@@ -25,10 +25,11 @@ type Props = {
   tournamentId: string;
   seatPerGroup: number;
   closeModal: () => void;
+  participants?: Participant[];
 };
 const JoinEventScheme = z
   .object({
-    participant_ids: z.array(z.number()),
+    participant_ids: z.array(z.string()),
     groupId: z.string(),
     seatPerGroup: z.number(),
   })
@@ -47,6 +48,7 @@ const GroupParticipantForm = ({
   tournamentId,
   seatPerGroup,
   closeModal,
+  participants,
 }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
@@ -62,7 +64,7 @@ const GroupParticipantForm = ({
   const form = useForm<z.infer<typeof JoinEventScheme>>({
     resolver: zodResolver(JoinEventScheme),
     defaultValues: {
-      participant_ids: [],
+      participant_ids: participants?.map((p) => String(p.id)) || [],
       groupId: String(groupId),
       seatPerGroup: seatPerGroup,
     },
@@ -130,7 +132,7 @@ const GroupParticipantForm = ({
                   {...field}
                   options={options}
                   onValueChange={onChange}
-                  value={field.value.toString()}
+                  defaultValue={field.value}
                   maxSelected={seatPerGroup}
                   onSearchValueChange={setSearch}
                   placeholder={`Select up to ${seatPerGroup} participants`}

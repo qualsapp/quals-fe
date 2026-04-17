@@ -27,13 +27,17 @@ import { getTournamentParticipants } from "@/actions/tournament";
 import { createMatch } from "@/actions/match";
 import { MatchParams } from "@/types/match";
 import { Participant } from "@/types/tournament";
+import { Participant as BracketParticipant } from "@/types/bracket";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
+  top_advancing_group: boolean;
   tournamentId: string;
   tournamentBracketId: string;
   match_rule_id: string;
+  participants: BracketParticipant[];
+  court: number | undefined;
 };
 
 const PlayerScheme = z.object({
@@ -45,8 +49,11 @@ const PlayerScheme = z.object({
 const UpdatePlayerForm = ({
   open,
   setOpen,
+  top_advancing_group,
   tournamentId,
   tournamentBracketId,
+  participants,
+  court,
 }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -57,17 +64,17 @@ const UpdatePlayerForm = ({
   const form = useForm({
     resolver: zodResolver(PlayerScheme),
     defaultValues: {
-      participant_a: [],
-      participant_b: [],
-      court_number: "",
+      participant_a: participants[0]?.id ? [String(participants[0].id)] : [],
+      participant_b: participants[1]?.id ? [String(participants[1].id)] : [],
+      court_number: String(court),
     },
   });
-
   const fetchParticipants = useCallback(
     async (searchValue: string) => {
       if (!tournamentId) return;
       try {
         const response = await getTournamentParticipants(tournamentId, {
+          top_advancing_group: top_advancing_group,
           search: searchValue,
           page: 1,
           page_size: 20,
@@ -87,7 +94,7 @@ const UpdatePlayerForm = ({
         console.error("Failed to fetch participants:", error);
       }
     },
-    [tournamentId],
+    [tournamentId, top_advancing_group],
   );
 
   const [mounted, setMounted] = React.useState(false);
@@ -152,6 +159,7 @@ const UpdatePlayerForm = ({
                   <FormLabel>Participant A</FormLabel>
                   <FormControl>
                     <MultiSelect
+                      {...field}
                       options={options}
                       value={field.value}
                       defaultValue={field.value}
@@ -175,6 +183,7 @@ const UpdatePlayerForm = ({
                   <FormLabel>Participant B</FormLabel>
                   <FormControl>
                     <MultiSelect
+                      {...field}
                       options={options}
                       value={field.value}
                       defaultValue={field.value}
@@ -197,7 +206,11 @@ const UpdatePlayerForm = ({
                 <FormItem>
                   <FormLabel>Court Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Court number..." />
+                    <Input
+                      {...field}
+                      value={field.value}
+                      placeholder="Court number..."
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
