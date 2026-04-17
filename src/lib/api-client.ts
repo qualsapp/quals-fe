@@ -29,9 +29,14 @@ export async function apiClient<T>(
 
   const response = await fetch(url, config);
 
-  if (!response.ok) {
+  console.log("API Response:", response);
+
+  const json = await response.json();
+  console.log("API Response:", json);
+
+  if (response.ok) {
+    return json as T;
+  } else {
     return Promise.reject(response);
   }
-
-  return response.json();
 }

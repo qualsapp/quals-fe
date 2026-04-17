@@ -52,16 +52,17 @@ export const createHostDetails = async (
   formData: FormData,
 ): Promise<HostDetailResponse> => {
   try {
-    const response = await apiClient<HostDetailResponse>("/hosts/", {
+    const response = await apiClient<HostDetailResponse>("/hosts", {
       method: "POST",
       body: formData,
     });
 
     return response;
   } catch (error: Response | Error | unknown) {
+    console.error("Create host details failed:", error);
     return errorResponseHandler<HostDetailResponse>(
       error,
-      "Failed to fetch host details",
+      "Failed to create host details",
     );
   }
 };
