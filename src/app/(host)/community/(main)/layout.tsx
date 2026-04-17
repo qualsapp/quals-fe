@@ -1,5 +1,7 @@
 import React from "react";
 import DashboardNav from "@/components/commons/dashboard-nav";
+
+export const dynamic = "force-dynamic";
 import { Edit2, MapPin } from "lucide-react";
 import { getHostProfile } from "@/actions/host";
 import Link from "next/link";
