@@ -37,6 +37,8 @@ const CommunityDetailsForm = ({
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
 
+  console.log("Community data:", community);
+
   const form = useForm<z.infer<typeof CommunityScheme>>({
     resolver: zodResolver(CommunityScheme),
     defaultValues: {
@@ -74,7 +76,7 @@ const CommunityDetailsForm = ({
       if (error) {
         setError(error);
       } else {
-        router.push(`/community/${community?.id}`);
+        router.push(`/community`);
       }
     });
   };
