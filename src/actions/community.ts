@@ -43,7 +43,7 @@ export const createCommunity = async (
   formData: FormData,
 ): Promise<CommunityResponse> => {
   try {
-    const response = await apiClient<CommunityResponse>("/communities/", {
+    const response = await apiClient<CommunityResponse>("/communities", {
       method: "POST",
       body: formData,
     });

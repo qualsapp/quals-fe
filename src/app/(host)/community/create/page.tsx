@@ -6,6 +6,7 @@ import { getSports } from "@/actions/sport";
 
 const page = async () => {
   const sports = await getSports();
+  console.log("Sports data:", sports);
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <Heading
