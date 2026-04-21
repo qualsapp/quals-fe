@@ -34,7 +34,7 @@ export async function apiClient<T>(
   const json = await response.json();
   console.log("API Response:", json);
 
-  if (response.ok) {
+  if (json) {
     return json as T;
   } else {
     return Promise.reject(response);

@@ -61,7 +61,7 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
       if (error) {
         setError(error);
       } else {
-        router.push("/community");
+        router.push("/community/create");
       }
     });
   };
