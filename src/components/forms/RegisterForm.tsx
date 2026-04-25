@@ -120,7 +120,7 @@ const RegisterForm = () => {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Konfirmasi Password</FormLabel>
+              <FormLabel>Konfirmasi Kata Sandi</FormLabel>
               <FormControl>
                 <InputPassword
                   placeholder="Masukan kembali kata sandi Anda"
@@ -136,10 +136,14 @@ const RegisterForm = () => {
           name="user_type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
+              <FormLabel aria-label="Role">Role</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="w-full">
+                <Select
+                  onValueChange={field.onChange}
+                  {...field}
+                  value={field.value}
+                >
+                  <SelectTrigger className="w-full" data-testid="role-select">
                     <SelectValue placeholder="Pilih role" />
                   </SelectTrigger>
                   <SelectContent>
