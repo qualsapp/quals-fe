@@ -53,7 +53,7 @@ export const createPlayerDetails = async (
   formData: FormData,
 ): Promise<PlayerDetailResponse> => {
   try {
-    const response = await apiClient<PlayerDetailResponse>("/players/", {
+    const response = await apiClient<PlayerDetailResponse>("/players", {
       method: "POST",
       body: formData,
     });
