@@ -10,62 +10,81 @@ import React, {
 } from "react";
 
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
-import { logout as onLogout } from "@/actions/auth";
+import { logout as onLogout, checkTokenCookie } from "@/actions/auth";
 import { getPlayerDetails } from "@/actions/player";
 import { getHostDetails } from "@/actions/host";
 
 const UserContext = createContext<AuthState | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const auth = useAuthStore();
+  const {
+    user,
+    player,
+    host,
+    setPlayer,
+    setHost,
+    logout: storeLogout,
+  } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
+  useEffect(() => {
+    if (!isHydrated || !user) return;
+    checkTokenCookie().then((hasToken) => {
+      if (!hasToken) storeLogout();
+    });
+  }, [isHydrated, user, storeLogout]);
+
   const handleLogout = useCallback(async () => {
     const res = await onLogout();
     if (res.success) {
-      auth.logout();
+      storeLogout();
       window.location.href = "/login";
     }
-  }, [auth]);
+  }, [storeLogout]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      if (auth.user?.user_type === "player") {
-        await getPlayerDetails().then((res) => {
+      try {
+        if (user?.user_type === "player" && !player) {
+          const res = await getPlayerDetails();
           if (!res.error) {
-            auth.setPlayer(res);
+            setPlayer(res);
           } else if (res.status === 401) {
-            auth.logout();
+            storeLogout();
           }
-        });
-      } else if (auth.user?.user_type === "host") {
-        await getHostDetails().then((res) => {
+        } else if (user?.user_type === "host" && !host) {
+          const res = await getHostDetails();
           if (!res.error) {
-            auth.setHost(res);
+            setHost(res);
           } else if (res.status === 401) {
-            auth.logout();
+            storeLogout();
           }
-        });
-      } else {
-        auth.logout();
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
       }
     };
 
-    if (isHydrated && auth.user?.user_type) {
+    if (isHydrated && user?.user_type) {
       fetchUserDetails();
     }
-  }, [auth, isHydrated]);
+  }, [isHydrated, user?.user_type, player, host, setPlayer, setHost, storeLogout]);
 
   if (!isHydrated) {
     return null;
   }
 
-  const contextValue = {
-    ...auth,
+  const contextValue: AuthState = {
+    ...useAuthStore.getState(), // Spread the current state to keep compatibility with AuthState interface
+    user,
+    player,
+    host,
+    setPlayer,
+    setHost,
     logout: handleLogout,
   };
 
