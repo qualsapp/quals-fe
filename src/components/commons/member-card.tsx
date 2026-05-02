@@ -28,16 +28,16 @@ const MemberCard = (props: Props) => {
       </ItemMedia>
       <ItemContent>
         <ItemTitle>{props.name || "Evil Rabbit"}</ItemTitle>
-        <ItemDescription>Beginner</ItemDescription>
+        {/* <ItemDescription>Beginner</ItemDescription> */}
       </ItemContent>
-      <ItemActions>
+      {/* <ItemActions>
         <Button variant="outline" className="rounded-full">
           Kick Out
         </Button>
         <Button variant="destructive" className="rounded-full">
           Report
         </Button>
-      </ItemActions>
+      </ItemActions> */}
     </Item>
   );
 };

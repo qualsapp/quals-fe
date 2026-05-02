@@ -104,6 +104,11 @@ export const logout = async (): Promise<{ success: boolean }> => {
   }
 };
 
+export const checkTokenCookie = async (): Promise<boolean> => {
+  const cookieStore = await cookies();
+  return cookieStore.has("token");
+};
+
 export const loginWithGoogle = async (
   params: LoginByGoogleParams,
 ): Promise<AuthResponse> => {
