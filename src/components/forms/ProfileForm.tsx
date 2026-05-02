@@ -169,17 +169,19 @@ const ProfileForm = ({ data, sports }: ProfileFormProps) => {
           defaultAvatar={data?.photo_url || ""}
         />
 
-        <Button
-          type="submit"
-          className="px-10"
-          disabled={!form.formState.isValid || isPending}
-        >
-          {isPending
-            ? "Loading..."
-            : data
-              ? "Update Profile"
-              : "Create Profile"}
-        </Button>
+        <div className="text-center">
+          <Button
+            type="submit"
+            className="px-10"
+            disabled={!form.formState.isValid || isPending}
+          >
+            {isPending
+              ? "Loading..."
+              : data
+                ? "Update Profile"
+                : "Create Profile"}
+          </Button>
+        </div>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
       </form>

@@ -32,6 +32,7 @@ const JoinEvent = ({ event, playerId }: Props) => {
   }
   const handleCloseModal = () => {
     setIsOpen(false);
+    window.location.reload();
   };
 
   return (

@@ -105,7 +105,7 @@ const page = async ({ params, searchParams }: Props) => {
               </div>
             )}
             <div className="grid grid-cols-1 gap-4 place-items-center">
-              {matches.map((match, index) => (
+              {matches?.map((match, index) => (
                 <MatchCard
                   key={index}
                   index={index}
