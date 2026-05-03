@@ -16,6 +16,7 @@ const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
 
   const [match, event] = await Promise.all([getMatch(match_id), getEvent(id)]);
+  console.log("Match Data:", match);
 
   if (!match || !event) {
     return <div>Match not found</div>;

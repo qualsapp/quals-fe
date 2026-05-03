@@ -158,13 +158,15 @@ const RegisterForm = () => {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="px-10"
-          disabled={!form.formState.isValid || isPending}
-        >
-          {isPending ? "Loading..." : "Daftar"}
-        </Button>
+        <div className="text-center">
+          <Button
+            type="submit"
+            className="px-10"
+            disabled={!form.formState.isValid || isPending}
+          >
+            {isPending ? "Loading..." : "Daftar"}
+          </Button>
+        </div>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
       </form>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -27,15 +27,24 @@ export default function ProfilePage() {
 
   const isPlayer = user.user_type === "player";
   const profileData = isPlayer ? player : host;
-  const displayName =
-    profileData?.display_name || user.email?.split("@")[0] || "Etta Townsend";
-  const username = profileData?.username || "";
-  const bio =
-    profileData?.bio ||
-    "Simple search for sports matches is a simple process and task management tool for teams. 🦄";
-  const photoUrl = profileData?.photo_url;
   const sports = isPlayer ? player?.sport_types || [] : [];
   const primarySportName = sports.length > 0 ? sports[0].name : "Badminton";
+
+  if (!profileData) {
+    return (
+      <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center flex-col gap-4">
+        <p className="text-black/30 text-2xl font-bold">
+          You need to create a player profile to join an event.
+        </p>
+        <Link
+          href={isPlayer ? "/dashboard/edit-profile" : "/host-details"}
+          className={buttonVariants({ variant: "default" })}
+        >
+          Create profile
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a2e] pb-24 font-sans selection:bg-purple-100">
@@ -45,21 +54,27 @@ export default function ProfilePage() {
           {/* Avatar (Rounded Square format matching reference) */}
           <div className="w-6 h-6 lg:w-30 lg:h-30 shrink-0 rounded-full overflow-hidden bg-gray-100 shadow-sm relative flex items-center justify-center">
             <Avatar>
-              <AvatarImage src={photoUrl} height={300} width={300} />
+              <AvatarImage
+                src={profileData.photo_url}
+                height={300}
+                width={300}
+              />
               <AvatarFallback className="uppercase">
-                {displayName.charAt(0)}
+                {profileData.display_name
+                  ? profileData.display_name.charAt(0)
+                  : "U"}
               </AvatarFallback>
             </Avatar>
           </div>
 
           <div className="flex flex-col flex-1 py-1 lg:justify-center">
             <h1 className="text-base lg:text-2xl font-bold leading-tight mb-0 truncate pr-2">
-              {displayName}
+              {profileData.display_name}
             </h1>
 
-            {!username && (
+            {!profileData.username && (
               <p className="text-neutral-400 font-semibold text-sm mt-0.5 tracking-tight">
-                @{username}JohnDoe
+                @{profileData.username}
               </p>
             )}
 
@@ -70,49 +85,17 @@ export default function ProfilePage() {
               <Badge variant="outline">{primarySportName}</Badge>
             </div>
 
-            {/* <div className="flex items-center gap-1 mt-mt-2 font-semibold text-gray-600 text-[13px] lg:text-[15px]">
-              4.8
-              <div className="flex gap-0.5 ml-1 lg:ml-2 text-[#8b5cf6]">
-                <Star className="w-3 h-3 lg:w-4 lg:h-4 fill-current" />
-                <Star className="w-3 h-3 lg:w-4 lg:h-4 fill-current" />
-                <Star className="w-3 h-3 lg:w-4 lg:h-4 fill-current" />
-                <Star className="w-3 h-3 lg:w-4 lg:h-4 fill-current" />
-                <Star className="w-3 h-3 lg:w-4 lg:h-4 text-gray-300 fill-gray-300" />
-              </div>
-            </div> */}
-
             <p className="text-neutral-400 text-sm lg:text-base leading-[1.3] lg:leading-relaxed mt-2 lg:mt-4 line-clamp-3 pr-2 lg:max-w-2xl">
-              {bio}
+              {profileData.bio || "No bio available."}
             </p>
 
             <div className="flex items-center justify-between mt-3 lg:mt-6 pr-1 lg:pr-4">
               <Link
                 href={isPlayer ? "/dashboard/edit-profile" : "/host-details"}
+                className={buttonVariants({ variant: "outline" })}
               >
-                <Button variant="outline">Edit</Button>
+                Edit
               </Link>
-
-              {/* <div className="flex gap-4 lg:gap-8">
-                <div className="flex flex-col items-center leading-none">
-                  <span className="text-[13px] lg:text-[18px] font-extrabold">
-                    {sports.length > 0 ? sports.length : "201"}
-                  </span>
-                  <span className="text-[9px] lg:text-[12px] text-[#a1a1aa] mt-1 lg:mt-1.5 font-medium uppercase tracking-wider">
-                    {isPlayer ? "Sports" : "Events"}
-                  </span>
-                </div>
-                <div className="flex flex-col items-center leading-none">
-                  <span className="text-[13px] lg:text-[18px] font-extrabold flex items-center gap-1">
-                    <span className="text-gray-300 text-[10px] lg:text-[14px]">
-                      ❤️
-                    </span>{" "}
-                    220
-                  </span>
-                  <span className="text-[9px] lg:text-[12px] text-[#a1a1aa] mt-1 lg:mt-1.5 font-medium uppercase tracking-wider">
-                    Points
-                  </span>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>

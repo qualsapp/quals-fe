@@ -69,6 +69,7 @@ const UpdatePlayerForm = ({
       court_number: String(court),
     },
   });
+
   const fetchParticipants = useCallback(
     async (searchValue: string) => {
       if (!tournamentId) return;
@@ -79,6 +80,8 @@ const UpdatePlayerForm = ({
           page: 1,
           page_size: 20,
         });
+
+        console.log("Fetched Participants:", response);
 
         if (response.participants) {
           const participantOptions = response.participants.map(
