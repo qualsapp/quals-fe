@@ -15,7 +15,7 @@ export const ProfileScheme = z.object({
   sports: z.array(z.string()).min(1, "At least one sport is required"),
   // locations: z.array(z.string()).min(1, "At least one sport is required"),
   // level: z.string().nonempty("Level is required"),
-  bio: z.string().max(160, "Bio must be at most 160 characters"),
+  bio: z.string().max(160, "Bio must be at most 160 characters").optional(),
   file: z.file().optional(),
 });
 
@@ -30,6 +30,6 @@ export const HostScheme = z.object({
     )
     .regex(/^(?!.*\.$)/, "Username cannot end with a period"),
   display_name: z.string().min(3, "Name is required"),
-  bio: z.string().max(160, "Bio must be at most 160 characters"),
+  bio: z.string().max(160, "Bio must be at most 160 characters").optional(),
   file: z.file().optional(),
 });

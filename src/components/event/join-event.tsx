@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import JoinTournamentForm from "../forms/JoinTournamentForm";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { EventResponse } from "@/types/event";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import { useUser } from "@/context/UserContext";
+import Link from "next/link";
 
 type Props = {
   event: EventResponse;
@@ -16,6 +18,9 @@ type Props = {
 
 const JoinEvent = ({ event, playerId }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const { player } = useUser();
+
   if (event.tournament?.is_player_joined) {
     return (
       <Badge
@@ -35,14 +40,11 @@ const JoinEvent = ({ event, playerId }: Props) => {
     window.location.reload();
   };
 
+  const handleJoinEvent = () => {};
+
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={() => {
-          setIsOpen(true);
-        }}
-      >
+      <Button variant="outline" onClick={() => setIsOpen(true)}>
         Join Event
       </Button>
 
@@ -55,11 +57,22 @@ const JoinEvent = ({ event, playerId }: Props) => {
           <DialogTitle className="text-center">
             Are you sure you want to join this event?
           </DialogTitle>
-          <JoinTournamentForm
-            closeModal={handleCloseModal}
-            event={event}
-            playerId={playerId}
-          />
+          {player ? (
+            <JoinTournamentForm
+              closeModal={handleCloseModal}
+              event={event}
+              playerId={playerId}
+            />
+          ) : (
+            <div>
+              <p className="text-center text-sm text-gray-500">
+                You need to create a player profile to join an event.
+              </p>
+              <Link href="/player-details" className={buttonVariants()}>
+                Create profile
+              </Link>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
