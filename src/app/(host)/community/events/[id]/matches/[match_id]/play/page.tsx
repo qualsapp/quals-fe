@@ -34,7 +34,7 @@ const page = async ({ params, searchParams }: Props) => {
 
         {type === "badminton" && <BadmintonBoard />}
 
-        {type === "paddle" && <TennisBoard />}
+        {type === "padel" && <TennisBoard />}
       </div>
     </div>
   );
