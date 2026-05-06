@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { WsBaseUrl } from "@/lib/env";
-import { paddleScoreAlias } from "@/lib/constants/score";
+import { padelScoreAlias } from "@/lib/constants/score";
 
 type Props = {
   initialMatch: MatchResponse;
   matchId: string;
 };
 
-const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
+const LiveMatchScorePadel = ({ initialMatch, matchId }: Props) => {
   const [match, setMatch] = useState<MatchResponse>(initialMatch);
 
   const router = useRouter();
@@ -71,11 +71,11 @@ const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
           <div className="space-y-3 flex flex-col items-center">
             <div className="flex gap-6 items-center">
               <p className={cn("text-4xl")}>
-                {paddleScoreAlias[curSet?.current_point_a || 0]}
+                {padelScoreAlias[curSet?.current_point_a || 0]}
               </p>
               <p className="text-base font-semibold text-gray-400">VS</p>
               <p className={cn("text-4xl")}>
-                {paddleScoreAlias[curSet?.current_point_b || 0]}
+                {padelScoreAlias[curSet?.current_point_b || 0]}
               </p>
             </div>
           </div>
@@ -118,4 +118,4 @@ const LiveMatchScorePaddle = ({ initialMatch, matchId }: Props) => {
   );
 };
 
-export default LiveMatchScorePaddle;
+export default LiveMatchScorePadel;

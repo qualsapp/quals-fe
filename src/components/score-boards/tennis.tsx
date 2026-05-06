@@ -54,7 +54,7 @@ const TennisBoard = () => {
 
     if (!searchParams.get("set_id")) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -70,7 +70,7 @@ const TennisBoard = () => {
 
     if (curSet?.is_finished && !match.winner) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=paddle&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 

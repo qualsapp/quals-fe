@@ -40,8 +40,6 @@ const JoinEvent = ({ event, playerId }: Props) => {
     window.location.reload();
   };
 
-  const handleJoinEvent = () => {};
-
   return (
     <>
       <Button variant="outline" onClick={() => setIsOpen(true)}>

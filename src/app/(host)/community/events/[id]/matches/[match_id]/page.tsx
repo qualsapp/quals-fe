@@ -6,7 +6,7 @@ import { getEvent } from "@/actions/event";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
-import NotLiveMatchScorePaddle from "@/components/matches/NotLiveMatchScorePaddle";
+import NotLiveMatchScorePadel from "@/components/matches/NotLiveMatchScorePadel";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -50,7 +50,7 @@ const page = async ({ params }: Props) => {
         {event.sport_type.slug === "badminton" ? (
           <NotLiveMatchScore match={match} />
         ) : (
-          <NotLiveMatchScorePaddle match={match} />
+          <NotLiveMatchScorePadel match={match} />
         )}
         {match.winner === null && (
           <UpdateRuleBeforeMatch

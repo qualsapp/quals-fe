@@ -1,17 +1,8 @@
 import React from "react";
 
-import { Button } from "../ui/button";
-
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "../ui/item";
+import { Item, ItemContent, ItemMedia, ItemTitle } from "../ui/item";
 
 type Props = {
   name?: string;

@@ -7,7 +7,7 @@ type Props = {
   match: MatchResponse;
 };
 
-const NotLiveMatchScorePaddle = ({ match }: Props) => {
+const NotLiveMatchScorePadel = ({ match }: Props) => {
   const setScore = (set: MatchSetModel[]) => {
     let score_a = 0;
     let score_b = 0;
@@ -61,4 +61,4 @@ const NotLiveMatchScorePaddle = ({ match }: Props) => {
   );
 };
 
-export default NotLiveMatchScorePaddle;
+export default NotLiveMatchScorePadel;
