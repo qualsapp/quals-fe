@@ -64,6 +64,32 @@ const RulesSchema = z
         message: "This field is required",
       });
     }
+
+    if (data.grouping) {
+      if (!data.groups_count) {
+        ctx.addIssue({
+          path: ["groups_count"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.seat_per_group) {
+        ctx.addIssue({
+          path: ["seat_per_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.top_advancing_group) {
+        ctx.addIssue({
+          path: ["top_advancing_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+    }
   });
 
 const RulesForm = ({ eventId, tournament }: Props) => {

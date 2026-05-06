@@ -54,11 +54,29 @@ const RulesSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.grouping) {
-      ctx.addIssue({
-        path: ["groups_count", "seat_per_group", "top_advancing_group"],
-        code: z.ZodIssueCode.custom,
-        message: "This field is required",
-      });
+      if (!data.groups_count) {
+        ctx.addIssue({
+          path: ["groups_count"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.seat_per_group) {
+        ctx.addIssue({
+          path: ["seat_per_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.top_advancing_group) {
+        ctx.addIssue({
+          path: ["top_advancing_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
     }
   });
 
@@ -85,7 +103,10 @@ const RulesForm = ({ tournament, eventId }: Props) => {
     },
   });
 
+  console.log(form.formState.errors);
+
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
+    console.log("Submitting with params:");
     // add community_id from cookies
     const params: TournamentParams & MatchRuleParams = {
       format: data.grouping ? "group_stage" : "single_elimination",
@@ -97,6 +118,8 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       deuce: data.deuce,
       scoring_system: "rally",
     };
+
+    console.log("Submitting with params:", params);
 
     startTransition(async () => {
       if (tournament?.id) {
@@ -305,7 +328,7 @@ const RulesForm = ({ tournament, eventId }: Props) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Input total_of" {...field} />
+                        <Input placeholder="Input total of" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -333,7 +356,13 @@ const RulesForm = ({ tournament, eventId }: Props) => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <div className="text-center">
-          <Button type="submit" disabled={isPending}>
+          <Button
+            type="submit"
+            disabled={isPending}
+            onClick={() => {
+              console.log("test");
+            }}
+          >
             {isPending
               ? "Loading..."
               : tournament?.id
