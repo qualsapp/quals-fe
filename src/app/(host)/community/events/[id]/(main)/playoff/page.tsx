@@ -16,8 +16,6 @@ const page = async ({ params }: Props) => {
 
   const event = await getEvent(id);
 
-  console.log("Event Data:", event);
-
   if (!event.tournament?.id) {
     return <div>No tournament found</div>;
   }

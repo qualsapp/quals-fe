@@ -19,8 +19,6 @@ const page = async ({ params }: Props) => {
 
   const event = await getEvent(id);
 
-  console.log("Event data in match page:", event);
-
   const match = await getMatch(match_id);
 
   if (!match) {

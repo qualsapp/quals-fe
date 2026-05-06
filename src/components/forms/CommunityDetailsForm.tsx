@@ -37,8 +37,6 @@ const CommunityDetailsForm = ({
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
 
-  console.log("Community data:", community);
-
   const form = useForm<z.infer<typeof CommunityScheme>>({
     resolver: zodResolver(CommunityScheme),
     defaultValues: {

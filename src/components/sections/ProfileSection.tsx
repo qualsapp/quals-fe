@@ -19,7 +19,7 @@ const ProfileSection = ({ username }: Props) => {
     <Item className={cn("p-2 flex flex-nowrap rounded-t-md rounded-b-none")}>
       <ItemMedia>
         <Avatar className="size-32">
-          <AvatarImage src="https://github.com/evilrabbit.png" />
+          <AvatarImage src="/images/quals-logo.png" />
           <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
             {username}
           </AvatarFallback>

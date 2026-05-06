@@ -357,13 +357,7 @@ const RulesForm = ({ tournament, eventId }: Props) => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <div className="text-center">
-          <Button
-            type="submit"
-            disabled={isPending}
-            onClick={() => {
-              console.log("test");
-            }}
-          >
+          <Button type="submit" disabled={isPending}>
             {isPending
               ? "Loading..."
               : tournament?.id

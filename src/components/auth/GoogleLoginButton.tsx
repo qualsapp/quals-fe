@@ -28,7 +28,6 @@ export default function GoogleLoginButton({ userType }: Props) {
           user_type: userType,
         };
         const response = await loginWithGoogle(params);
-        console.log(response);
 
         if (response.error) {
           toast.error(response.error);

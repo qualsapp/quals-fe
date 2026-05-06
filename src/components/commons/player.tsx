@@ -14,7 +14,7 @@ const Player = ({ names, image, className }: Props) => {
     <Item className={cn("p-2 flex flex-nowrap", className)}>
       <ItemMedia>
         <Avatar className="size-10">
-          <AvatarImage src={image || "https://github.com/evilrabbit.png"} />
+          <AvatarImage src={image || "/images/quals-logo.png"} />
           <AvatarFallback>ER</AvatarFallback>
         </Avatar>
       </ItemMedia>

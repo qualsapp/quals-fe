@@ -36,8 +36,6 @@ export const getHostProfile = async (): Promise<
       },
     );
 
-    console.log(response);
-
     return response;
   } catch (error: Response | Error | unknown) {
     console.log(error);

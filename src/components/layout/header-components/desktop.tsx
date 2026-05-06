@@ -13,11 +13,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 import { UserRole } from "@/types/user";
+import { cn } from "@/lib/utils";
 
 type Props = {
   isAuthenticated?: boolean;
   logout?: () => void;
   role?: UserRole;
+  photo?: string;
 };
 
 const navItemClasses =
@@ -27,7 +29,7 @@ const navItemHighlight =
   "hover:!bg-secondary hover:text-primary border-y-3 border-secondary px-6 my-4 lg:my-0 border font-semibold transition-all duration-200 lg:mx-4";
 
 const DesktopMenu = (props: Props) => {
-  const { isAuthenticated, logout, role } = props;
+  const { isAuthenticated, logout, role, photo } = props;
 
   return (
     <NavigationMenu className="h-[72px]">
@@ -90,8 +92,13 @@ const DesktopMenu = (props: Props) => {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
-                <Avatar className="size-8">
-                  <AvatarImage src="https://github.com/evilrabbit.png" />
+                <Avatar
+                  className={cn(photo && "border border-secondary", "size-8")}
+                >
+                  <AvatarImage
+                    src={photo || "/images/quals-logo.png"}
+                    className="object-cover"
+                  />
                   <AvatarFallback>ER</AvatarFallback>
                 </Avatar>
               </NavigationMenuTrigger>
@@ -171,7 +178,7 @@ const DesktopMenu = (props: Props) => {
                     <Button
                       onClick={logout}
                       variant="text"
-                      className="!justify-start h-auto w-full rounded-none py-4 px-6 hover:bg-destructive/10 font-bold border-3 border-transparent hover:border-l-destructive hover:text-destructive"
+                      className="justify-start! h-auto w-full rounded-none py-4 px-6 hover:bg-destructive/10 font-bold border-3 border-transparent hover:border-l-destructive hover:text-destructive"
                     >
                       Logout
                     </Button>
