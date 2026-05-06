@@ -103,23 +103,24 @@ const RulesForm = ({ tournament, eventId }: Props) => {
     },
   });
 
-  console.log(form.formState.errors);
-
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
-    console.log("Submitting with params:");
     // add community_id from cookies
     const params: TournamentParams & MatchRuleParams = {
       format: data.grouping ? "group_stage" : "single_elimination",
       courts_count: Number(data.courts_count),
       category: data.category,
+
       participants_count: Number(data.participants_count),
       ...(data.total_of && { total_of: Number(data.total_of) }),
       ...(data.race_to && { race_to: Number(data.race_to) }),
+      ...(data.grouping && {
+        groups_count: Number(data.groups_count),
+        seat_per_group: Number(data.seat_per_group),
+        top_advancing_group: Number(data.top_advancing_group),
+      }),
       deuce: data.deuce,
       scoring_system: "rally",
     };
-
-    console.log("Submitting with params:", params);
 
     startTransition(async () => {
       if (tournament?.id) {
