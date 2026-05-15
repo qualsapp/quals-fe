@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { Footer, Header } from "@/components/layout";
 import Providers from "@/providers";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({
           {modal}
           <main className="grow">{children}</main>
           <Footer />
+          <Toaster position="top-right" richColors />
         </Providers>
       </body>
     </html>

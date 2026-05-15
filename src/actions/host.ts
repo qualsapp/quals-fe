@@ -64,3 +64,22 @@ export const createHostDetails = async (
     );
   }
 };
+
+export const updateHostDetails = async (
+  formData: FormData,
+): Promise<HostDetailResponse> => {
+  try {
+    const response = await apiClient<HostDetailResponse>("/hosts", {
+      method: "PUT",
+      body: formData,
+    });
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    console.error("Create host details failed:", error);
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to create host details",
+    );
+  }
+};

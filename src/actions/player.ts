@@ -67,6 +67,24 @@ export const createPlayerDetails = async (
   }
 };
 
+export const updatePlayerDetails = async (
+  formData: FormData,
+): Promise<PlayerDetailResponse> => {
+  try {
+    const response = await apiClient<PlayerDetailResponse>("/players", {
+      method: "PUT",
+      body: formData,
+    });
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<PlayerDetailResponse>(
+      error,
+      "Failed to update player details",
+    );
+  }
+};
+
 export const joinCommunity = async (
   communityId: string,
 ): Promise<JoinCommunityResponse> => {
