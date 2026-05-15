@@ -23,14 +23,15 @@ import { FileWithPreview } from "@/hooks/use-file-upload";
 import { HostScheme } from "@/lib/validations/user";
 
 import { useRouter } from "next/navigation";
-import { HostModel } from "@/types/user";
-import { createHostDetails } from "@/actions/host";
+import { createHostDetails, updateHostDetails } from "@/actions/host";
+import { HostDetailResponse } from "@/types/host";
+import { toast } from "sonner";
 
 type HostProfileForm = {
-  data?: HostModel;
+  host?: HostDetailResponse;
 };
 
-const HostProfileForm = ({ data }: HostProfileForm) => {
+const HostProfileForm = ({ host }: HostProfileForm) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -38,9 +39,9 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
   const form = useForm<z.infer<typeof HostScheme>>({
     resolver: zodResolver(HostScheme),
     defaultValues: {
-      username: data?.username || "",
-      display_name: data?.display_name || "",
-      bio: data?.bio || "",
+      username: host?.username || "",
+      display_name: host?.display_name || "",
+      bio: host?.bio || "",
       file: undefined,
     },
   });
@@ -57,11 +58,26 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
     }
 
     startTransition(async () => {
-      const { error } = await createHostDetails(formData);
-      if (error) {
-        setError(error);
+      if (host?.id) {
+        const { error } = await updateHostDetails(formData);
+        if (error) {
+          setError(error);
+        } else {
+          toast.success("Host details updated successfully");
+          setTimeout(() => {
+            router.push("/profile");
+          }, 1000);
+        }
       } else {
-        router.push("/community/create");
+        const { error } = await createHostDetails(formData);
+        if (error) {
+          setError(error);
+        } else {
+          toast.success("Host details created successfully");
+          setTimeout(() => {
+            router.push("/community/create");
+          }, 1000);
+        }
       }
     });
   };
@@ -126,7 +142,7 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
 
         <AvatarUpload
           onFileChange={onFileChange}
-          defaultAvatar={data?.photo_url || ""}
+          defaultAvatar={host?.photo_url || ""}
         />
 
         <div className="text-center">
@@ -135,7 +151,7 @@ const HostProfileForm = ({ data }: HostProfileForm) => {
             className="px-10 "
             disabled={!form.formState.isValid || isPending}
           >
-            {isPending ? "Loading..." : "Submit"}
+            {isPending ? "Loading..." : host ? "Update Host" : "Create Host"}
           </Button>
         </div>
 

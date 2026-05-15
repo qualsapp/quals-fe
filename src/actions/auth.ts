@@ -16,8 +16,6 @@ export const login = async (
       body: JSON.stringify(credentials),
     });
 
-    console.log(response);
-
     if (response.token) {
       cookieStore.set("token", response.token, {
         path: "/",

@@ -7,7 +7,7 @@ import DesktopMenu from "./header-components/desktop";
 import Logo from "@/assets/logo";
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useUser();
+  const { user, isAuthenticated, logout, player, host } = useUser();
 
   return (
     <header className="bg-primary sticky top-0 z-50 text-white">
@@ -20,6 +20,9 @@ const Header = () => {
         <DesktopMenu
           isAuthenticated={isAuthenticated}
           role={user?.user_type}
+          photo={
+            user?.user_type === "player" ? player?.photo_url : host?.photo_url
+          }
           logout={logout}
         />
 

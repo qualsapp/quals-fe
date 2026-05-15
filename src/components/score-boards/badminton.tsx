@@ -89,8 +89,6 @@ const BadmintonBoard = () => {
     queryFn: onGetMatch,
   });
 
-  console.log("match", match);
-
   const onChangePosition = () => {
     if (position.left === "participant_a") {
       setPosition({

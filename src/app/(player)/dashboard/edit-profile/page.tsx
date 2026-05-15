@@ -17,7 +17,7 @@ const page = async () => {
           </p>
         </div>
 
-        <ProfileForm sports={sport_types} data={player} />
+        <ProfileForm sports={sport_types} player={player} />
       </div>
     </div>
   );

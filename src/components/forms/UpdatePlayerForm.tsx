@@ -81,8 +81,6 @@ const UpdatePlayerForm = ({
           page_size: 20,
         });
 
-        console.log("Fetched Participants:", response);
-
         if (response.participants) {
           const participantOptions = response.participants.map(
             (p: Participant) => ({

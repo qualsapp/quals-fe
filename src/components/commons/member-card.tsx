@@ -13,7 +13,7 @@ const MemberCard = (props: Props) => {
     <Item variant="outline">
       <ItemMedia>
         <Avatar className="size-10">
-          <AvatarImage src="https://github.com/evilrabbit.png" />
+          <AvatarImage src="/images/quals-logo.png" />
           <AvatarFallback>ER</AvatarFallback>
         </Avatar>
       </ItemMedia>

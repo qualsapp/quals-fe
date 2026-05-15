@@ -36,8 +36,6 @@ export const getHostProfile = async (): Promise<
       },
     );
 
-    console.log(response);
-
     return response;
   } catch (error: Response | Error | unknown) {
     console.log(error);
@@ -54,6 +52,25 @@ export const createHostDetails = async (
   try {
     const response = await apiClient<HostDetailResponse>("/hosts", {
       method: "POST",
+      body: formData,
+    });
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    console.error("Create host details failed:", error);
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to create host details",
+    );
+  }
+};
+
+export const updateHostDetails = async (
+  formData: FormData,
+): Promise<HostDetailResponse> => {
+  try {
+    const response = await apiClient<HostDetailResponse>("/hosts", {
+      method: "PUT",
       body: formData,
     });
 

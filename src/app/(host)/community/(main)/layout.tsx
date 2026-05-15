@@ -19,7 +19,6 @@ const Layout = async ({
   children: React.ReactNode;
 }>) => {
   const { community } = await getHostProfile();
-  console.log(community);
 
   if (!community) {
     return (

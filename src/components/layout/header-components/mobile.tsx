@@ -86,7 +86,7 @@ const MobileMenu = (props: Props) => {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:text-secondary data-[state=open]:text-secondary focus:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:bg-transparent p-0">
                     <Avatar className="size-8">
-                      <AvatarImage src="https://github.com/evilrabbit.png" />
+                      <AvatarImage src="/images/quals-logo.png" />
                       <AvatarFallback>ER</AvatarFallback>
                     </Avatar>
                   </NavigationMenuTrigger>

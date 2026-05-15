@@ -29,10 +29,7 @@ export async function apiClient<T>(
 
   const response = await fetch(url, config);
 
-  console.log("API Response:", response);
-
   const json = await response.json();
-  console.log("API Response:", json);
 
   if (json) {
     return json as T;
