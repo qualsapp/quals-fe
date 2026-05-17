@@ -12,14 +12,13 @@ const page = () => {
         </Link>
       </div> */}
 
-      <div className="space-y-3">
-        {
-          /* Member List */
-          Array.from({ length: 8 }).map((_, idx) => (
+      {/* <div className="space-y-3">
+        Array.from({ length: 8 }).map((_, idx) => (
             <MemberCard key={idx} />
           ))
-        }
-      </div>
+
+      </div> */}
+      <p>Coming soon...</p>
     </div>
   );
 };
