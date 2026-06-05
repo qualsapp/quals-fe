@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { CommunityListResponse, CommunityResponse } from "@/types/community";
-import { errorHandler } from "@/lib/error-handler";
+import { errorResponseHandler } from "@/lib/error-handler";
 
 export const getCommunities = async (): Promise<CommunityListResponse> => {
   try {
@@ -11,14 +11,11 @@ export const getCommunities = async (): Promise<CommunityListResponse> => {
     });
 
     return response;
-  } catch (error: unknown) {
-    return {
-      communities: [],
-      page: 0,
-      page_size: 0,
-      total: 0,
-      error: errorHandler(error, "Failed to fetch communities"),
-    };
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<CommunityListResponse>(
+      error,
+      "Failed to fetch communities",
+    );
   }
 };
 
@@ -33,19 +30,12 @@ export const getCommunity = async (
       },
     );
 
-    console.log(response);
-
     return response;
-  } catch (error: unknown) {
-    return {
-      id: "",
-      image_url: "",
-      host_id: "",
-      sport_types: [],
-      name: "",
-      address: "",
-      error: errorHandler(error, "Failed to fetch community details"),
-    } as CommunityResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<CommunityResponse>(
+      error,
+      "Failed to fetch community details",
+    );
   }
 };
 
@@ -53,16 +43,17 @@ export const createCommunity = async (
   formData: FormData,
 ): Promise<CommunityResponse> => {
   try {
-    const response = await apiClient<CommunityResponse>("/communities/", {
+    const response = await apiClient<CommunityResponse>("/communities", {
       method: "POST",
       body: formData,
     });
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to create community"),
-    } as CommunityResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<CommunityResponse>(
+      error,
+      "Failed to create community",
+    );
   }
 };
 
@@ -80,9 +71,10 @@ export const updateCommunity = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to update community"),
-    } as CommunityResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<CommunityResponse>(
+      error,
+      "Failed to update community",
+    );
   }
 };

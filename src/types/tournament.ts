@@ -8,6 +8,7 @@ export type MatchRuleParams = {
   max_point_per_set?: number;
   best_of_sets?: number;
   race_to?: number;
+  total_of?: number;
 };
 
 export interface TournamentParams {
@@ -115,6 +116,8 @@ export interface BracketResponse {
   id: number;
   match_number: number;
   round: number;
+  round_code: string;
+  round_name: string;
   next_bracket_id: number;
   matches: MatchResponse;
 }

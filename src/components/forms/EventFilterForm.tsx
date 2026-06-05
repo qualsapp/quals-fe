@@ -129,7 +129,7 @@ const EventFilterForm = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value="badminton">Badminton</SelectItem>
-                      <SelectItem value="paddle">Paddle</SelectItem>
+                      <SelectItem value="padel">padel</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>

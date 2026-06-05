@@ -49,16 +49,34 @@ const RulesSchema = z
     seat_per_group: z.string(),
     top_advancing_group: z.string(),
     deuce: z.boolean(),
-    best_of_sets: z.string().optional(),
     race_to: z.string().optional(),
+    total_of: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.grouping) {
-      ctx.addIssue({
-        path: ["groups_count", "seat_per_group", "top_advancing_group"],
-        code: z.ZodIssueCode.custom,
-        message: "This field is required",
-      });
+      if (!data.groups_count) {
+        ctx.addIssue({
+          path: ["groups_count"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.seat_per_group) {
+        ctx.addIssue({
+          path: ["seat_per_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
+
+      if (!data.top_advancing_group) {
+        ctx.addIssue({
+          path: ["top_advancing_group"],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required",
+        });
+      }
     }
   });
 
@@ -80,8 +98,8 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       seat_per_group: tournament?.seat_per_group?.toString() || "",
       top_advancing_group: tournament?.top_advancing_group?.toString() || "",
       deuce: tournament?.match_rule?.deuce || false,
-      best_of_sets: tournament?.match_rule?.best_of_sets?.toString() || "",
       race_to: tournament?.match_rule?.race_to?.toString() || "",
+      total_of: tournament?.match_rule?.total_of?.toString() || "",
     },
   });
 
@@ -91,9 +109,15 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       format: data.grouping ? "group_stage" : "single_elimination",
       courts_count: Number(data.courts_count),
       category: data.category,
+
       participants_count: Number(data.participants_count),
-      ...(data.best_of_sets && { best_of_sets: Number(data.best_of_sets) }),
+      ...(data.total_of && { total_of: Number(data.total_of) }),
       ...(data.race_to && { race_to: Number(data.race_to) }),
+      ...(data.grouping && {
+        groups_count: Number(data.groups_count),
+        seat_per_group: Number(data.seat_per_group),
+        top_advancing_group: Number(data.top_advancing_group),
+      }),
       deuce: data.deuce,
       scoring_system: "rally",
     };
@@ -293,19 +317,19 @@ const RulesForm = ({ tournament, eventId }: Props) => {
               )}
             />
 
-            <Tabs defaultValue="best_of" className="w-full">
+            <Tabs defaultValue="total_of" className="w-full">
               <TabsList>
-                <TabsTrigger value="best_of">Best of</TabsTrigger>
+                <TabsTrigger value="total_of">Total of</TabsTrigger>
                 <TabsTrigger value="race_to">Race to</TabsTrigger>
               </TabsList>
-              <TabsContent value="best_of">
+              <TabsContent value="total_of">
                 <FormField
                   control={form.control}
-                  name="best_of_sets"
+                  name="total_of"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Input best of point" {...field} />
+                        <Input placeholder="Input total of" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -12,7 +12,7 @@ const KnockOffCard = () => {
             <Item className="p-2 flex flex-nowrap">
               <ItemMedia>
                 <Avatar className="size-6">
-                  <AvatarImage src="https://github.com/evilrabbit.png" />
+                  <AvatarImage src="/images/quals-logo.png" />
                   <AvatarFallback>ER</AvatarFallback>
                 </Avatar>
               </ItemMedia>
@@ -30,7 +30,7 @@ const KnockOffCard = () => {
             <Item className="p-2">
               <ItemMedia>
                 <Avatar className="size-6">
-                  <AvatarImage src="https://github.com/evilrabbit.png" />
+                  <AvatarImage src="/images/quals-logo.png" />
                   <AvatarFallback>ER</AvatarFallback>
                 </Avatar>
               </ItemMedia>

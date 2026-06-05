@@ -1,4 +1,4 @@
-export const paddleScoreAlias: Record<number, number> = {
+export const padelScoreAlias: Record<number, number> = {
   0: 0,
   1: 15,
   2: 30,

@@ -4,7 +4,6 @@ import {
   BracketsResponse,
   JoinTournamentParams,
   JoinTournamentResponse,
-  MatchRuleResponse,
   ParticipantsResponse,
   TournamentGroupParams,
   TournamentGroupsResponse,
@@ -12,7 +11,7 @@ import {
   TournamentResponse,
 } from "@/types/tournament";
 import { FilterParams } from "@/types/global";
-import { errorHandler } from "@/lib/error-handler";
+import { errorHandler, errorResponseHandler } from "@/lib/error-handler";
 
 export const getTournament = async (
   tournamentId: string,
@@ -26,19 +25,11 @@ export const getTournament = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      id: "",
-      event_id: "",
-      format: "",
-      category: "",
-      participants_count: 0,
-      courts_count: 0,
-      match_rule: {} as MatchRuleResponse,
-      tournament_brackets: [],
-      tournament_groups: [],
-      error: errorHandler(error, "Failed to fetch tournament"),
-    } as TournamentResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<TournamentResponse>(
+      error,
+      "Failed to fetch tournament details",
+    );
   }
 };
 
@@ -79,10 +70,11 @@ export const updateTournament = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to update tournament"),
-    } as TournamentResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<TournamentResponse>(
+      error,
+      "Failed to update tournament",
+    );
   }
 };
 
@@ -98,11 +90,11 @@ export const deleteTournament = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      message: "",
-      error: errorHandler(error, "Failed to delete tournament"),
-    };
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<{ message: string }>(
+      error,
+      "Failed to delete tournament",
+    );
   }
 };
 
@@ -121,10 +113,11 @@ export const joinTournament = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to join tournament"),
-    } as JoinTournamentResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<JoinTournamentResponse>(
+      error,
+      "Failed to join tournament",
+    );
   }
 };
 
@@ -143,14 +136,11 @@ export const getTournamentParticipants = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      participants: [],
-      page: 0,
-      page_size: 0,
-      total: 0,
-      error: errorHandler(error, "Failed to fetch participants"),
-    };
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<ParticipantsResponse>(
+      error,
+      "Failed to fetch tournament participants",
+    );
   }
 };
 
@@ -169,10 +159,11 @@ export const createGroupTournament = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to create group"),
-    } as TournamentGroupsResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<TournamentGroupsResponse>(
+      error,
+      "Failed to create group tournament",
+    );
   }
 };
 
@@ -189,11 +180,11 @@ export const deleteTournamentParticipant = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      message: "",
-      error: errorHandler(error, "Failed to delete participant"),
-    };
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<{ message: string }>(
+      error,
+      "Failed to delete tournament participant",
+    );
   }
 };
 
@@ -209,8 +200,10 @@ export const getBrackets = async (
     );
 
     return response;
-  } catch (error: unknown) {
-    console.error(errorHandler(error, "Failed to fetch brackets"));
-    return [] as BracketsResponse;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<BracketsResponse>(
+      error,
+      "Failed to fetch tournament brackets",
+    );
   }
 };

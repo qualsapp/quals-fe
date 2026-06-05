@@ -1,6 +1,6 @@
 import { getPlayerDetails } from "@/actions/player";
 import DashboardNav from "@/components/commons/dashboard-nav";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import ProfileHeader from "@/components/user/profile-header";
 import Link from "next/link";
 import React from "react";
@@ -12,12 +12,17 @@ type Props = {
 const layout = async ({ children }: Props) => {
   const player = await getPlayerDetails();
 
-  if (!player) {
+  if (!player.username) {
     return (
-      <div className="container">
-        <p>Please complete your profile</p>
-        <Link href="/player-details">
-          <Button>Complete Profile</Button>
+      <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center flex-col gap-4">
+        <p className="text-black/30 text-2xl font-bold">
+          You need to create a player profile to join an event.
+        </p>
+        <Link
+          href="/dashboard/edit-profile"
+          className={buttonVariants({ variant: "default" })}
+        >
+          Create profile
         </Link>
       </div>
     );

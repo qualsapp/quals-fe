@@ -1,9 +1,11 @@
 import React from "react";
 import DashboardNav from "@/components/commons/dashboard-nav";
+
+export const dynamic = "force-dynamic";
 import { Edit2, MapPin } from "lucide-react";
 import { getHostProfile } from "@/actions/host";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 const menus = [
   { label: "Events", href: "/community/events" },
@@ -19,7 +21,19 @@ const Layout = async ({
   const { community } = await getHostProfile();
 
   if (!community) {
-    return <div>Community not found</div>;
+    return (
+      <div className="container flex flex-col items-center justify-center gap-8 min-h-[calc(100vh-10rem)]">
+        <p className="text-6xl font-bold text-black/20 uppercase">
+          Community not found
+        </p>
+        <Link
+          href="/community/create"
+          className={buttonVariants({ variant: "default" })}
+        >
+          Create community
+        </Link>
+      </div>
+    );
   }
 
   return (

@@ -11,7 +11,7 @@ export const getEvents = async ({
 }: {
   page: number;
   page_size: number;
-  filter: {
+  filter?: {
     status?: string;
     sport_type?: string;
   };
@@ -22,7 +22,7 @@ export const getEvents = async ({
       params: {
         page,
         page_size,
-        ...filter,
+        ...(filter ? filter : {}),
       },
     });
 

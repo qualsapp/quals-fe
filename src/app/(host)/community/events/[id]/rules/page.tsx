@@ -44,7 +44,7 @@ const page = async ({ params, searchParams }: Props) => {
         {type === "badminton" && (
           <BadmintonRulesForm eventId={id} tournament={event.tournament} />
         )}
-        {type === "paddle" && (
+        {type === "padel" && (
           <PadelRulesForm eventId={id} tournament={event.tournament} />
         )}
         {!type && (
@@ -61,8 +61,8 @@ const page = async ({ params, searchParams }: Props) => {
                   <Link href={`/community/events/${id}/rules?type=badminton`}>
                     <DropdownMenuItem>Badminton</DropdownMenuItem>
                   </Link>
-                  <Link href={`/community/events/${id}/rules?type=paddle`}>
-                    <DropdownMenuItem>Paddle</DropdownMenuItem>
+                  <Link href={`/community/events/${id}/rules?type=padel`}>
+                    <DropdownMenuItem>padel</DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

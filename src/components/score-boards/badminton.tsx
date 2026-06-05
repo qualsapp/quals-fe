@@ -22,7 +22,6 @@ import { useQuery } from "@tanstack/react-query";
 import FirstServisForm from "../forms/FirstServisForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import WinnerDecider from "../forms/WinnerDecider";
-import { se } from "date-fns/locale";
 
 const BadmintonBoard = () => {
   const { ref, isFullscreen, exitFullscreen } = useFullScreen();
@@ -89,8 +88,6 @@ const BadmintonBoard = () => {
     queryKey: ["match", params.match_id],
     queryFn: onGetMatch,
   });
-
-  console.log("match", match);
 
   const onChangePosition = () => {
     if (position.left === "participant_a") {

@@ -105,7 +105,7 @@ const MatchCard = ({ type, url, match, index }: Props) => {
         <p className="font-bold">
           {type === "live"
             ? `Court ${match.court_number}`
-            : `Match ${match.tournament_bracket?.match_number || Number(index) + 1}`}
+            : `${match.tournament_bracket?.round_name || Number(index) + 1}`}
         </p>
         {match.scheduled_at && (
           <p className="text-sm font-semibold flex items-center gap-1">

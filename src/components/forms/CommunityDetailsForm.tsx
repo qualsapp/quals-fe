@@ -74,7 +74,7 @@ const CommunityDetailsForm = ({
       if (error) {
         setError(error);
       } else {
-        router.push(`/community/${community?.id}`);
+        router.push(`/community`);
       }
     });
   };

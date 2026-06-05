@@ -2,7 +2,7 @@
 
 import { apiClient } from "@/lib/api-client";
 import { HostDetailResponse, HostProfileResponse } from "@/types/host";
-import { errorHandler } from "@/lib/error-handler";
+import { errorResponseHandler } from "@/lib/error-handler";
 import { ApiResponse } from "@/types/global";
 
 export const getHostDetails = async (): Promise<
@@ -17,10 +17,11 @@ export const getHostDetails = async (): Promise<
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to fetch host details"),
-    } as ApiResponse<HostDetailResponse>;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to fetch host details",
+    );
   }
 };
 
@@ -36,10 +37,12 @@ export const getHostProfile = async (): Promise<
     );
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to fetch host profile"),
-    } as ApiResponse<HostProfileResponse>;
+  } catch (error: Response | Error | unknown) {
+    console.log(error);
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to fetch host details",
+    );
   }
 };
 
@@ -47,15 +50,36 @@ export const createHostDetails = async (
   formData: FormData,
 ): Promise<HostDetailResponse> => {
   try {
-    const response = await apiClient<HostDetailResponse>("/hosts/", {
+    const response = await apiClient<HostDetailResponse>("/hosts", {
       method: "POST",
       body: formData,
     });
 
     return response;
-  } catch (error: unknown) {
-    return {
-      error: errorHandler(error, "Failed to create host details"),
-    };
+  } catch (error: Response | Error | unknown) {
+    console.error("Create host details failed:", error);
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to create host details",
+    );
+  }
+};
+
+export const updateHostDetails = async (
+  formData: FormData,
+): Promise<HostDetailResponse> => {
+  try {
+    const response = await apiClient<HostDetailResponse>("/hosts", {
+      method: "PUT",
+      body: formData,
+    });
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    console.error("Create host details failed:", error);
+    return errorResponseHandler<HostDetailResponse>(
+      error,
+      "Failed to create host details",
+    );
   }
 };

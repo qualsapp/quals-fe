@@ -69,6 +69,7 @@ const UpdatePlayerForm = ({
       court_number: String(court),
     },
   });
+
   const fetchParticipants = useCallback(
     async (searchValue: string) => {
       if (!tournamentId) return;

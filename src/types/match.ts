@@ -19,11 +19,15 @@ export type MatchSetModel = {
   set_score_b: number;
   current_point_a: number;
   current_point_b: number;
+  current_point_display_a: string;
+  current_point_display_b: string;
   set_number: number;
   current_server: string;
   second_service: boolean;
   is_tiebreak: boolean;
   is_finished: boolean;
+  is_deuce: boolean;
+  deuce_mode: string | null;
   winner_side: string;
   match_score_a: number;
   match_score_b: number;

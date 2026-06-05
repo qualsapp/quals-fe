@@ -7,8 +7,8 @@ import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
 import { getEvent } from "@/actions/event";
-import LiveMatchScorePaddle from "@/components/matches/LiveMatchScorePaddle";
-import NotLiveMatchScorePaddle from "@/components/matches/NotLiveMatchScorePaddle";
+import LiveMatchScorePadel from "@/components/matches/LiveMatchScorePadel";
+import NotLiveMatchScorePadel from "@/components/matches/NotLiveMatchScorePadel";
 
 type Props = {
   params: Promise<{ id: string; match_id: string }>;
@@ -18,8 +18,6 @@ const page = async ({ params }: Props) => {
   const { id, match_id } = await params;
 
   const event = await getEvent(id);
-
-  console.log("Event data in match page:", event);
 
   const match = await getMatch(match_id);
 
@@ -57,7 +55,7 @@ const page = async ({ params }: Props) => {
                 matchId={match_id}
               />
             ) : (
-              <LiveMatchScorePaddle initialMatch={match} matchId={match_id} />
+              <LiveMatchScorePadel initialMatch={match} matchId={match_id} />
             )}
           </div>
         ) : (
@@ -65,7 +63,7 @@ const page = async ({ params }: Props) => {
             {event.sport_type.slug === "badminton" ? (
               <NotLiveMatchScore match={match} />
             ) : (
-              <NotLiveMatchScorePaddle match={match} />
+              <NotLiveMatchScorePadel match={match} />
             )}
           </div>
         )}

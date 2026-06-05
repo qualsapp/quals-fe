@@ -1,3 +1,5 @@
+export type ApiError = Response | Error | unknown;
+
 export type Option = {
   label: string;
   value: string;

@@ -25,9 +25,7 @@ const ProfileHeader = ({ player }: Props) => {
       <Item className={cn("p-2 flex flex-nowrap rounded-t-md rounded-b-none")}>
         <ItemMedia>
           <Avatar className="size-32">
-            <AvatarImage
-              src={player?.photo_url || "https://github.com/evilrabbit.png"}
-            />
+            <AvatarImage src={player?.photo_url || "/images/quals-logo.png"} />
             <AvatarFallback className="bg-gray-100 text-gray-500 uppercase font-bold">
               {player?.username}
             </AvatarFallback>

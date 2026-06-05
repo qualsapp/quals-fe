@@ -21,17 +21,18 @@ import AvatarUpload from "../file-upload/avatar-upload";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { ProfileScheme } from "@/lib/validations/user";
 
-import { createPlayerDetails } from "@/actions/player";
+import { createPlayerDetails, updatePlayerDetails } from "@/actions/player";
 import { useRouter } from "next/navigation";
 import { SportResponse } from "@/types/global";
 import { PlayerDetailResponse } from "@/types/player";
+import { toast } from "sonner";
 
 type ProfileFormProps = {
-  data?: PlayerDetailResponse;
+  player?: PlayerDetailResponse;
   sports: SportResponse["sport_types"];
 };
 
-const ProfileForm = ({ data, sports }: ProfileFormProps) => {
+const ProfileForm = ({ player, sports }: ProfileFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const router = useRouter();
@@ -39,37 +40,50 @@ const ProfileForm = ({ data, sports }: ProfileFormProps) => {
   const form = useForm<z.infer<typeof ProfileScheme>>({
     resolver: zodResolver(ProfileScheme),
     defaultValues: {
-      username: data?.username || "",
-      display_name: data?.display_name || "",
-      phone_number: data?.phone_number || "",
-      sports: data?.sport_types?.map((sport) => sport.id.toString()) || [],
-      bio: data?.bio || "",
+      username: player?.username || "",
+      display_name: player?.display_name || "",
+      phone_number: player?.phone_number || "",
+      sports: player?.sport_types?.map((sport) => sport.id.toString()) || [],
+      bio: player?.bio || "",
       file: undefined,
     },
   });
 
-  const onSubmit = async (params: z.infer<typeof ProfileScheme>) => {
+  const onSubmit = async (data: z.infer<typeof ProfileScheme>) => {
     const formData = new FormData();
-    formData.append("username", params.username);
-    formData.append("display_name", params.display_name);
-    formData.append("phone_number", params.phone_number);
-    params.sports.forEach((sport) =>
-      formData.append("sport_type_ids[]", sport),
-    );
+    formData.append("username", data.username);
+    formData.append("display_name", data.display_name);
+    formData.append("phone_number", data.phone_number);
+    data.sports.forEach((sport) => formData.append("sport_type_ids[]", sport));
 
-    if (params.bio) {
-      formData.append("bio", params.bio);
+    if (data.bio) {
+      formData.append("bio", data.bio);
     }
-    if (params.file) {
-      formData.append("file", params.file);
+    if (data.file) {
+      formData.append("file", data.file);
     }
 
     startTransition(async () => {
-      const { error } = await createPlayerDetails(formData);
-      if (error) {
-        setError(error);
+      if (player?.id) {
+        const { error } = await updatePlayerDetails(formData);
+        if (error) {
+          setError(error);
+        } else {
+          toast.success("Player details updated successfully");
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 1000);
+        }
       } else {
-        router.push("/dashboard");
+        const { error } = await createPlayerDetails(formData);
+        if (error) {
+          setError(error);
+        } else {
+          toast.success("Player details created successfully");
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 1000);
+        }
       }
     });
   };
@@ -137,6 +151,7 @@ const ProfileForm = ({ data, sports }: ProfileFormProps) => {
                       value: sport.id.toString(),
                     })) || []
                   }
+                  defaultValue={field.value}
                   value={field.value}
                   onValueChange={field.onChange}
                   placeholder="Choose sports..."
@@ -166,20 +181,22 @@ const ProfileForm = ({ data, sports }: ProfileFormProps) => {
 
         <AvatarUpload
           onFileChange={onFileChange}
-          defaultAvatar={data?.photo_url || ""}
+          defaultAvatar={player?.photo_url || ""}
         />
 
-        <Button
-          type="submit"
-          className="px-10"
-          disabled={!form.formState.isValid || isPending}
-        >
-          {isPending
-            ? "Loading..."
-            : data
-              ? "Update Profile"
-              : "Create Profile"}
-        </Button>
+        <div className="text-center">
+          <Button
+            type="submit"
+            className="px-10"
+            disabled={!form.formState.isValid || isPending}
+          >
+            {isPending
+              ? "Loading..."
+              : player
+                ? "Update Profile"
+                : "Create Profile"}
+          </Button>
+        </div>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
       </form>

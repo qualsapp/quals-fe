@@ -33,14 +33,14 @@ const GroupList = ({
 
   return (
     <>
-      {groups.map((group) => (
+      {groups?.map((group) => (
         <div
           key={group.id}
           className="border rounded-lg border-gray-200 w-full p-4"
         >
           <h3 className="text-xl font-bold text-center py-3">{group.name}</h3>
           <div className="overflow-x-auto w-full">
-            {group.participants && group.matches ? (
+            {group?.participants && group?.matches ? (
               <GroupTable group={group} />
             ) : (
               <div className="flex flex-col items-center justify-center gap-3">
@@ -50,7 +50,7 @@ const GroupList = ({
 
             {isEditable && (
               <div className="flex flex-col items-center justify-center gap-3 mt-3">
-                {group.participants.length < seatPerGroup && (
+                {group?.participants?.length < seatPerGroup && (
                   <p>No participants found yet</p>
                 )}
 
