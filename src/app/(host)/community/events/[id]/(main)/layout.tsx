@@ -27,6 +27,14 @@ const page = async ({ params, children }: LayoutProps) => {
     return <EventNotFound />;
   }
 
+  // MANUAL tournaments let the host enter participant names; expose the tab.
+  if (event.tournament?.mode === "MANUAL") {
+    menus.push({
+      label: "Participants",
+      href: `/community/events/${id}/participants`,
+    });
+  }
+
   if (
     String(event.tournament?.id) === "0" &&
     event.event_type === "tournament"

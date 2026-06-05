@@ -45,6 +45,7 @@ const RulesSchema = z
     courts_count: z.string().min(1, "Number of Court is required"),
     category: z.string().min(1, "Category is required"),
     participants_count: z.string().min(1, "Knockout Seat is required"),
+    mode: z.enum(["AUTO", "MANUAL"]),
     grouping: z.boolean(),
     groups_count: z.string(),
     seat_per_group: z.string(),
@@ -102,6 +103,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
       courts_count: tournament?.courts_count?.toString() || "",
       category: tournament?.category || "",
       participants_count: tournament?.participants_count?.toString() || "",
+      mode: tournament?.mode || "AUTO",
       grouping:
         tournament?.groups_count && Number(tournament?.groups_count) > 0
           ? true
@@ -127,6 +129,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
       courts_count: Number(data.courts_count),
       category: data.category,
       participants_count: Number(data.participants_count),
+      mode: data.mode,
       max_point_per_set: Number(data.max_point_per_set),
       scoring_system: data.scoring_system,
       ...(data.grouping && {
@@ -224,6 +227,39 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                 <FormLabel>Total Participants</FormLabel>
                 <FormControl>
                   <Input placeholder="Input total participants" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="mode"
+            render={({ field }) => (
+              <FormItem className="md:max-w-[300px]">
+                <FormLabel>Participant Mode</FormLabel>
+                <FormControl>
+                  <Select
+                    {...field}
+                    onValueChange={(value) => {
+                      form.setValue("mode", value as "AUTO" | "MANUAL");
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select participant mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="AUTO">
+                          Auto (players join themselves)
+                        </SelectItem>
+                        <SelectItem value="MANUAL">
+                          Manual (host enters names)
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

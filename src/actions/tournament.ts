@@ -4,6 +4,8 @@ import {
   BracketsResponse,
   JoinTournamentParams,
   JoinTournamentResponse,
+  ManualParticipantParams,
+  ManualParticipantResponse,
   ParticipantsResponse,
   TournamentGroupParams,
   TournamentGroupsResponse,
@@ -144,6 +146,29 @@ export const getTournamentParticipants = async (
   }
 };
 
+export const createManualParticipant = async (
+  tournamentId: string,
+  params: ManualParticipantParams,
+): Promise<ManualParticipantResponse> => {
+  try {
+    const response = await apiClient<ManualParticipantResponse>(
+      `/tournaments/${tournamentId}/participants`,
+      {
+        method: "POST",
+
+        body: JSON.stringify(params),
+      },
+    );
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<ManualParticipantResponse>(
+      error,
+      "Failed to add participant",
+    );
+  }
+};
+
 export const createGroupTournament = async (
   tournamentId: string,
   params: TournamentGroupParams,
@@ -184,6 +209,26 @@ export const deleteTournamentParticipant = async (
     return errorResponseHandler<{ message: string }>(
       error,
       "Failed to delete tournament participant",
+    );
+  }
+};
+
+export const deleteParticipant = async (
+  participantId: string,
+): Promise<{ message: string; error?: string }> => {
+  try {
+    const response = await apiClient<{ message: string }>(
+      `/participants/${participantId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    return response;
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<{ message: string }>(
+      error,
+      "Failed to delete participant",
     );
   }
 };

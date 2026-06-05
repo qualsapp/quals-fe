@@ -11,6 +11,8 @@ export type MatchRuleParams = {
   total_of?: number;
 };
 
+export type TournamentMode = "AUTO" | "MANUAL";
+
 export interface TournamentParams {
   format: string;
   category: string;
@@ -19,6 +21,21 @@ export interface TournamentParams {
   seat_per_group?: number;
   top_advancing_group?: number;
   courts_count: number;
+  // "AUTO" (players join naturally) or "MANUAL" (host enters names). Defaults to "AUTO".
+  mode?: TournamentMode;
+}
+
+export type ManualParticipantParams = {
+  // One name for single, two for double/mixed; BE composes the name as "A / B".
+  members: string[];
+};
+
+export interface ManualParticipantResponse {
+  id?: number;
+  name?: string;
+  type?: string;
+  error?: string;
+  message?: string;
 }
 
 export interface Participant {

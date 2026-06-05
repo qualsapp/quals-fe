@@ -21,6 +21,11 @@ const JoinEvent = ({ event, playerId }: Props) => {
 
   const { player } = useUser();
 
+  // MANUAL tournaments are managed by the host; players cannot self-join.
+  if (event.tournament?.mode === "MANUAL") {
+    return null;
+  }
+
   if (event.tournament?.is_player_joined) {
     return (
       <Badge
