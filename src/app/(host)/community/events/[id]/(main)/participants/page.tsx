@@ -20,17 +20,8 @@ const page = async ({ params }: Props) => {
   }
 
   const tournament = event.tournament;
-
-  if (tournament.mode !== "MANUAL") {
-    return (
-      <div className="container py-10 md:py-16">
-        <p className="text-muted-foreground">
-          Manual participant management is only available for tournaments in
-          MANUAL mode.
-        </p>
-      </div>
-    );
-  }
+  // MANUAL tournaments are host-managed (add/remove); AUTO is view-only.
+  const editable = tournament.mode === "MANUAL";
 
   const participantsResponse = await getTournamentParticipants(
     String(tournament.id),
@@ -55,6 +46,7 @@ const page = async ({ params }: Props) => {
         category={tournament.category}
         participants={participantsResponse.participants || []}
         maxParticipants={maxParticipants}
+        editable={editable}
       />
     </div>
   );

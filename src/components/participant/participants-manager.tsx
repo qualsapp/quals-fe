@@ -22,6 +22,8 @@ type Props = {
   category: string;
   participants: Participant[];
   maxParticipants: number;
+  // MANUAL tournaments are editable (add/remove); AUTO is view-only.
+  editable?: boolean;
 };
 
 const ParticipantsManager = ({
@@ -29,6 +31,7 @@ const ParticipantsManager = ({
   category,
   participants,
   maxParticipants,
+  editable = false,
 }: Props) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -59,15 +62,18 @@ const ParticipantsManager = ({
         <div>
           <h2 className="text-xl font-bold">Participants</h2>
           <p className="text-sm text-muted-foreground">
-            {participants.length} / {maxParticipants} added
+            {participants.length} / {maxParticipants}{" "}
+            {editable ? "added" : "joined"}
           </p>
         </div>
-        <Button onClick={() => setOpen(true)} disabled={isFull}>
-          Add Participant
-        </Button>
+        {editable && (
+          <Button onClick={() => setOpen(true)} disabled={isFull}>
+            Add Participant
+          </Button>
+        )}
       </div>
 
-      {isFull && (
+      {editable && isFull && (
         <p className="text-sm text-amber-600">
           The roster is full. Remove a participant to add a different one.
         </p>
@@ -77,8 +83,9 @@ const ParticipantsManager = ({
 
       {participants.length === 0 ? (
         <div className="rounded-md border p-8 text-center text-muted-foreground">
-          No participants yet. Click &ldquo;Add Participant&rdquo; to enter
-          names.
+          {editable
+            ? "No participants yet. Click “Add Participant” to enter names."
+            : "No participants have joined yet."}
         </div>
       ) : (
         <ul className="divide-y rounded-md border">
@@ -98,37 +105,41 @@ const ParticipantsManager = ({
                   </p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemove(participant.id)}
-                disabled={isPending && removingId === participant.id}
-                aria-label={`Remove ${participant.name}`}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
+              {editable && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemove(participant.id)}
+                  disabled={isPending && removingId === participant.id}
+                  aria-label={`Remove ${participant.name}`}
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Participant</DialogTitle>
-            <DialogDescription>
-              Enter the {isDouble ? "pair" : "participant"} name to add them to
-              this tournament.
-            </DialogDescription>
-          </DialogHeader>
-          <ManualParticipantForm
-            tournamentId={tournamentId}
-            category={category}
-            closeModal={() => setOpen(false)}
-            onSuccess={() => router.refresh()}
-          />
-        </DialogContent>
-      </Dialog>
+      {editable && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Participant</DialogTitle>
+              <DialogDescription>
+                Enter the {isDouble ? "pair" : "participant"} name to add them
+                to this tournament.
+              </DialogDescription>
+            </DialogHeader>
+            <ManualParticipantForm
+              tournamentId={tournamentId}
+              category={category}
+              closeModal={() => setOpen(false)}
+              onSuccess={() => router.refresh()}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

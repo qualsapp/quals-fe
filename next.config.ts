@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
@@ -25,4 +26,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // From your Sentry project (Settings → General). Required for source-map upload.
+  org: process.env.SENTRY_ORG ?? "YOUR_SENTRY_ORG",
+  project: process.env.SENTRY_PROJECT ?? "YOUR_SENTRY_PROJECT",
+  // Source-map upload needs SENTRY_AUTH_TOKEN at build time (set it in Vercel).
+  // Without it the build still succeeds — it just skips the upload.
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  disableLogger: true,
+});

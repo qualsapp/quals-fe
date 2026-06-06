@@ -19,20 +19,15 @@ const page = async ({ params, children }: LayoutProps) => {
     { label: "Matches", href: `/community/events/${id}/matches` },
     { label: "Group", href: `/community/events/${id}/group` },
     { label: "Playoff", href: `/community/events/${id}/playoff` },
+    // Shown for every tournament; the page is read-only for AUTO mode and
+    // editable (add/remove) for MANUAL mode.
+    { label: "Participants", href: `/community/events/${id}/participants` },
   ];
 
   const event = await getEvent(id);
 
   if (!event) {
     return <EventNotFound />;
-  }
-
-  // MANUAL tournaments let the host enter participant names; expose the tab.
-  if (event.tournament?.mode === "MANUAL") {
-    menus.push({
-      label: "Participants",
-      href: `/community/events/${id}/participants`,
-    });
   }
 
   if (
