@@ -34,5 +34,11 @@ export default withSentryConfig(nextConfig, {
   // Without it the build still succeeds — it just skips the upload.
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  disableLogger: true,
+  // Strips Sentry's debug-logging statements from the production bundle
+  // (replaces the deprecated `disableLogger`).
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 });
