@@ -96,6 +96,9 @@ const RulesSchema = z
 const RulesForm = ({ eventId, tournament }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
+  // Stays true once the post-submit redirect kicks off, so the button keeps its
+  // loading state until the next page paints (isPending can flip first).
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
@@ -148,24 +151,22 @@ const RulesForm = ({ eventId, tournament }: Props) => {
         : { race_to: Number(data.race_to) }),
     };
 
+    setError(undefined);
     startTransition(async () => {
-      if (tournament?.id) {
-        const { error } = await updateTournament(tournament.id, params);
-        if (error) {
-          setError(error);
-        } else {
-          form.reset();
-          router.push(`/community/events/${eventId}?welcome=true`);
-        }
-      } else {
-        const { error } = await createTournament(eventId, params);
-        if (error) {
-          setError(error);
-        } else {
-          form.reset();
-          router.push(`/community/events/${eventId}?welcome=true`);
-        }
+      const { error } = tournament?.id
+        ? await updateTournament(tournament.id, params)
+        : await createTournament(eventId, params);
+
+      if (error) {
+        setError(error);
+        return;
       }
+
+      // Navigate WITHOUT resetting first: clearing the form blanks every field
+      // while the event page loads, which reads as a jarring reset. Keep the
+      // form intact + the button loading until the destination paints over it.
+      setIsRedirecting(true);
+      router.push(`/community/events/${eventId}?welcome=true`);
     });
   };
 
@@ -501,8 +502,8 @@ const RulesForm = ({ eventId, tournament }: Props) => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <div className="text-center">
-          <Button type="submit" disabled={isPending}>
-            {isPending
+          <Button type="submit" disabled={isPending || isRedirecting}>
+            {isPending || isRedirecting
               ? "Loading..."
               : tournament?.id
                 ? "Update Rules"

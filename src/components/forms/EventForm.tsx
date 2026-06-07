@@ -87,6 +87,9 @@ const isDateRange = (value: unknown): value is { from: Date; to: Date } =>
 const EventForm = ({ event, sports }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
+  // Stays true once we kick off the post-create redirect, so the button keeps
+  // its loading state until the next page paints (isPending can flip first).
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof eventSchema>>({
@@ -129,6 +132,7 @@ const EventForm = ({ event, sports }: Props) => {
         : (watchDates as Date).toISOString(),
     };
 
+    setError(undefined);
     startTransition(async () => {
       const { error, ...res } = event?.id
         ? await updateEvent(params, event.id)
@@ -136,12 +140,21 @@ const EventForm = ({ event, sports }: Props) => {
 
       if (error) {
         setError(error);
+        return;
+      }
+
+      if (res.event_type === "tournament") {
+        // Navigate WITHOUT resetting first: clearing the form here blanks every
+        // field while the next page loads, which reads as a jarring reset.
+        // Keep the form intact + the button in its loading state until the
+        // rules page paints over it.
+        setIsRedirecting(true);
+        const sport = sports?.find((sport) => sport.id === res.sport_type.id);
+        router.push(`/community/events/${res.id}/rules?type=${sport?.slug}`);
       } else {
+        // Non-tournament: we stay on this page, so clearing for the next entry
+        // is the desired behavior.
         form.reset();
-        if (res.event_type === "tournament") {
-          const sport = sports?.find((sport) => sport.id === res.sport_type.id);
-          router.push(`/community/events/${res.id}/rules?type=${sport?.slug}`);
-        }
       }
     });
   };
@@ -400,8 +413,13 @@ const EventForm = ({ event, sports }: Props) => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <div className="text-center">
-          <Button disabled={isPending}>
-            {isPending ? "Loading..." : event ? "Update" : "Create"} Event
+          <Button disabled={isPending || isRedirecting}>
+            {isPending || isRedirecting
+              ? "Loading..."
+              : event
+                ? "Update"
+                : "Create"}{" "}
+            Event
           </Button>
         </div>
       </form>
