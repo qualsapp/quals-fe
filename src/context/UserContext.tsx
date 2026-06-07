@@ -39,11 +39,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [isHydrated, user, storeLogout]);
 
   const handleLogout = useCallback(async () => {
-    const res = await onLogout();
-    if (res.success) {
-      storeLogout();
-      window.location.href = "/login";
-    }
+    // Clear the client store first: onLogout() ends in redirect(), which throws
+    // internally (NEXT_REDIRECT), so anything after the await never runs.
+    storeLogout();
+    await onLogout();
   }, [storeLogout]);
 
   useEffect(() => {

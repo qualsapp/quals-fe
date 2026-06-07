@@ -5,6 +5,7 @@ import { TokenExpirationDays } from "@/lib/env";
 import { errorResponseHandler } from "@/lib/error-handler";
 import { AuthResponse, LoginByGoogleParams, LoginParams } from "@/types/auth";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const login = async (
   credentials: LoginParams,
@@ -88,18 +89,16 @@ export const register = async (
   }
 };
 
-export const logout = async (): Promise<{ success: boolean }> => {
-  try {
-    const cookieStore = await cookies();
+export const logout = async (): Promise<void> => {
+  const cookieStore = await cookies();
 
-    cookieStore.delete("token");
-    cookieStore.delete("user_type");
+  cookieStore.delete("token");
+  cookieStore.delete("user_type");
 
-    return { success: true };
-  } catch (error: Response | Error | unknown) {
-    console.error("Logout failed:", error);
-    return { success: false };
-  }
+  // Redirect server-side so the current route is NOT re-rendered after the
+  // action (a Server Action auto-revalidates its origin route). Without this,
+  // the page we're on refetches its data with the token already gone → 401.
+  redirect("/login");
 };
 
 export const checkTokenCookie = async (): Promise<boolean> => {
