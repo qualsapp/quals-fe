@@ -410,7 +410,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Input best of point" {...field} />
+                        <Input placeholder="Input best of set" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

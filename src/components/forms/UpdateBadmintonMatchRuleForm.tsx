@@ -175,7 +175,7 @@ const UpdateBadmintonMatchRuleForm = ({
                         <FormItem>
                           <FormControl>
                             <Input
-                              placeholder="Input best of point"
+                              placeholder="Input best of set"
                               {...field}
                             />
                           </FormControl>
