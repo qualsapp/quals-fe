@@ -36,7 +36,10 @@ const page = async ({ params, children }: LayoutProps) => {
 
   const event = await getEvent(id);
 
-  if (!event) {
+  // getEvent returns a truthy fallback ({ id: "", error }) when the fetch fails,
+  // so `!event` alone misses it — rendering a broken page whose links use an
+  // empty id. Treat a missing/empty event as not-found.
+  if (!event || event.error || !event.id) {
     return <EventNotFound />;
   }
 
