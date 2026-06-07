@@ -57,9 +57,32 @@ const eventSchema = z.object({
     .any()
     .refine((value) => value instanceof Date || value instanceof Object, {
       message: "Please select a date and time",
+    })
+    .superRefine((value, ctx) => {
+      // Range events (tournament/friendly) must end strictly after they start.
+      // Catches single-day events where start and end land on the same instant
+      // — surfaced client-side so the raw backend error is never reached.
+      if (value && !(value instanceof Date) && value.from && value.to) {
+        if (new Date(value.to).getTime() <= new Date(value.from).getTime()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "End time must be after the start time",
+          });
+        }
+      }
     }),
   isRepeat: z.boolean(),
 });
+
+// A tournament/friendly event stores its schedule as a { from, to } range;
+// a weekly event stores a single Date. NOTE: `x instanceof Object` is true for
+// Date too, so it cannot distinguish the two — check `from`/`to` explicitly.
+const isDateRange = (value: unknown): value is { from: Date; to: Date } =>
+  !!value &&
+  typeof value === "object" &&
+  !(value instanceof Date) &&
+  "from" in value &&
+  "to" in value;
 
 const EventForm = ({ event, sports }: Props) => {
   const [isPending, startTransition] = useTransition();
@@ -98,12 +121,12 @@ const EventForm = ({ event, sports }: Props) => {
       location: data.location,
       description: data.description,
       // isRepeat: data.isRepeat,
-      start_time:
-        watchDates instanceof Object
-          ? watchDates.from.toISOString()
-          : watchDates,
-      end_time:
-        watchDates instanceof Object ? watchDates.to.toISOString() : watchDates,
+      start_time: isDateRange(watchDates)
+        ? new Date(watchDates.from).toISOString()
+        : (watchDates as Date).toISOString(),
+      end_time: isDateRange(watchDates)
+        ? new Date(watchDates.to).toISOString()
+        : (watchDates as Date).toISOString(),
     };
 
     startTransition(async () => {
@@ -123,48 +146,54 @@ const EventForm = ({ event, sports }: Props) => {
     });
   };
 
+  // Returns a NEW Date with the chosen hour/minute/AM-PM applied — a fresh
+  // object so react-hook-form detects the change and re-runs validation.
+  const applyTime = (
+    base: Date,
+    type: "hour" | "minute" | "ampm",
+    value: string,
+  ): Date => {
+    const next = new Date(base);
+    if (type === "hour") {
+      next.setHours((parseInt(value) % 12) + (next.getHours() >= 12 ? 12 : 0));
+    } else if (type === "minute") {
+      next.setMinutes(parseInt(value));
+    } else if (type === "ampm") {
+      const currentHours = next.getHours();
+      next.setHours(value === "PM" ? currentHours + 12 : currentHours - 12);
+    }
+    return next;
+  };
+
   const handleTimeChange = (
+    boundary: "start" | "end",
     type: "hour" | "minute" | "ampm",
     value: string,
   ) => {
+    // Weekly: single date, single time.
     if (watchDates instanceof Date) {
-      const newDate = new Date(watchDates);
-      if (type === "hour") {
-        newDate.setHours(
-          (parseInt(value) % 12) + (newDate.getHours() >= 12 ? 12 : 0),
-        );
-      } else if (type === "minute") {
-        newDate.setMinutes(parseInt(value));
-      } else if (type === "ampm") {
-        const currentHours = newDate.getHours();
-        newDate.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12,
-        );
-      }
-      form.setValue("dates", newDate);
+      form.setValue("dates", applyTime(watchDates, type, value), {
+        shouldValidate: true,
+      });
+      return;
     }
 
-    if (watchDates instanceof Object && watchDates.from && watchDates.to) {
-      if (type === "hour") {
-        watchDates.from.setHours(
-          (parseInt(value) % 12) + (watchDates.from.getHours() >= 12 ? 12 : 0),
-        );
-        watchDates.to.setHours(
-          (parseInt(value) % 12) + (watchDates.to.getHours() >= 12 ? 12 : 0),
-        );
-      } else if (type === "minute") {
-        watchDates.from.setMinutes(parseInt(value));
-        watchDates.to.setMinutes(parseInt(value));
-      } else if (type === "ampm") {
-        const currentHours = watchDates.from.getHours();
-        watchDates.from.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12,
-        );
-        watchDates.to.setHours(
-          value === "PM" ? currentHours + 12 : currentHours - 12,
-        );
-      }
-      form.setValue("dates", watchDates);
+    // Tournament/friendly: independent start (from) and end (to) times.
+    if (isDateRange(watchDates)) {
+      form.setValue(
+        "dates",
+        {
+          from:
+            boundary === "start"
+              ? applyTime(watchDates.from, type, value)
+              : watchDates.from,
+          to:
+            boundary === "end"
+              ? applyTime(watchDates.to, type, value)
+              : watchDates.to,
+        },
+        { shouldValidate: true },
+      );
     }
   };
 
@@ -214,7 +243,7 @@ const EventForm = ({ event, sports }: Props) => {
             <FormItem>
               <FormLabel>Event Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Downtown Badminton Club" {...field} />
+                <Input placeholder="e.g., QUALS Open Cup" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -258,7 +287,7 @@ const EventForm = ({ event, sports }: Props) => {
             <FormItem>
               <FormLabel>Location</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Downtown Badminton Club" {...field} />
+                <Input placeholder="e.g., Gor Cinde Itenas" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -272,7 +301,7 @@ const EventForm = ({ event, sports }: Props) => {
               <FormLabel>Description (optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Brief description of your community..."
+                  placeholder="Brief description of your Event..."
                   {...field}
                 />
               </FormControl>
@@ -296,28 +325,55 @@ const EventForm = ({ event, sports }: Props) => {
         <div className="space-y-3">
           <Label>Schedule</Label>
 
-          <div className="grid grid-cols-2 gap-2">
-            <DatePicker
-              mode={form.watch("type") === "weekly" ? "single" : "range"}
-              selected={watchDates}
-              onSelect={handleDateChange}
-              disabled={form.watch("type") === ""}
-            />
+          <DatePicker
+            mode={form.watch("type") === "weekly" ? "single" : "range"}
+            selected={watchDates}
+            onSelect={handleDateChange}
+            disabled={form.watch("type") === ""}
+          />
 
+          {form.watch("type") === "weekly" ? (
             <TimePicker
-              date={
-                form.watch("type") === "weekly" ? watchDates : watchDates?.from
+              date={watchDates}
+              handleTimeChange={(type, value) =>
+                handleTimeChange("start", type, value)
               }
-              handleTimeChange={handleTimeChange}
               disabled={form.watch("type") === "" || !watchDates}
             />
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">
+                  Start time
+                </Label>
+                <TimePicker
+                  date={watchDates?.from}
+                  handleTimeChange={(type, value) =>
+                    handleTimeChange("start", type, value)
+                  }
+                  disabled={form.watch("type") === "" || !watchDates}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">
+                  End time
+                </Label>
+                <TimePicker
+                  date={watchDates?.to}
+                  handleTimeChange={(type, value) =>
+                    handleTimeChange("end", type, value)
+                  }
+                  disabled={form.watch("type") === "" || !watchDates}
+                />
+              </div>
+            </div>
+          )}
 
-            {form.formState.errors.dates && (
-              <FormMessage>
-                {String(form.formState.errors.dates.message)}
-              </FormMessage>
-            )}
-          </div>
+          {form.formState.errors.dates && (
+            <FormMessage>
+              {String(form.formState.errors.dates.message)}
+            </FormMessage>
+          )}
         </div>
 
         <FormField
