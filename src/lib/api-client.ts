@@ -50,7 +50,18 @@ export async function apiClient<T>(
     cache: options.cache || "no-store",
   };
   const url = new URL(`${ApiUrl}${endpoint}`);
-  url.search = new URLSearchParams(params).toString();
+  // Build the query string manually: passing params straight to URLSearchParams
+  // serializes undefined/null as the literal strings "undefined"/"null" (which
+  // the backend then rejects, e.g. tournament_id=undefined → 400). Skip them.
+  if (params) {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null) {
+        search.set(key, String(value));
+      }
+    }
+    url.search = search.toString();
+  }
 
   let response: Response;
   try {
