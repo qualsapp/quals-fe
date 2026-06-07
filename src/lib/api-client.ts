@@ -7,6 +7,31 @@ export interface ApiRequestInit extends RequestInit {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+// Thrown by apiClient on any non-2xx response. Carries the HTTP status and the
+// parsed error body so callers (and the Sentry chokepoint) can branch on it.
+export class ApiClientError extends Error {
+  readonly status: number;
+  readonly body: unknown;
+
+  constructor(message: string, status: number, body?: unknown) {
+    super(message);
+    this.name = "ApiClientError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
+// Pulls a human-readable message out of the backend's JSON error body
+// (the gateway returns `{ error: ... }` / `{ message: ... }`).
+function extractMessage(body: unknown): string | undefined {
+  if (body && typeof body === "object") {
+    const record = body as Record<string, unknown>;
+    if (typeof record.error === "string") return record.error;
+    if (typeof record.message === "string") return record.message;
+  }
+  return undefined;
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: ApiRequestInit = {},
@@ -29,11 +54,25 @@ export async function apiClient<T>(
 
   const response = await fetch(url, config);
 
-  const json = await response.json();
-
-  if (json) {
-    return json as T;
-  } else {
-    return Promise.reject(response);
+  // Read the body once as text, then parse: tolerates empty bodies (e.g. 204)
+  // and non-JSON error pages without throwing here.
+  const rawBody = await response.text();
+  let json: unknown = null;
+  if (rawBody) {
+    try {
+      json = JSON.parse(rawBody);
+    } catch {
+      json = null;
+    }
   }
+
+  if (!response.ok) {
+    const message =
+      extractMessage(json) ||
+      response.statusText ||
+      `Request failed with status ${response.status}`;
+    return Promise.reject(new ApiClientError(message, response.status, json));
+  }
+
+  return json as T;
 }
