@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 import React from "react";
@@ -37,6 +38,13 @@ const page = async ({ params, searchParams }: Props) => {
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>
+        <div>
+          <Link href={`/community/events/${id}/matches`} className="underline">
+            <Button variant="text" className="flex items-center">
+              <ArrowLeft /> Back to Event
+            </Button>
+          </Link>
+        </div>
         <h2 className="capitalize text-2xl font-bold text-center">Rules</h2>
         <p className="text-center">Define the rules for your event</p>
       </div>
