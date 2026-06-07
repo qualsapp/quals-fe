@@ -52,7 +52,21 @@ export async function apiClient<T>(
   const url = new URL(`${ApiUrl}${endpoint}`);
   url.search = new URLSearchParams(params).toString();
 
-  const response = await fetch(url, config);
+  let response: Response;
+  try {
+    response = await fetch(url, config);
+  } catch (cause) {
+    // fetch() rejects (e.g. TypeError "fetch failed") when no response is
+    // received at all — backend down, connection refused, DNS, offline.
+    // status 0 marks "never reached the server"; surface a clear message.
+    return Promise.reject(
+      new ApiClientError(
+        "Unable to reach the server. Please check your connection and try again.",
+        0,
+        cause,
+      ),
+    );
+  }
 
   // Read the body once as text, then parse: tolerates empty bodies (e.g. 204)
   // and non-JSON error pages without throwing here.

@@ -4,11 +4,15 @@ import { ApiClientError } from "@/lib/api-client";
 
 // Server actions catch errors and return them as values, so they never reach
 // Sentry's onRequestError net. This chokepoint reports them instead.
-// Expected client errors (validation / auth / not-found, i.e. 4xx) are skipped
-// to keep the signal clean; 5xx and thrown errors (network, unexpected) report.
+// Only expected client errors (validation / auth / not-found, i.e. 4xx) are
+// skipped to keep the signal clean; everything else reports — 5xx, network
+// failures (status 0), and unexpected thrown errors.
+const isExpectedClientError = (status: number) => status >= 400 && status < 500;
+
 const reportToSentry = (error: unknown) => {
-  if (error instanceof ApiClientError && error.status < 500) return;
-  if (error instanceof Response && error.status < 500) return;
+  if (error instanceof ApiClientError && isExpectedClientError(error.status))
+    return;
+  if (error instanceof Response && isExpectedClientError(error.status)) return;
   Sentry.captureException(error);
 };
 
