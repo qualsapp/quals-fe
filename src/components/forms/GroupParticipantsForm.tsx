@@ -19,6 +19,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { createGroupParticipants } from "@/actions/group";
 import { GroupParticipantsParams } from "@/types/group";
 import { Participant } from "@/types/tournament";
+import { useRouter } from "next/navigation";
 
 type Props = {
   groupId: string;
@@ -50,6 +51,7 @@ const GroupParticipantForm = ({
   closeModal,
   participants,
 }: Props) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const [options, setOptions] = useState<
@@ -113,8 +115,10 @@ const GroupParticipantForm = ({
       if (error) {
         setError(error);
       } else {
-        form.reset();
         closeModal();
+        // Re-fetch the server-rendered group list so the update shows without a
+        // manual page refresh.
+        router.refresh();
       }
     });
   };

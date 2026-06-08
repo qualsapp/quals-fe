@@ -28,6 +28,7 @@ import { createMatch } from "@/actions/match";
 import { MatchParams } from "@/types/match";
 import { Participant } from "@/types/tournament";
 import { Participant as BracketParticipant } from "@/types/bracket";
+import { useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
@@ -55,6 +56,7 @@ const UpdatePlayerForm = ({
   participants,
   court,
 }: Props) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [options, setOptions] = useState<MultiSelectOption[]>([]);
@@ -123,8 +125,10 @@ const UpdatePlayerForm = ({
         if (error) {
           setError(error);
         } else {
-          form.reset();
           setOpen(false);
+          // Re-fetch the server-rendered bracket so the update shows without a
+          // manual page refresh.
+          router.refresh();
         }
       });
     } catch (error) {
