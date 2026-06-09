@@ -470,7 +470,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih final point" />
+                        <SelectValue placeholder="Pilih sistem skor" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
