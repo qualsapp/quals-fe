@@ -68,7 +68,7 @@ const UpdatePlayerForm = ({
     defaultValues: {
       participant_a: participants[0]?.id ? [String(participants[0].id)] : [],
       participant_b: participants[1]?.id ? [String(participants[1].id)] : [],
-      court_number: String(court),
+      court_number: court != null ? String(court) : "",
     },
   });
 
