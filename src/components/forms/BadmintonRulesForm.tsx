@@ -42,6 +42,7 @@ type Props = {
 
 const RulesSchema = z
   .object({
+    name: z.string().min(1, "Tournament name is required").max(150),
     courts_count: z.string().min(1, "Number of Court is required"),
     category: z.string().min(1, "Category is required"),
     participants_count: z.string().min(1, "Knockout Seat is required"),
@@ -103,6 +104,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
   const form = useForm<z.infer<typeof RulesSchema>>({
     resolver: zodResolver(RulesSchema),
     defaultValues: {
+      name: tournament?.name || "",
       courts_count: tournament?.courts_count?.toString() || "",
       category: tournament?.category || "",
       participants_count: tournament?.participants_count?.toString() || "",
@@ -128,6 +130,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
   const onSubmit = (data: z.infer<typeof RulesSchema>) => {
     // add community_id from cookies
     const params: TournamentParams & MatchRuleParams = {
+      name: data.name,
       format: data.grouping ? "group_stage" : "single_elimination",
       courts_count: Number(data.courts_count),
       category: data.category,
@@ -153,12 +156,12 @@ const RulesForm = ({ eventId, tournament }: Props) => {
 
     setError(undefined);
     startTransition(async () => {
-      const { error } = tournament?.id
+      const result = tournament?.id
         ? await updateTournament(tournament.id, params)
         : await createTournament(eventId, params);
 
-      if (error) {
-        setError(error);
+      if (result.error) {
+        setError(result.error);
         return;
       }
 
@@ -166,7 +169,10 @@ const RulesForm = ({ eventId, tournament }: Props) => {
       // while the event page loads, which reads as a jarring reset. Keep the
       // form intact + the button loading until the destination paints over it.
       setIsRedirecting(true);
-      router.push(`/community/events/${eventId}?welcome=true`);
+      const tournamentId = tournament?.id || result.id;
+      router.push(
+        `/community/events/${eventId}/tournaments/${tournamentId}/matches?welcome=true`,
+      );
     });
   };
 
@@ -177,6 +183,22 @@ const RulesForm = ({ eventId, tournament }: Props) => {
           <FormLabel className="text-lg font-semibold text-gray-400">
             General Settings
           </FormLabel>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="md:max-w-[300px]">
+                <FormLabel>Tournament Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. Men's Double, Women's Single"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="courts_count"

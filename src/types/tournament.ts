@@ -14,6 +14,8 @@ export type MatchRuleParams = {
 export type TournamentMode = "AUTO" | "MANUAL";
 
 export interface TournamentParams {
+  // Display name distinguishing tournaments within an event, e.g. "Men's Double".
+  name?: string;
   format: string;
   category: string;
   participants_count: number;

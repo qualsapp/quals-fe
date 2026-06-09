@@ -20,7 +20,8 @@ export type EventResponse = Omit<EventParams, "dates" | "sport_type_id"> & {
   start_date: string;
   end_date: string;
   sport_type: Sport;
-  tournament?: TournamentResponse;
+  // An event hosts one or more tournaments (divisions), e.g. "Men's Double".
+  tournaments?: TournamentResponse[];
 
   error?: string;
 };

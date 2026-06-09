@@ -54,7 +54,7 @@ const TennisBoard = () => {
 
     if (!searchParams.get("set_id")) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -70,7 +70,7 @@ const TennisBoard = () => {
 
     if (curSet?.is_finished && !match.winner) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=padel&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -102,7 +102,7 @@ const TennisBoard = () => {
         right: "participant_a",
       });
       redirect(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=b&right=a`,
       );
     } else {
       setPosition({
@@ -110,7 +110,7 @@ const TennisBoard = () => {
         right: "participant_b",
       });
       redirect(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=${searchParams.get("type")}&set_id=${searchParams.get("set_id")}&left=a&right=b`,
       );
     }
   };
@@ -350,7 +350,9 @@ const TennisBoard = () => {
                   onClick={() => {
                     setEndGame(false);
                     exitFullscreen();
-                    redirect(`/community/events/${params.id}/matches`);
+                    redirect(
+                      `/community/events/${params.id}/tournaments/${params.tid}/matches`,
+                    );
                   }}
                   variant="outline"
                 >

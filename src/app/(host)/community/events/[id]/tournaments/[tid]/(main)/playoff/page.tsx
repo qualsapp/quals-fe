@@ -1,25 +1,38 @@
 import React from "react";
 import TournamentBracket from "@/components/commons/tournament-bracket";
-import { getEvent } from "@/actions/event";
-import { getBrackets } from "@/actions/tournament";
+import { getBrackets, getTournament } from "@/actions/tournament";
 import { Match } from "@/types/bracket";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
+import { MatchSetModel } from "@/types/match";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; tid: string }>;
 };
 
 const page = async ({ params }: Props) => {
-  const { id } = await params;
+  const { id, tid } = await params;
 
-  const event = await getEvent(id);
+  const tournament = await getTournament(tid);
 
-  if (!event.tournament?.id) {
+  if (!tournament?.id || tournament.error) {
     return <div>No tournament found</div>;
   }
 
-  const brackets = await getBrackets(event.tournament.id);
+  const brackets = await getBrackets(tournament.id);
+
+  const getAccumulatedScore = (sets: MatchSetModel[], type: "a" | "b") => {
+    if (!sets) return "0";
+    const total = sets.reduce((acc, set) => {
+      if (set.set_score_a === null || set.set_score_b === null) return acc;
+      if (type === "a" && set.set_score_a > set.set_score_b) return acc + 1;
+      if (type === "b" && set.set_score_b > set.set_score_a) return acc + 1;
+
+      return acc;
+    }, 0);
+
+    return String(total);
+  };
 
   const matchData: Match[] = brackets?.map((bracket) => {
     return {
@@ -39,16 +52,9 @@ const page = async ({ params }: Props) => {
                 name: bracket.match.participant_a.name,
                 score: bracket.match.participant_a.score || null,
                 seed: null,
-                isWinner: bracket.match.participant_a.isWinner,
-                status: "PLAYED",
-                resultText: String(
-                  bracket.match.match_sets.reduce((acc, set) => {
-                    if (set.set_score_a > set.set_score_b) {
-                      acc += 1;
-                    }
-                    return acc;
-                  }, 0),
-                ),
+                isWinner:
+                  bracket.match.winner?.id === bracket.match.participant_a.id,
+                resultText: getAccumulatedScore(bracket.match.match_sets, "a"),
               },
             ]
           : []),
@@ -59,20 +65,21 @@ const page = async ({ params }: Props) => {
                 name: bracket.match.participant_b.name,
                 score: bracket.match.participant_b.score || null,
                 seed: null,
-                isWinner: bracket.match.participant_b.isWinner,
-                status: "PLAYED",
-                resultText: "test",
+                isWinner:
+                  bracket.match.winner?.id === bracket.match.participant_b.id,
+                resultText: getAccumulatedScore(bracket.match.match_sets, "b"),
               },
             ]
           : []),
       ],
       court_number: bracket.match?.court_number,
       href: bracket.match?.id
-        ? `/events/${id}/matches/${bracket.match?.id}`
+        ? `/community/events/${id}/tournaments/${tid}/matches/${bracket.match?.id}`
         : undefined,
       startTime: bracket.match?.scheduled_at
         ? dayjs(bracket.match?.scheduled_at).format(SCHEDULED_AT_FORMAT)
-        : "Not Scheduled",
+        : "",
+      sets: bracket.match?.match_sets || [],
     };
   });
 
@@ -81,8 +88,8 @@ const page = async ({ params }: Props) => {
       <div className="container flex-col space-y-10">
         <TournamentBracket
           matches={matchData}
-          event={event}
-          isEditable={false}
+          tournament={tournament}
+          isEditable
         />
       </div>
     </div>

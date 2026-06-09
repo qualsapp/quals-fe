@@ -1,34 +1,33 @@
 import React from "react";
+import UpdateRuleBeforeMatch from "@/components/match/update-rule-before-match";
 import { getMatch } from "@/actions/match";
 import BackButton from "@/components/commons/back-button";
-
-import LiveMatchScoreBadminton from "@/components/matches/LiveMatchScoreBadminton";
+import { getEvent } from "@/actions/event";
 import dayjs from "dayjs";
 import { SCHEDULED_AT_FORMAT } from "@/lib/constants/date";
 import NotLiveMatchScore from "@/components/matches/NotLiveMatchScore";
-import { getEvent } from "@/actions/event";
-import LiveMatchScorePadel from "@/components/matches/LiveMatchScorePadel";
 import NotLiveMatchScorePadel from "@/components/matches/NotLiveMatchScorePadel";
 
 type Props = {
-  params: Promise<{ id: string; match_id: string }>;
+  params: Promise<{ id: string; tid: string; match_id: string }>;
 };
 
 const page = async ({ params }: Props) => {
-  const { id, match_id } = await params;
+  const { id, tid, match_id } = await params;
 
-  const event = await getEvent(id);
+  const [match, event] = await Promise.all([getMatch(match_id), getEvent(id)]);
 
-  const match = await getMatch(match_id);
-
-  if (!match) {
+  if (!match || !event) {
     return <div>Match not found</div>;
   }
 
   return (
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">
       <div className="flex flex-col space-y-8">
-        <BackButton href={`/events/${id}/matches`} label="Back to Matches" />
+        <BackButton
+          href={`/community/events/${id}/tournaments/${tid}/matches`}
+          label="Back to Matches"
+        />
         <div className="flex flex-row gap-3 justify-center items-center">
           <p className="text-lg font-semibold">
             {(match.scheduled_at &&
@@ -47,25 +46,17 @@ const page = async ({ params }: Props) => {
           )}
         </div>
 
-        {match.status === "ongoing" ? (
-          <div>
-            {event.sport_type.slug === "badminton" ? (
-              <LiveMatchScoreBadminton
-                initialMatch={match}
-                matchId={match_id}
-              />
-            ) : (
-              <LiveMatchScorePadel initialMatch={match} matchId={match_id} />
-            )}
-          </div>
+        {event.sport_type.slug === "badminton" ? (
+          <NotLiveMatchScore match={match} />
         ) : (
-          <div>
-            {event.sport_type.slug === "badminton" ? (
-              <NotLiveMatchScore match={match} />
-            ) : (
-              <NotLiveMatchScorePadel match={match} />
-            )}
-          </div>
+          <NotLiveMatchScorePadel match={match} />
+        )}
+        {match.winner === null && (
+          <UpdateRuleBeforeMatch
+            matchId={match_id}
+            rule={match.match_rule}
+            type={event.sport_type.slug}
+          />
         )}
       </div>
     </div>

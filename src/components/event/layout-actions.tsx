@@ -8,14 +8,23 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Edit2, Settings2 } from "lucide-react";
 import DeleteEventButton from "./delete-event";
+import DeleteTournamentButton from "./delete-tournament";
 import { EventResponse } from "@/types/event";
 
 type Props = {
   event: EventResponse;
+  // When set, actions target a specific tournament (edit its rules / delete it)
+  // instead of the event itself.
+  tournamentId?: string;
 };
 
-const LayoutActions = ({ event }: Props) => {
+const LayoutActions = ({ event, tournamentId }: Props) => {
   const { id } = event;
+  const slug = event.sport_type?.slug;
+  const rulesHref = tournamentId
+    ? `/community/events/${id}/rules?type=${slug}&tid=${tournamentId}`
+    : `/community/events/${id}/rules?type=${slug}`;
+
   return (
     <div className="flex gap-3">
       <Tooltip>
@@ -33,20 +42,25 @@ const LayoutActions = ({ event }: Props) => {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link
-            href={`/community/events/${id}/rules?type=${event.sport_type.slug}`}
-          >
+          <Link href={rulesHref}>
             <Button variant="outline">
               <Settings2 />
             </Button>
           </Link>
         </TooltipTrigger>
         <TooltipContent side="top">
-          <p>Edit Rules</p>
+          <p>{tournamentId ? "Edit Tournament Rules" : "Edit Rules"}</p>
         </TooltipContent>
       </Tooltip>
 
-      <DeleteEventButton eventId={id} />
+      {tournamentId ? (
+        <DeleteTournamentButton
+          tournamentId={tournamentId}
+          redirectTo={`/community/events/${id}`}
+        />
+      ) : (
+        <DeleteEventButton eventId={id} />
+      )}
     </div>
   );
 };

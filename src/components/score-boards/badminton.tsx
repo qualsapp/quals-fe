@@ -54,7 +54,7 @@ const BadmintonBoard = () => {
 
     if (!searchParams.get("set_id")) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -64,7 +64,7 @@ const BadmintonBoard = () => {
 
     if (curSet?.is_finished && !match.winner) {
       router.push(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=badminton&left=${left}&right=${right}&set_id=${match.match_sets?.find((set) => !set.is_finished)?.id}`,
       );
     }
 
@@ -96,7 +96,7 @@ const BadmintonBoard = () => {
         right: "participant_a",
       });
       redirect(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=b&right=a`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=b&right=a`,
       );
     } else {
       setPosition({
@@ -104,7 +104,7 @@ const BadmintonBoard = () => {
         right: "participant_b",
       });
       redirect(
-        `/community/events/${params.id}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=a&right=b`,
+        `/community/events/${params.id}/tournaments/${params.tid}/matches/${params.match_id}/play?type=badminton&set_id=${searchParams.get("set_id")}&left=a&right=b`,
       );
     }
   };
@@ -380,7 +380,9 @@ const BadmintonBoard = () => {
                   onClick={() => {
                     setEndGame(false);
                     exitFullscreen();
-                    redirect(`/community/events/${params.id}/matches`);
+                    redirect(
+                      `/community/events/${params.id}/tournaments/${params.tid}/matches`,
+                    );
                   }}
                   variant="outline"
                 >

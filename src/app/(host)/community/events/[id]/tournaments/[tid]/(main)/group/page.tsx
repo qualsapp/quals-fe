@@ -1,36 +1,36 @@
-import { getEvent } from "@/actions/event";
 import { getGroups } from "@/actions/group";
 import { getMatches } from "@/actions/match";
+import { getTournament } from "@/actions/tournament";
 import GroupList from "@/components/group/group-list";
 
 import React from "react";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; tid: string }>;
 };
 
 const page = async ({ params }: Props) => {
-  const { id } = await params;
+  const { tid } = await params;
 
-  const event = await getEvent(id);
+  const tournament = await getTournament(tid);
 
-  if (!event) {
-    return <div>No event found</div>;
+  if (!tournament || tournament.error) {
+    return <div>No tournament found</div>;
   }
 
-  if (event?.tournament?.format !== "group_stage") {
+  if (tournament.format !== "group_stage") {
     return (
       <div className="py-10 md:py-16 space-y-10">
         <div className="container flex space-y-10 flex-col items-center">
-          Event is not in group stage format
+          Tournament is not in group stage format
         </div>
       </div>
     );
   }
 
   const [groups, matches] = await Promise.all([
-    getGroups(String(event.tournament.id)),
-    getMatches({ tournament_id: String(event.tournament.id) }),
+    getGroups(String(tournament.id)),
+    getMatches({ tournament_id: String(tournament.id) }),
   ]);
 
   const groupWithMatches = groups?.map((group) => {
@@ -55,9 +55,9 @@ const page = async ({ params }: Props) => {
       <div className="container flex space-y-10 flex-col items-center">
         <GroupList
           groups={groupWithMatches}
-          seatPerGroup={Number(event.tournament.seat_per_group)}
-          tournamentId={String(event.tournament.id)}
-          isEditable={false}
+          seatPerGroup={Number(tournament.seat_per_group)}
+          tournamentId={String(tournament.id)}
+          isEditable={true}
         />
       </div>
     </div>

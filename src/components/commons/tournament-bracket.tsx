@@ -7,12 +7,12 @@ import {
 
 import BracketCard from "./bracket-card";
 import UpdatePlayerForm from "../forms/UpdatePlayerForm";
-import { EventResponse } from "@/types/event";
+import { TournamentResponse } from "@/types/tournament";
 import { Match, MatchComponentProps } from "@/types/bracket";
 
 type Props = {
   matches: Match[];
-  event: EventResponse;
+  tournament: TournamentResponse;
   isEditable?: boolean;
 };
 
@@ -33,7 +33,11 @@ const WhiteTheme = createTheme({
   svgBackground: "#FAFAFA",
 });
 
-const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
+const TournamentBracket = ({
+  matches,
+  tournament,
+  isEditable = false,
+}: Props) => {
   // const { height, width } = useWindowSize();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -84,17 +88,16 @@ const TournamentBracket = ({ matches, event, isEditable = false }: Props) => {
         )}
       />
       {isEditable &&
-        event?.tournament &&
-        event.tournament.id &&
-        event?.tournament?.match_rule?.id &&
+        tournament?.id &&
+        tournament?.match_rule?.id &&
         selectedMatch && (
           <UpdatePlayerForm
             open={open}
             setOpen={setOpen}
-            tournamentId={event?.tournament?.id}
-            match_rule_id={String(event?.tournament?.match_rule?.id)}
+            tournamentId={tournament.id}
+            match_rule_id={String(tournament.match_rule.id)}
             tournamentBracketId={String(selectedMatch.id)}
-            top_advancing_group={event?.tournament.format === "group_stage"}
+            top_advancing_group={tournament.format === "group_stage"}
             participants={selectedMatch.participants}
             court={selectedMatch.court_number}
           />

@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchCard from "@/components/commons/match-card";
 import Modal from "@/components/commons/state-modal";
 
-import { getEvent } from "@/actions/event";
 import { getMatches } from "@/actions/match";
 
 import { FilterParams } from "@/types/global";
@@ -14,28 +13,18 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; tid: string }>;
   searchParams: Promise<FilterParams>;
 };
 
 const page = async ({ params, searchParams }: Props) => {
-  const { id } = await params;
+  const { id, tid } = await params;
   const searchParamsData = await searchParams;
 
-  const event = await getEvent(id);
-
-  if (!event) {
-    return (
-      <div className="py-8 md:py-10 space-y-10">
-        <div className="container flex flex-col items-center">
-          <p>No event found</p>
-        </div>
-      </div>
-    );
-  }
+  const base = `/community/events/${id}/tournaments/${tid}`;
 
   const { matches } = await getMatches({
-    tournament_id: event.tournament?.id,
+    tournament_id: tid,
     ...(searchParamsData.match_tab === "order_of_play"
       ? { ...searchParamsData }
       : { ...searchParamsData, status: "ongoing" }),
@@ -88,30 +77,31 @@ const page = async ({ params, searchParams }: Props) => {
         >
           <TabsList className="mx-auto">
             <TabsTrigger value="live">
-              <Link href={`/events/${id}/matches?match_tab=live`}>Live</Link>
+              <Link href={`${base}/matches?match_tab=live`}>Live</Link>
             </TabsTrigger>
             <TabsTrigger value="order_of_play">
-              <Link href={`/events/${id}/matches?match_tab=order_of_play`}>
+              <Link href={`${base}/matches?match_tab=order_of_play`}>
                 Order of Play
               </Link>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="live">
-            {(matches === null || matches?.length === 0) && (
-              <div className="py-8 md:py-10 space-y-10">
-                <div className="container flex flex-col items-center">
-                  <p>No matches live yet</p>
-                </div>
-              </div>
-            )}
             <div className="grid grid-cols-1 gap-4 place-items-center">
+              {(matches === null || matches?.length === 0) && (
+                <div className="py-8 md:py-10 space-y-10">
+                  <div className="container flex flex-col items-center">
+                    <p>No matches live yet</p>
+                  </div>
+                </div>
+              )}
+
               {matches?.map((match, index) => (
                 <MatchCard
                   key={index}
                   index={index}
                   match={match}
                   type="live"
-                  url={`/events/${id}/matches/${match.id}`}
+                  url={`${base}/matches/${match.id}`}
                 />
               ))}
             </div>
@@ -150,7 +140,7 @@ const page = async ({ params, searchParams }: Props) => {
                           index={index}
                           type="order_of_play"
                           match={match}
-                          url={`/events/${id}/matches/${match.id}`}
+                          url={`${base}/matches/${match.id}`}
                         />
                       ))}
                     </div>

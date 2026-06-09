@@ -15,8 +15,7 @@ import { z } from "zod";
 
 import { Input } from "../ui/input";
 
-import { JoinTournamentParams } from "@/types/tournament";
-import { EventResponse } from "@/types/event";
+import { JoinTournamentParams, TournamentResponse } from "@/types/tournament";
 import { MultiSelect } from "../ui/multi-select";
 import { Button } from "../ui/button";
 import { searchPlayer } from "@/actions/player";
@@ -24,7 +23,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { Participant } from "@/types/bracket";
 
 type Props = {
-  event: EventResponse;
+  tournament: TournamentResponse;
   playerId: string;
   closeModal: () => void;
 };
@@ -45,7 +44,7 @@ const JoinEventScheme = z
     }
   });
 
-const JoinTournamentForm = ({ event, playerId, closeModal }: Props) => {
+const JoinTournamentForm = ({ tournament, playerId, closeModal }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
   const [options, setOptions] = useState<
@@ -61,8 +60,8 @@ const JoinTournamentForm = ({ event, playerId, closeModal }: Props) => {
     defaultValues: {
       participant_a: String(playerId),
       participant_b: "",
-      tournament_format: event.tournament?.category || "",
-      tournament_id: Number(event.tournament?.id) || 0,
+      tournament_format: tournament?.category || "",
+      tournament_id: Number(tournament?.id) || 0,
     },
   });
 

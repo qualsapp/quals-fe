@@ -1,25 +1,24 @@
-import { getEvent } from "@/actions/event";
-import { getTournamentParticipants } from "@/actions/tournament";
+import {
+  getTournament,
+  getTournamentParticipants,
+} from "@/actions/tournament";
 import ParticipantsManager from "@/components/participant/participants-manager";
 
 import React from "react";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; tid: string }>;
 };
 
 const page = async ({ params }: Props) => {
-  const { id } = await params;
+  const { tid } = await params;
 
-  const event = await getEvent(id);
+  const tournament = await getTournament(tid);
 
-  if (!event?.tournament) {
-    return (
-      <div className="container py-10 md:py-16">No tournament found</div>
-    );
+  if (!tournament?.id || tournament.error) {
+    return <div className="container py-10 md:py-16">No tournament found</div>;
   }
 
-  const tournament = event.tournament;
   // MANUAL tournaments are host-managed (add/remove); AUTO is view-only.
   const editable = tournament.mode === "MANUAL";
 

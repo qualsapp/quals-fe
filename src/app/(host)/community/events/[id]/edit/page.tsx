@@ -21,10 +21,7 @@ const page = async ({ params }: Props) => {
       <div className="w-full sm:w-2/3 mx-auto space-y-6 ">
         <div>
           <div>
-            <Link
-              href={`/community/events/${id}/matches`}
-              className="underline"
-            >
+            <Link href={`/community/events/${id}`} className="underline">
               <Button variant="text" className="flex items-center">
                 <ArrowLeft /> Back to Event
               </Button>

@@ -26,7 +26,7 @@ import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { finishMatchApi } from "@/actions/match";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type Props = {
   participant_a: string;
@@ -54,6 +54,7 @@ const WinnerDecider = (props: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const params = useParams();
 
   const form = useForm<z.infer<typeof winnerDeciderScheme>>({
     defaultValues: {
@@ -71,7 +72,9 @@ const WinnerDecider = (props: Props) => {
       if (res.error) {
         setError(res.error);
       } else {
-        router.push(`/community/events/${eventId}/matches`);
+        router.push(
+          `/community/events/${eventId}/tournaments/${params.tid}/matches`,
+        );
         setOpen(false);
       }
     });

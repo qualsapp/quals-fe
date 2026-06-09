@@ -5,28 +5,28 @@ import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import JoinTournamentForm from "../forms/JoinTournamentForm";
 import { Button, buttonVariants } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { EventResponse } from "@/types/event";
+import { TournamentResponse } from "@/types/tournament";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
 
 type Props = {
-  event: EventResponse;
+  tournament: TournamentResponse;
   playerId: string;
 };
 
-const JoinEvent = ({ event, playerId }: Props) => {
+const JoinEvent = ({ tournament, playerId }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const { player } = useUser();
 
   // MANUAL tournaments are managed by the host; players cannot self-join.
-  if (event.tournament?.mode === "MANUAL") {
+  if (tournament?.mode === "MANUAL") {
     return null;
   }
 
-  if (event.tournament?.is_player_joined) {
+  if (tournament?.is_player_joined) {
     return (
       <Badge
         className={cn(
@@ -63,7 +63,7 @@ const JoinEvent = ({ event, playerId }: Props) => {
           {player ? (
             <JoinTournamentForm
               closeModal={handleCloseModal}
-              event={event}
+              tournament={tournament}
               playerId={playerId}
             />
           ) : (

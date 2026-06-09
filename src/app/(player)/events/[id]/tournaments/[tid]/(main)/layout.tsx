@@ -1,18 +1,20 @@
 import { getEvent } from "@/actions/event";
 import { getPlayerDetails } from "@/actions/player";
+import BackButton from "@/components/commons/back-button";
 import DashboardNav from "@/components/commons/dashboard-nav";
 import EventNotFound from "@/components/event/event-not-found";
 import JoinEvent from "@/components/event/join-event";
 import LayoutHead from "@/components/event/layout-head";
+import TournamentSwitcher from "@/components/event/tournament-switcher";
 import React from "react";
 
 type LayoutProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; tid: string }>;
   children: React.ReactNode;
 };
 
-const page = async ({ params, children }: LayoutProps) => {
-  const { id } = await params;
+const layout = async ({ params, children }: LayoutProps) => {
+  const { id, tid } = await params;
 
   const { id: playerId } = await getPlayerDetails();
 
@@ -28,10 +30,11 @@ const page = async ({ params, children }: LayoutProps) => {
     );
   }
 
+  const base = `/events/${id}/tournaments/${tid}`;
   const menus = [
-    { label: "Matches", href: `/events/${id}/matches` },
-    { label: "Group", href: `/events/${id}/group` },
-    { label: "Playoff", href: `/events/${id}/playoff` },
+    { label: "Matches", href: `${base}/matches` },
+    { label: "Group", href: `${base}/group` },
+    { label: "Playoff", href: `${base}/playoff` },
   ];
 
   const event = await getEvent(id);
@@ -43,31 +46,34 @@ const page = async ({ params, children }: LayoutProps) => {
     return <EventNotFound />;
   }
 
-  if (
-    String(event.tournament?.id) === "0" &&
-    event.event_type === "tournament"
-  ) {
-    return (
-      <div className=" py-10 md:py-16 space-y-10">
-        <div className="container flex flex-col lg:flex-row gap-5 justify-between">
-          <LayoutHead event={event} />
-          <div className="flex gap-3 lg:flex-col">
-            <JoinEvent event={event} playerId={playerId} />
-          </div>
-        </div>
-
-        <p>No Tournament found</p>
-      </div>
-    );
-  }
+  const tournaments = event.tournaments || [];
+  const activeTournament = tournaments.find((t) => String(t.id) === tid);
 
   return (
     <div className=" py-10 md:py-16 space-y-10">
-      <div className="container flex flex-col lg:flex-row gap-5 justify-between items-center">
-        <LayoutHead event={event} />
-        <div className="flex gap-3 lg:flex-col">
-          <JoinEvent event={event} playerId={playerId} />
+      <div className="container space-y-4">
+        <BackButton
+          href={`/events/${id}`}
+          variant="link"
+          label="Back to Event"
+          className="!px-0"
+        />
+        <div className="flex flex-col lg:flex-row gap-5 justify-between items-center">
+          <LayoutHead event={event} />
+          <div className="flex gap-3 lg:flex-col">
+            {activeTournament && (
+              <JoinEvent
+                tournament={activeTournament}
+                playerId={String(playerId)}
+              />
+            )}
+          </div>
         </div>
+        <TournamentSwitcher
+          tournaments={tournaments}
+          activeId={tid}
+          basePath={`/events/${id}/tournaments`}
+        />
       </div>
       <div className="bg-primary-50">
         <div className="container">
@@ -80,4 +86,4 @@ const page = async ({ params, children }: LayoutProps) => {
   );
 };
 
-export default page;
+export default layout;
