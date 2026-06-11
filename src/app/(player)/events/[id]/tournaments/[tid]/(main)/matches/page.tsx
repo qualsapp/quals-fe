@@ -29,9 +29,9 @@ const page = async ({ params, searchParams }: Props) => {
       ? { ...searchParamsData }
       : { ...searchParamsData, status: "ongoing" }),
     // The order-of-play / live views are full schedule views, not paginated
-    // lists. Without an explicit page_size the API defaults to 10, which
-    // silently truncates the schedule (e.g. only the first ~2 groups show).
-    page_size: 500,
+    // lists. page_size: 0 asks the API for the unbounded list; without it the
+    // API defaults to 10 and silently truncates the schedule.
+    page_size: 0,
   });
 
   const matchesByRound = () => {
