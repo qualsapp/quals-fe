@@ -83,6 +83,11 @@ const GroupList = ({
                 tournamentId={tournamentId}
                 seatPerGroup={seatPerGroup}
                 participants={selectedGroup.participants as Participant[]}
+                excludedParticipantIds={groups
+                  .filter((g) => g.id !== selectedGroup.id)
+                  .flatMap(
+                    (g) => g.participants?.map((p) => String(p.id)) ?? [],
+                  )}
                 closeModal={() => setOpen(false)}
               />
             )}

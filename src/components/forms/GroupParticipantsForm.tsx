@@ -27,6 +27,8 @@ type Props = {
   seatPerGroup: number;
   closeModal: () => void;
   participants?: Participant[];
+  /** Participant ids already assigned to other groups; excluded from options. */
+  excludedParticipantIds?: string[];
 };
 const JoinEventScheme = z
   .object({
@@ -50,6 +52,7 @@ const GroupParticipantForm = ({
   seatPerGroup,
   closeModal,
   participants,
+  excludedParticipantIds = [],
 }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -87,19 +90,21 @@ const GroupParticipantForm = ({
         );
 
         if (response.participants) {
-          const participantOptions = response.participants.map(
-            (p: Participant) => ({
+          const participantOptions = response.participants
+            // Hide participants already assigned to other groups so the same
+            // team can't be placed in two groups.
+            .filter((p: Participant) => !excludedParticipantIds.includes(String(p.id)))
+            .map((p: Participant) => ({
               label: p.name,
               value: String(p.id),
-            }),
-          );
+            }));
           setOptions(participantOptions);
         }
       } catch (error) {
         console.error("Failed to fetch participants:", error);
       }
     },
-    [tournamentId],
+    [tournamentId, excludedParticipantIds],
   );
 
   useEffect(() => {
@@ -138,6 +143,7 @@ const GroupParticipantForm = ({
                   onValueChange={onChange}
                   defaultValue={field.value}
                   maxSelected={seatPerGroup}
+                  hideSelectAll
                   onSearchValueChange={setSearch}
                   placeholder={`Select up to ${seatPerGroup} participants`}
                 />
