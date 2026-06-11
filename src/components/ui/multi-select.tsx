@@ -210,6 +210,15 @@ interface MultiSelectProps
   singleLine?: boolean;
 
   /**
+   * If true, dynamically shows as many selected badges as fit the available
+   * width on a single line, collapsing the remainder into a "+ N more" badge.
+   * Measures actual badge widths via a ResizeObserver, so it adapts to both
+   * container size and content. Overrides `maxCount` when enabled.
+   * Optional, defaults to false.
+   */
+  autoFit?: boolean;
+
+  /**
    * Custom CSS class for the popover content.
    * Optional, can be used to customize popover appearance.
    */
@@ -288,6 +297,18 @@ interface MultiSelectProps
    * Useful for implementing server-side filtering.
    */
   onSearchValueChange?: (value: string) => void;
+
+  /**
+   * Optional primary action shown in the footer. When provided and at least one
+   * option is selected, the footer renders "Clear | <label>" (replacing the
+   * default "Close"). Lets a consumer wire up a confirm/submit action without
+   * coupling this generic component to a specific form.
+   */
+  confirmButton?: {
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+  };
 }
 
 /**
@@ -335,6 +356,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       emptyIndicator,
       autoSize = false,
       singleLine = false,
+      autoFit = false,
       popoverClassName,
       disabled = false,
       responsive,
@@ -344,6 +366,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       resetOnDefaultValueChange = true,
       closeOnSelect = false,
       onSearchValueChange,
+      confirmButton,
       ...props
     },
     ref,
@@ -353,6 +376,12 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isAnimating, setIsAnimating] = React.useState(false);
     const [searchValue, setSearchValue] = React.useState("");
+    const [autoVisibleCount, setAutoVisibleCount] = React.useState<number>(
+      defaultValue.length,
+    );
+
+    const badgeContainerRef = React.useRef<HTMLDivElement>(null);
+    const ghostRef = React.useRef<HTMLDivElement>(null);
 
     const [politeMessage, setPoliteMessage] = React.useState("");
     const [assertiveMessage, setAssertiveMessage] = React.useState("");
@@ -495,6 +524,13 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     };
 
     const responsiveSettings = getResponsiveSettings();
+
+    // When autoFit is on, the visible count is measured against the available
+    // width (see the ResizeObserver effect below); otherwise fall back to the
+    // static maxCount.
+    const effectiveMaxCount = autoFit
+      ? autoVisibleCount
+      : responsiveSettings.maxCount;
 
     const getBadgeAnimationClass = () => {
       if (animationConfig?.badgeAnimation) {
@@ -671,10 +707,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
 
     const clearExtraOptions = () => {
       if (disabled) return;
-      const newSelectedValues = selectedValues.slice(
-        0,
-        responsiveSettings.maxCount,
-      );
+      const newSelectedValues = selectedValues.slice(0, effectiveMaxCount);
       setSelectedValues(newSelectedValues);
       onValueChange(newSelectedValues);
     };
@@ -728,6 +761,47 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
         setSearchValue("");
       }
     }, [isPopoverOpen]);
+
+    // autoFit: measure each selected badge against the available width and show
+    // as many as fit on one line, reserving room for the "+ N more" badge.
+    React.useEffect(() => {
+      if (!autoFit) return;
+      const container = badgeContainerRef.current;
+      const ghost = ghostRef.current;
+      if (!container || !ghost) return;
+
+      const GAP = 4; // px, matches the gap-1 between badges
+
+      const recompute = () => {
+        const available = container.clientWidth;
+        const nodes = Array.from(ghost.children) as HTMLElement[];
+        // The ghost renders every badge plus a trailing "+ N more" sample.
+        if (nodes.length <= 1) return;
+        const moreWidth = nodes[nodes.length - 1].offsetWidth;
+        const badgeNodes = nodes.slice(0, -1);
+
+        let used = 0;
+        let count = 0;
+        for (let i = 0; i < badgeNodes.length; i++) {
+          const width = badgeNodes[i].offsetWidth + (i > 0 ? GAP : 0);
+          const hasRemaining = i < badgeNodes.length - 1;
+          const reserve = hasRemaining ? moreWidth + GAP : 0;
+          if (used + width + reserve <= available) {
+            used += width;
+            count += 1;
+          } else {
+            break;
+          }
+        }
+        // Always show at least one badge, even if it overflows.
+        setAutoVisibleCount(Math.max(1, count));
+      };
+
+      recompute();
+      const observer = new ResizeObserver(recompute);
+      observer.observe(container);
+      return () => observer.disconnect();
+    }, [autoFit, selectedValues, options]);
 
     React.useEffect(() => {
       const selectedCount = selectedValues.length;
@@ -792,6 +866,84 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       }
     }, [selectedValues, isPopoverOpen, searchValue, announce, getAllOptions]);
 
+    const renderSelectedBadge = (value: string) => {
+      const option = getOptionByValue(value);
+      const IconComponent = option?.icon;
+      const customStyle = option?.style;
+      if (!option) {
+        return null;
+      }
+      const badgeStyle: React.CSSProperties = {
+        animationDuration: `${animation}s`,
+        ...(customStyle?.badgeColor && {
+          backgroundColor: customStyle.badgeColor,
+        }),
+        ...(customStyle?.gradient && {
+          background: customStyle.gradient,
+          color: "white",
+        }),
+      };
+      return (
+        <Badge
+          key={value}
+          className={cn(
+            getBadgeAnimationClass(),
+            multiSelectVariants({ variant }),
+            customStyle?.gradient && "text-white border-transparent",
+            responsiveSettings.compactMode && "text-xs px-1.5 py-0.5",
+            screenSize === "mobile" && "max-w-[120px] truncate",
+            (singleLine || autoFit) && "whitespace-nowrap flex-shrink-0",
+            "[&>svg]:pointer-events-auto ",
+          )}
+          style={{
+            ...badgeStyle,
+            animationDuration: `${animationConfig?.duration || animation}s`,
+            animationDelay: `${animationConfig?.delay || 0}s`,
+          }}
+        >
+          {IconComponent && !responsiveSettings.hideIcons && (
+            <IconComponent
+              className={cn(
+                "h-4 w-4  mr-2",
+                responsiveSettings.compactMode && "h-3 w-3 mr-1",
+                customStyle?.iconColor && "text-current",
+              )}
+              {...(customStyle?.iconColor && {
+                style: { color: customStyle.iconColor },
+              })}
+            />
+          )}
+          <span className={cn(screenSize === "mobile" && "truncate")}>
+            {option.label}
+          </span>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleOption(value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleOption(value);
+              }
+            }}
+            aria-label={`Remove ${option.label} from selection`}
+            className="ml-2 h-4 w-4 cursor-pointer hover:bg-white/20 rounded-sm p-0.5 -m-0.5 -mt-1.5 focus:outline-none focus:ring-1 focus:ring-white/50"
+          >
+            <XCircle
+              className={cn(
+                "h-3 w-3",
+                responsiveSettings.compactMode && "h-2.5 w-2.5",
+              )}
+            />
+          </div>
+        </Badge>
+      );
+    };
+
     return (
       <>
         <div className="sr-only">
@@ -853,15 +1005,18 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
               {selectedValues.length > 0 ? (
                 <div className="flex justify-between items-center w-full">
                   <div
+                    ref={badgeContainerRef}
                     className={cn(
                       "flex items-center gap-1",
-                      singleLine
-                        ? "overflow-x-auto multiselect-singleline-scroll"
-                        : "flex-wrap",
+                      autoFit
+                        ? "flex-nowrap overflow-hidden min-w-0 flex-1"
+                        : singleLine
+                          ? "overflow-x-auto multiselect-singleline-scroll"
+                          : "flex-wrap",
                       responsiveSettings.compactMode && "gap-0.5",
                     )}
                     style={
-                      singleLine
+                      singleLine && !autoFit
                         ? {
                             paddingBottom: "4px",
                           }
@@ -869,100 +1024,10 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                     }
                   >
                     {selectedValues
-                      .slice(0, responsiveSettings.maxCount)
-                      .map((value) => {
-                        const option = getOptionByValue(value);
-                        const IconComponent = option?.icon;
-                        const customStyle = option?.style;
-                        if (!option) {
-                          return null;
-                        }
-                        const badgeStyle: React.CSSProperties = {
-                          animationDuration: `${animation}s`,
-                          ...(customStyle?.badgeColor && {
-                            backgroundColor: customStyle.badgeColor,
-                          }),
-                          ...(customStyle?.gradient && {
-                            background: customStyle.gradient,
-                            color: "white",
-                          }),
-                        };
-                        return (
-                          <Badge
-                            key={value}
-                            className={cn(
-                              getBadgeAnimationClass(),
-                              multiSelectVariants({ variant }),
-                              customStyle?.gradient &&
-                                "text-white border-transparent",
-                              responsiveSettings.compactMode &&
-                                "text-xs px-1.5 py-0.5",
-                              screenSize === "mobile" &&
-                                "max-w-[120px] truncate",
-                              singleLine && "whitespace-nowrap",
-                              "[&>svg]:pointer-events-auto ",
-                            )}
-                            style={{
-                              ...badgeStyle,
-                              animationDuration: `${
-                                animationConfig?.duration || animation
-                              }s`,
-                              animationDelay: `${animationConfig?.delay || 0}s`,
-                            }}
-                          >
-                            {IconComponent && !responsiveSettings.hideIcons && (
-                              <IconComponent
-                                className={cn(
-                                  "h-4 w-4  mr-2",
-                                  responsiveSettings.compactMode &&
-                                    "h-3 w-3 mr-1",
-                                  customStyle?.iconColor && "text-current",
-                                )}
-                                {...(customStyle?.iconColor && {
-                                  style: { color: customStyle.iconColor },
-                                })}
-                              />
-                            )}
-                            <span
-                              className={cn(
-                                screenSize === "mobile" && "truncate",
-                              )}
-                            >
-                              {option.label}
-                            </span>
-                            <div
-                              role="button"
-                              tabIndex={0}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                toggleOption(value);
-                              }}
-                              onKeyDown={(event) => {
-                                if (
-                                  event.key === "Enter" ||
-                                  event.key === " "
-                                ) {
-                                  event.preventDefault();
-                                  event.stopPropagation();
-                                  toggleOption(value);
-                                }
-                              }}
-                              aria-label={`Remove ${option.label} from selection`}
-                              className="ml-2 h-4 w-4 cursor-pointer hover:bg-white/20 rounded-sm p-0.5 -m-0.5 -mt-1.5 focus:outline-none focus:ring-1 focus:ring-white/50"
-                            >
-                              <XCircle
-                                className={cn(
-                                  "h-3 w-3",
-                                  responsiveSettings.compactMode &&
-                                    "h-2.5 w-2.5",
-                                )}
-                              />
-                            </div>
-                          </Badge>
-                        );
-                      })
+                      .slice(0, effectiveMaxCount)
+                      .map(renderSelectedBadge)
                       .filter(Boolean)}
-                    {selectedValues.length > responsiveSettings.maxCount && (
+                    {selectedValues.length > effectiveMaxCount && (
                       <Badge
                         className={cn(
                           "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
@@ -970,7 +1035,8 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                           multiSelectVariants({ variant }),
                           responsiveSettings.compactMode &&
                             "text-xs px-1.5 py-0.5",
-                          singleLine && "flex-shrink-0 whitespace-nowrap",
+                          (singleLine || autoFit) &&
+                            "flex-shrink-0 whitespace-nowrap",
                           "[&>svg]:pointer-events-auto",
                         )}
                         style={{
@@ -980,9 +1046,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                           animationDelay: `${animationConfig?.delay || 0}s`,
                         }}
                       >
-                        {`+ ${
-                          selectedValues.length - responsiveSettings.maxCount
-                        } more`}
+                        {`+ ${selectedValues.length - effectiveMaxCount} more`}
                         <XCircle
                           className={cn(
                             "ml-2 h-4 w-4 cursor-pointer",
@@ -996,6 +1060,33 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                       </Badge>
                     )}
                   </div>
+                  {autoFit && (
+                    <div
+                      ref={ghostRef}
+                      aria-hidden="true"
+                      className="absolute flex items-center gap-1 opacity-0 pointer-events-none"
+                      style={{ left: -9999, top: 0, whiteSpace: "nowrap" }}
+                    >
+                      {selectedValues.map(renderSelectedBadge).filter(Boolean)}
+                      <Badge
+                        className={cn(
+                          "bg-transparent text-foreground border-foreground/1",
+                          multiSelectVariants({ variant }),
+                          responsiveSettings.compactMode &&
+                            "text-xs px-1.5 py-0.5",
+                          "flex-shrink-0 whitespace-nowrap",
+                        )}
+                      >
+                        {`+ ${selectedValues.length} more`}
+                        <XCircle
+                          className={cn(
+                            "ml-2 h-4 w-4",
+                            responsiveSettings.compactMode && "ml-1 h-3 w-3",
+                          )}
+                        />
+                      </Badge>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <div
                       role="button"
@@ -1230,12 +1321,30 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                         />
                       </>
                     )}
-                    <CommandItem
-                      onSelect={() => setIsPopoverOpen(false)}
-                      className="flex-1 justify-center cursor-pointer max-w-full"
-                    >
-                      Close
-                    </CommandItem>
+                    {confirmButton && selectedValues.length > 0 ? (
+                      <CommandItem
+                        onSelect={() => {
+                          if (confirmButton.disabled) return;
+                          confirmButton.onClick();
+                        }}
+                        disabled={confirmButton.disabled}
+                        aria-disabled={confirmButton.disabled}
+                        className={cn(
+                          "flex-1 justify-center cursor-pointer max-w-full font-medium",
+                          confirmButton.disabled &&
+                            "opacity-50 cursor-not-allowed",
+                        )}
+                      >
+                        {confirmButton.label}
+                      </CommandItem>
+                    ) : (
+                      <CommandItem
+                        onSelect={() => setIsPopoverOpen(false)}
+                        className="flex-1 justify-center cursor-pointer max-w-full"
+                      >
+                        Close
+                      </CommandItem>
+                    )}
                   </div>
                 </CommandGroup>
               </CommandList>

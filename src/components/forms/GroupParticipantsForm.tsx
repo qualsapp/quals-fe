@@ -111,6 +111,8 @@ const GroupParticipantForm = ({
     fetchParticipants(debouncedSearch);
   }, [debouncedSearch, fetchParticipants]);
 
+  const selectedCount = form.watch("participant_ids").length;
+
   const onSubmit = (data: z.infer<typeof JoinEventScheme>) => {
     const params: GroupParticipantsParams = {
       participant_ids: data.participant_ids.map((id) => Number(id)),
@@ -143,9 +145,16 @@ const GroupParticipantForm = ({
                   onValueChange={onChange}
                   defaultValue={field.value}
                   maxSelected={seatPerGroup}
+                  maxCount={seatPerGroup}
+                  autoFit
                   hideSelectAll
                   onSearchValueChange={setSearch}
                   placeholder={`Select up to ${seatPerGroup} participants`}
+                  confirmButton={{
+                    label: isPending ? "Updating..." : "Update Participants",
+                    onClick: () => form.handleSubmit(onSubmit)(),
+                    disabled: isPending || selectedCount !== seatPerGroup,
+                  }}
                 />
               </FormControl>
               <FormMessage />
