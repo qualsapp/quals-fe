@@ -1,12 +1,8 @@
 "use client";
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogOverlay,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
 type Props = {
   children: React.ReactNode;
@@ -15,18 +11,29 @@ type Props = {
 const Modal = (props: Props) => {
   const router = useRouter();
 
-  const handleOnOpenChange = () => {
+  const handleClose = () => {
     router.back();
   };
 
   return (
-    <Dialog defaultOpen={true} open={true} onOpenChange={handleOnOpenChange}>
-      <DialogOverlay className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto">
-        <DialogContent className="overflow-y-hidden">
-          <DialogTitle></DialogTitle>
+    <Dialog defaultOpen open onOpenChange={handleClose}>
+      <DialogContent
+        showCloseButton={false}
+        className="w-[min(92vw,26rem)] max-w-none border-0 bg-transparent p-0 shadow-none sm:max-w-none"
+      >
+        <DialogTitle className="sr-only">Welcome to Quals</DialogTitle>
+        <div className="relative overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10">
           {props.children}
-        </DialogContent>
-      </DialogOverlay>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Close"
+            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition hover:bg-black/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      </DialogContent>
     </Dialog>
   );
 };
