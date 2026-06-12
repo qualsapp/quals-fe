@@ -50,7 +50,10 @@ const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
   const tab = pathname.split("/").pop() || "matches";
   const isMatches = tab === "matches";
 
-  const active = tournaments.find((t) => String(t.id) === String(activeId));
+  const isAllMode = searchParams.get("all_tournaments") === "true";
+  const active = !isAllMode
+    ? tournaments.find((t) => String(t.id) === String(activeId))
+    : undefined;
   const status = searchParams.get("status") || "";
 
   const setStatus = (value: string) => {
@@ -59,6 +62,12 @@ const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
     else params.delete("status");
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
+  };
+
+  const setAllMode = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("all_tournaments", "true");
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -72,15 +81,26 @@ const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex h-9 items-center gap-2 rounded-lg border border-primary/20 bg-white px-3 text-sm font-semibold text-primary capitalize outline-none transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-primary/30">
             <span className="h-[7px] w-[7px] rounded-[2px] bg-secondary" />
-            {active ? tournamentLabel(active) : "All tournaments"}
+            {isAllMode || !active ? "All tournaments" : tournamentLabel(active)}
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="min-w-[200px]">
             <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
               Tournament
             </DropdownMenuLabel>
+            {/* All tournaments option */}
+            <DropdownMenuItem
+              className={cn(
+                "flex cursor-pointer items-center justify-between",
+                isAllMode && "font-semibold text-primary",
+              )}
+              onClick={setAllMode}
+            >
+              All tournaments
+              {isAllMode && <Check className="h-4 w-4 text-primary" />}
+            </DropdownMenuItem>
             {tournaments.map((t) => {
-              const isActive = String(t.id) === String(activeId);
+              const isActive = !isAllMode && String(t.id) === String(activeId);
               return (
                 <DropdownMenuItem key={t.id} asChild>
                   <Link

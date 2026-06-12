@@ -27,6 +27,7 @@ export type FilterParams = {
   page?: number;
   page_size?: number;
   welcome?: boolean;
+  all_tournaments?: string;
 };
 
 export type ApiResponse<T> = {
