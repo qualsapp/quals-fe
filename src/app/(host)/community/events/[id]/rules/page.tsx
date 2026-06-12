@@ -41,7 +41,7 @@ const page = async ({ params, searchParams }: Props) => {
     <div className="container lg:py-16 py-8 space-y-10">
       <div>
         <div>
-          <Link href={`/community/events/${id}`} className="underline">
+          <Link href={tid ? `/community/events/${id}/matches?tournament=${tid}` : `/community/events/${id}`} className="underline">
             <Button variant="text" className="flex items-center">
               <ArrowLeft /> Back to Event
             </Button>

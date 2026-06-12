@@ -148,7 +148,7 @@ const RulesForm = ({ tournament, eventId }: Props) => {
       setIsRedirecting(true);
       const tournamentId = tournament?.id || result.id;
       router.push(
-        `/community/events/${eventId}/tournaments/${tournamentId}/matches?welcome=true`,
+        `/community/events/${eventId}/matches?tournament=${tournamentId}&welcome=true`,
       );
     });
   };
