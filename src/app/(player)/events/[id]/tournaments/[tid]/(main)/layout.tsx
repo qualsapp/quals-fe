@@ -5,7 +5,7 @@ import DashboardNav from "@/components/commons/dashboard-nav";
 import EventNotFound from "@/components/event/event-not-found";
 import JoinEvent from "@/components/event/join-event";
 import LayoutHead from "@/components/event/layout-head";
-import TournamentSwitcher from "@/components/event/tournament-switcher";
+import TabFilterBar from "@/components/event/tab-filter-bar";
 import React from "react";
 
 type LayoutProps = {
@@ -69,16 +69,19 @@ const layout = async ({ params, children }: LayoutProps) => {
             )}
           </div>
         </div>
-        <TournamentSwitcher
-          tournaments={tournaments}
-          activeId={tid}
-          basePath={`/events/${id}/tournaments`}
-        />
       </div>
       <div className="bg-primary-50">
         <div className="container">
           <DashboardNav menus={menus} />
         </div>
+      </div>
+
+      <div className="container">
+        <TabFilterBar
+          tournaments={tournaments}
+          activeId={tid}
+          basePath={`/events/${id}/tournaments`}
+        />
       </div>
 
       {children}

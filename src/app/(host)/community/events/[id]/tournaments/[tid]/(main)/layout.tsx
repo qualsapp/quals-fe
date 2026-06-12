@@ -5,7 +5,7 @@ import DashboardNav from "@/components/commons/dashboard-nav";
 import EventNotFound from "@/components/event/event-not-found";
 import LayoutActions from "@/components/event/layout-actions";
 import LayoutHead from "@/components/event/layout-head";
-import TournamentSwitcher from "@/components/event/tournament-switcher";
+import TabFilterBar from "@/components/event/tab-filter-bar";
 
 type LayoutProps = {
   params: Promise<{ id: string; tid: string }>;
@@ -47,19 +47,25 @@ const layout = async ({ params, children }: LayoutProps) => {
         </div>
         <div className="flex flex-col lg:flex-row gap-5 justify-between">
           <LayoutHead event={event} />
-          <LayoutActions event={event} tournamentId={tid} />
+          <LayoutActions
+            event={event}
+            tournamentId={tid}
+            addHref={`/community/events/${id}/rules?type=${event.sport_type?.slug}`}
+          />
         </div>
-        <TournamentSwitcher
-          tournaments={event.tournaments || []}
-          activeId={tid}
-          basePath={`/community/events/${id}/tournaments`}
-          addHref={`/community/events/${id}/rules?type=${event.sport_type?.slug}`}
-        />
       </div>
       <div className="bg-primary-50">
         <div className="container">
           <DashboardNav menus={menus} />
         </div>
+      </div>
+
+      <div className="container">
+        <TabFilterBar
+          tournaments={event.tournaments || []}
+          activeId={tid}
+          basePath={`/community/events/${id}/tournaments`}
+        />
       </div>
 
       {children}

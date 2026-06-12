@@ -13,6 +13,17 @@ const reportToSentry = (error: unknown) => {
   if (error instanceof ApiClientError && isExpectedClientError(error.status))
     return;
   if (error instanceof Response && isExpectedClientError(error.status)) return;
+  if (error instanceof ApiClientError) {
+    Sentry.captureException(error, {
+      contexts: {
+        api_response: {
+          status: error.status,
+          body: error.body,
+        },
+      },
+    });
+    return;
+  }
   Sentry.captureException(error);
 };
 

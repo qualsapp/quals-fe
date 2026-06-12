@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatchCard from "@/components/commons/match-card";
 import Modal from "@/components/commons/state-modal";
 
@@ -10,7 +9,6 @@ import { getMatches } from "@/actions/match";
 import { FilterParams } from "@/types/global";
 import { MatchResponse } from "@/types/match";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 type Props = {
   params: Promise<{ id: string; tid: string }>;
@@ -23,21 +21,19 @@ const page = async ({ params, searchParams }: Props) => {
 
   const base = `/events/${id}/tournaments/${tid}`;
 
+  // `status` is now driven by the Filter-by bar (e.g. ongoing | scheduled |
+  // completed); empty = all matches. It is already an API-valid value, so it
+  // passes straight through. page_size: 0 asks the API for the full schedule.
   const { matches } = await getMatches({
     tournament_id: tid,
-    ...(searchParamsData.match_tab === "order_of_play"
-      ? { ...searchParamsData }
-      : { ...searchParamsData, status: "ongoing" }),
-    // The order-of-play / live views are full schedule views, not paginated
-    // lists. page_size: 0 asks the API for the unbounded list; without it the
-    // API defaults to 10 and silently truncates the schedule.
+    ...searchParamsData,
     page_size: 0,
   });
 
   const matchesByRound = () => {
     if (!matches) return [];
 
-    const round = Object.values(
+    return Object.values(
       matches.reduce(
         (acc, match) => {
           const round = match.tournament_bracket?.round_name || "Unknown Round";
@@ -50,8 +46,6 @@ const page = async ({ params, searchParams }: Props) => {
         {} as Record<string, { round: string; matches: MatchResponse[] }>,
       ),
     );
-
-    return round;
   };
 
   const matchesByCourt = (matches: MatchResponse[]) => {
@@ -73,86 +67,49 @@ const page = async ({ params, searchParams }: Props) => {
   };
 
   return (
-    <div className="py-8 md:py-10 space-y-10">
-      <div className="container flex flex-col items-center">
-        <Tabs
-          defaultValue={searchParamsData.match_tab || "live"}
-          className="w-full space-y-10"
-        >
-          <TabsList className="mx-auto">
-            <TabsTrigger value="live">
-              <Link href={`${base}/matches?match_tab=live`}>Live</Link>
-            </TabsTrigger>
-            <TabsTrigger value="order_of_play">
-              <Link href={`${base}/matches?match_tab=order_of_play`}>
-                Order of Play
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="live">
-            {(matches === null || matches?.length === 0) && (
-              <div className="py-8 md:py-10 space-y-10">
-                <div className="container flex flex-col items-center">
-                  <p>No matches live yet</p>
-                </div>
-              </div>
-            )}
-            <div className="grid grid-cols-1 gap-4 place-items-center">
-              {matches?.map((match, index) => (
-                <MatchCard
-                  key={index}
-                  index={index}
-                  match={match}
-                  type="live"
-                  url={`${base}/matches/${match.id}`}
-                />
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value="order_of_play" className="flex flex-col gap-16">
-            {(matches === null || matches?.length === 0) && (
-              <div className="py-8 md:py-10 space-y-10">
-                <div className="container flex flex-col items-center">
-                  <p>No matches yet</p>
-                </div>
-              </div>
-            )}
+    <div className="py-2 md:py-4 space-y-10">
+      <div className="container flex flex-col gap-16">
+        {(matches === null || matches?.length === 0) && (
+          <div className="flex flex-col items-center py-10">
+            <p className="text-muted-foreground">
+              No matches found for this filter.
+            </p>
+          </div>
+        )}
 
-            {matchesByRound().map((round) => (
-              <div key={round.round} className="space-y-4">
-                <h3 className="text-4xl font-bold text-center text-neutral-300 border-y py-3">
-                  {round.round}
-                </h3>
+        {matchesByRound().map((round) => (
+          <div key={round.round} className="space-y-4">
+            <h3 className="text-4xl font-bold text-center text-neutral-300 border-y py-3">
+              {round.round}
+            </h3>
+            <div
+              className={cn(
+                "grid gap-y-16 md:gap-8 md:gap-y-16",
+                `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`,
+              )}
+            >
+              {matchesByCourt(round.matches).map((court) => (
                 <div
-                  className={cn(
-                    "grid gap-y-16 md:gap-8 md:gap-y-16",
-                    `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`,
-                  )}
+                  key={court.court}
+                  className="space-y-4 flex flex-col items-center"
                 >
-                  {matchesByCourt(round.matches).map((court) => (
-                    <div
-                      key={court.court}
-                      className="space-y-4 flex flex-col items-center"
-                    >
-                      <h3 className="text-xl font-bold text-center">
-                        Court {court.court}
-                      </h3>
-                      {court.matches.map((match, index) => (
-                        <MatchCard
-                          key={index}
-                          index={index}
-                          type="order_of_play"
-                          match={match}
-                          url={`${base}/matches/${match.id}`}
-                        />
-                      ))}
-                    </div>
+                  <h3 className="text-xl font-bold text-center">
+                    Court {court.court}
+                  </h3>
+                  {court.matches.map((match, index) => (
+                    <MatchCard
+                      key={index}
+                      index={index}
+                      type="order_of_play"
+                      match={match}
+                      url={`${base}/matches/${match.id}`}
+                    />
                   ))}
                 </div>
-              </div>
-            )) || []}
-          </TabsContent>
-        </Tabs>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
       <Modal isOpen={searchParamsData.welcome || false}>
