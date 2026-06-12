@@ -158,8 +158,8 @@ const page = async ({ params, searchParams }: Props) => {
 
       <Modal isOpen={searchParamsData.welcome || false}>
         <Image
-          width={1920}
-          height={1080}
+          width={1024}
+          height={1536}
           src="/images/welcome.jpeg"
           alt="welcome"
         />
