@@ -49,6 +49,7 @@ const LoginForm = () => {
   });
 
   const onSubmit = (data: z.infer<typeof LoginScheme>) => {
+    setError(undefined);
     startTransition(async () => {
       const { error, token } = await login(data);
 
