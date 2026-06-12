@@ -96,73 +96,91 @@ const page = async ({ params, searchParams }: Props) => {
 
   const isAllMode = all_tournaments === "true";
 
-  type TournamentMatches = {
-    tournament: TournamentResponse;
-    matches: MatchResponse[];
-  };
-
-  let singleMatches: MatchResponse[] = [];
-  let tournamentGroups: TournamentMatches[] = [];
-
   if (isAllMode) {
-    const event = await getEvent(id);
+    // Single request filtered by event_id — no N+1 calls.
+    const [{ matches: allMatches }, event] = await Promise.all([
+      getMatches({ event_id: id, ...apiParams, page_size: 0 }),
+      getEvent(id),
+    ]);
+
     const tournaments = event?.tournaments || [];
-    tournamentGroups = (
-      await Promise.all(
-        tournaments.map(async (t) => {
-          const { matches } = await getMatches({
-            tournament_id: String(t.id),
-            ...apiParams,
-            page_size: 0,
-          });
-          return { tournament: t, matches: matches || [] };
-        }),
-      )
-    ).filter((g) => g.matches.length > 0);
-  } else {
-    // `status` is now driven by the Filter-by bar (e.g. ongoing | scheduled |
-    // completed); empty = all matches. It is already an API-valid value, so it
-    // passes straight through. page_size: 0 asks the API for the full schedule
-    // (without it the API defaults to 10 and silently truncates).
-    const { matches } = await getMatches({
-      tournament_id: tid,
-      ...apiParams,
-      page_size: 0,
-    });
-    singleMatches = matches || [];
+
+    // Build a label map keyed by tournament id.
+    const labelMap = Object.fromEntries(
+      tournaments.map((t) => [String(t.id), tournamentLabel(t)]),
+    );
+
+    // Group matches by their bracket's tournament_id.
+    const byTournament = (allMatches ?? []).reduce(
+      (acc, match) => {
+        const tId = String(match.tournament_bracket?.tournament_id ?? "");
+        if (!acc[tId]) acc[tId] = [];
+        acc[tId].push(match);
+        return acc;
+      },
+      {} as Record<string, MatchResponse[]>,
+    );
+
+    const isEmpty = Object.keys(byTournament).length === 0;
+
+    return (
+      <div className="py-2 md:py-4 space-y-10">
+        <div className="container flex flex-col gap-16">
+          {isEmpty && (
+            <div className="flex flex-col items-center py-10">
+              <p className="text-muted-foreground">
+                No matches found for this filter.
+              </p>
+            </div>
+          )}
+          {Object.entries(byTournament).map(([tId, matches]) => (
+            <div key={tId} className="space-y-8">
+              <h2 className="text-2xl font-bold text-center capitalize border-b-2 border-primary pb-2">
+                {labelMap[tId] ?? `Tournament ${tId}`}
+              </h2>
+              <RoundGrid
+                matches={matches}
+                base={`/community/events/${id}/tournaments/${tId}`}
+              />
+            </div>
+          ))}
+        </div>
+        <Modal isOpen={welcome || false}>
+          <Image
+            width={1024}
+            height={1536}
+            src="/images/welcome.jpeg"
+            alt="welcome"
+          />
+        </Modal>
+      </div>
+    );
   }
 
-  const isEmpty = isAllMode
-    ? tournamentGroups.length === 0
-    : singleMatches.length === 0;
+  // Single-tournament mode — unchanged behaviour.
+  // `status` is now driven by the Filter-by bar (e.g. ongoing | scheduled |
+  // completed); empty = all matches. It is already an API-valid value, so it
+  // passes straight through. page_size: 0 asks the API for the full schedule
+  // (without it the API defaults to 10 and silently truncates).
+  const { matches } = await getMatches({
+    tournament_id: tid,
+    ...apiParams,
+    page_size: 0,
+  });
+
+  const base = `/community/events/${id}/tournaments/${tid}`;
 
   return (
     <div className="py-2 md:py-4 space-y-10">
       <div className="container flex flex-col gap-16">
-        {isEmpty && (
+        {(!matches || matches.length === 0) && (
           <div className="flex flex-col items-center py-10">
             <p className="text-muted-foreground">
               No matches found for this filter.
             </p>
           </div>
         )}
-
-        {isAllMode
-          ? tournamentGroups.map(({ tournament, matches }) => {
-              const base = `/community/events/${id}/tournaments/${tournament.id}`;
-              return (
-                <div key={tournament.id} className="space-y-8">
-                  <h2 className="text-2xl font-bold text-center capitalize border-b-2 border-primary pb-2">
-                    {tournamentLabel(tournament)}
-                  </h2>
-                  <RoundGrid matches={matches} base={base} />
-                </div>
-              );
-            })
-          : (() => {
-              const base = `/community/events/${id}/tournaments/${tid}`;
-              return <RoundGrid matches={singleMatches} base={base} />;
-            })()}
+        <RoundGrid matches={matches ?? []} base={base} />
       </div>
 
       <Modal isOpen={welcome || false}>

@@ -133,6 +133,7 @@ export interface DetailMatchResponse extends MatchResponse {
 
 export interface BracketResponse {
   id: number;
+  tournament_id: number;
   match_number: number;
   round: number;
   round_code: string;

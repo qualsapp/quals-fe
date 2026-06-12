@@ -23,6 +23,7 @@ export type FilterParams = {
   sport_type?: string;
   sports?: string;
   tournament_id?: string;
+  event_id?: string;
   top_advancing_group?: boolean;
   page?: number;
   page_size?: number;

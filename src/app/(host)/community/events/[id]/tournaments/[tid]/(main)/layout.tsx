@@ -39,9 +39,9 @@ const layout = async ({ params, children }: LayoutProps) => {
       <div className="container space-y-4">
         <div className="mb-2">
           <BackButton
-            href={`/community/events/${id}`}
+            href={`/community/events`}
             variant="link"
-            label="Back to Event"
+            label="Back to Events"
             className="!px-0"
           />
         </div>
