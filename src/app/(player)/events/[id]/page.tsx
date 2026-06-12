@@ -21,8 +21,6 @@ const page = async ({ params }: Props) => {
   }
 
   const tournaments = event.tournaments || [];
-  const tournamentsBase = `/events/${id}/tournaments`;
-
   return (
     <div className="py-10 md:py-16 space-y-10">
       <div className="container space-y-8">
@@ -41,7 +39,7 @@ const page = async ({ params }: Props) => {
                 <TournamentCard
                   key={tournament.id}
                   tournament={tournament}
-                  href={`${tournamentsBase}/${tournament.id}/matches`}
+                  href={`/events/${id}/matches?tournament=${tournament.id}`}
                   actions={
                     playerId ? (
                       <JoinEvent

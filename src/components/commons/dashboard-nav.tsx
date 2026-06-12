@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type Props = {
   menus: { label: string; href: string }[];
@@ -16,6 +16,13 @@ type Props = {
 
 const DashboardNav = ({ menus }: Props) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tournamentParam = searchParams.get("tournament");
+
+  const hrefWithTournament = (href: string) => {
+    if (!tournamentParam) return href;
+    return `${href}?tournament=${tournamentParam}`;
+  };
 
   return (
     <NavigationMenu>
@@ -32,7 +39,7 @@ const DashboardNav = ({ menus }: Props) => {
                   : "",
               )}
             >
-              <Link href={item.href} className="text-primary">
+              <Link href={hrefWithTournament(item.href)} className="text-primary">
                 {item.label}
               </Link>
             </NavigationMenuLink>

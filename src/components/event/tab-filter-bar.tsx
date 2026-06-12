@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronDown, ListFilter } from "lucide-react";
 import {
@@ -16,13 +15,8 @@ import { TournamentResponse } from "@/types/tournament";
 
 type Props = {
   tournaments: TournamentResponse[];
-  activeId: string;
-  // Base path to a tournament's tabs, e.g. "/community/events/12/tournaments".
-  basePath: string;
 };
 
-// `value` is sent straight to the API as ?status=. Confirm these match your
-// backend's match-status enum and tweak the labels/values if they differ.
 const STATUSES = [
   { label: "All", value: "" },
   { label: "Live", value: "ongoing" },
@@ -33,26 +27,20 @@ const STATUSES = [
 const tournamentLabel = (t: TournamentResponse) =>
   t.name || `${t.category} ${t.format?.replace(/_/g, " ")}`.trim();
 
-/**
- * Replaces the old TournamentSwitcher pills + the Live/Order-of-Play toggle.
- * - "Filter by tournament" dropdown on every tab (navigates between tournament
- *   routes, preserving the current sub-tab).
- * - A status segmented control that appears only on the Matches tab.
- */
-const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
+const TabFilterBar = ({ tournaments }: Props) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   if (!tournaments.length) return null;
 
-  // Current sub-tab is the last path segment (matches | group | playoff | participants).
   const tab = pathname.split("/").pop() || "matches";
   const isMatches = tab === "matches";
 
-  const isAllMode = searchParams.get("all_tournaments") === "true";
+  const tournamentParam = searchParams.get("tournament");
+  const isAllMode = !tournamentParam || tournamentParam === "all";
   const active = !isAllMode
-    ? tournaments.find((t) => String(t.id) === String(activeId))
+    ? tournaments.find((t) => String(t.id) === tournamentParam)
     : undefined;
   const status = searchParams.get("status") || "";
 
@@ -64,10 +52,13 @@ const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
     router.push(qs ? `${pathname}?${qs}` : pathname);
   };
 
-  const setAllMode = () => {
+  const setTournament = (tid: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("all_tournaments", "true");
-    router.push(`${pathname}?${params.toString()}`);
+    if (tid) params.set("tournament", tid);
+    else params.delete("tournament");
+    params.delete("status");
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
   };
 
   return (
@@ -81,38 +72,36 @@ const TabFilterBar = ({ tournaments, activeId, basePath }: Props) => {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex h-9 items-center gap-2 rounded-lg border border-primary/20 bg-white px-3 text-sm font-semibold text-primary capitalize outline-none transition-colors hover:border-primary focus-visible:ring-2 focus-visible:ring-primary/30">
             <span className="h-[7px] w-[7px] rounded-[2px] bg-secondary" />
-            {isAllMode || !active ? "All tournaments" : tournamentLabel(active)}
+            {isAllMode || !active ? "All Tournaments" : tournamentLabel(active)}
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="min-w-[200px]">
             <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
               Tournament
             </DropdownMenuLabel>
-            {/* All tournaments option */}
             <DropdownMenuItem
               className={cn(
                 "flex cursor-pointer items-center justify-between",
                 isAllMode && "font-semibold text-primary",
               )}
-              onClick={setAllMode}
+              onClick={() => setTournament(null)}
             >
-              All tournaments
+              All Tournaments
               {isAllMode && <Check className="h-4 w-4 text-primary" />}
             </DropdownMenuItem>
             {tournaments.map((t) => {
-              const isActive = !isAllMode && String(t.id) === String(activeId);
+              const isActive = !isAllMode && String(t.id) === tournamentParam;
               return (
-                <DropdownMenuItem key={t.id} asChild>
-                  <Link
-                    href={`${basePath}/${t.id}/${tab}`}
-                    className={cn(
-                      "flex cursor-pointer items-center justify-between capitalize",
-                      isActive && "font-semibold text-primary",
-                    )}
-                  >
-                    {tournamentLabel(t)}
-                    {isActive && <Check className="h-4 w-4 text-primary" />}
-                  </Link>
+                <DropdownMenuItem
+                  key={t.id}
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between capitalize",
+                    isActive && "font-semibold text-primary",
+                  )}
+                  onClick={() => setTournament(String(t.id))}
+                >
+                  {tournamentLabel(t)}
+                  {isActive && <Check className="h-4 w-4 text-primary" />}
                 </DropdownMenuItem>
               );
             })}

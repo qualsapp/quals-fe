@@ -28,7 +28,7 @@ const page = async ({ params }: Props) => {
   const tournaments = event.tournaments || [];
 
   if (tournaments.length > 0) {
-    redirect(`/community/events/${id}/tournaments/${tournaments[0].id}/matches`);
+    redirect(`/community/events/${id}/matches?tournament=${tournaments[0].id}`);
   }
 
   const tournamentsBase = `/community/events/${id}/tournaments`;

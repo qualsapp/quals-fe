@@ -25,7 +25,7 @@ const page = async ({ params, searchParams }: Props) => {
     <div className="container max-w-3xl mx-auto py-10 lg:py-16">
       <div className="flex flex-col space-y-6">
         <Link
-          href={`/community/events/${id}/tournaments/${tid}/matches`}
+          href={`/community/events/${id}/matches?tournament=${tid}`}
           className="underline"
         >
           <Button variant="gray" className="flex items-center">
