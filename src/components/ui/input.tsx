@@ -46,6 +46,7 @@ const InputPassword = React.forwardRef<
           {...props}
         />
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => setIsVisible((prevState) => !prevState)}

@@ -51,13 +51,14 @@ const LoginForm = () => {
   const onSubmit = (data: z.infer<typeof LoginScheme>) => {
     setError(undefined);
     startTransition(async () => {
-      const { error, token } = await login(data);
+      const result = await login(data);
+      const { error, token } = result;
 
       if (error) {
         setError(error);
         return;
       } else if (token) {
-        loginInState(data, token);
+        loginInState(result, token);
 
         if (data.user_type === "player") {
           router.push("/dashboard/events?welcome=true");
