@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import ManualParticipantForm from "../forms/ManualParticipantForm";
-import { deleteTournamentParticipant } from "@/actions/tournament";
+import { deleteParticipant } from "@/actions/tournament";
 import { Participant } from "@/types/tournament";
 
 type Props = {
@@ -46,7 +46,7 @@ const ParticipantsManager = ({
     setError(undefined);
     setRemovingId(participantId);
     startTransition(async () => {
-      const { error } = await deleteTournamentParticipant(tournamentId, String(participantId));
+      const { error } = await deleteParticipant(String(participantId));
       setRemovingId(null);
       if (error) {
         setError(error);
