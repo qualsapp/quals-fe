@@ -55,6 +55,7 @@ export type MatchResponse = Omit<
   winner: Participant | null;
   status: string;
   court_number: number;
+  order_of_play: number;
   scheduled_at: string | null;
   started_at: string | null;
   completed_at: string | null;

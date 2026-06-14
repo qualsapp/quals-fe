@@ -38,7 +38,7 @@ const MatchCard = ({ type, url, match, index }: Props) => {
             >
               {type === "live"
                 ? `Court ${match.court_number}`
-                : `Match ${match?.tournament_bracket?.match_number || Number(index) + 1}`}
+                : `Match ${match?.order_of_play || match?.tournament_bracket?.match_number || Number(index) + 1}`}
             </Button>
           </Link>
         </CardTitle>
