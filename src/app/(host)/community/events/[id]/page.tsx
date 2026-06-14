@@ -1,8 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { Edit2, Plus } from "lucide-react";
-import { redirect } from "next/navigation";
-
 import { getEvent } from "@/actions/event";
 import BackButton from "@/components/commons/back-button";
 import EventNotFound from "@/components/event/event-not-found";
@@ -26,10 +24,6 @@ const page = async ({ params }: Props) => {
   }
 
   const tournaments = event.tournaments || [];
-
-  if (tournaments.length > 0) {
-    redirect(`/community/events/${id}/matches?tournament=${tournaments[0].id}`);
-  }
 
   const tournamentsBase = `/community/events/${id}/tournaments`;
   const addHref = `/community/events/${id}/rules?type=${event.sport_type?.slug}`;
