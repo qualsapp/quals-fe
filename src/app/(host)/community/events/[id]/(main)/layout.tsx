@@ -15,19 +15,23 @@ type LayoutProps = {
 const layout = async ({ params, children }: LayoutProps) => {
   const { id } = await params;
 
-  const base = `/community/events/${id}`;
-  const menus = [
-    { label: "Matches", href: `${base}/matches` },
-    { label: "Group", href: `${base}/group` },
-    { label: "Playoff", href: `${base}/playoff` },
-    { label: "Participants", href: `${base}/participants` },
-  ];
-
   const event = await getEvent(id);
 
   if (!event || event.error || !event.id) {
     return <EventNotFound />;
   }
+
+  const hasGroupStage = (event.tournaments || []).some(
+    (t) => t.format === "group_stage",
+  );
+
+  const base = `/community/events/${id}`;
+  const menus = [
+    { label: "Matches", href: `${base}/matches` },
+    ...(hasGroupStage ? [{ label: "Group", href: `${base}/group` }] : []),
+    { label: "Playoff", href: `${base}/playoff` },
+    { label: "Participants", href: `${base}/participants` },
+  ];
 
   return (
     <div className="py-10 md:py-16 space-y-10">

@@ -1,5 +1,5 @@
 import { getHostProfile } from "@/actions/host";
-import { getTournament } from "@/actions/tournament";
+import { getTournament, getTournamentParticipants } from "@/actions/tournament";
 import BadmintonRulesForm from "@/components/forms/BadmintonRulesForm";
 import PadelRulesForm from "@/components/forms/PadelRulesForm";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,13 @@ const page = async ({ params, searchParams }: Props) => {
   // With a `tid` we edit an existing tournament; without it we create a new one.
   const tournament = tid ? await getTournament(tid) : undefined;
 
+  // Structural settings (format, category, participant count, grouping, mode)
+  // can't be changed once people have joined, so the forms need the roster size
+  // to lock those fields. Brand-new tournaments always start at zero.
+  const participantCount = tid
+    ? (await getTournamentParticipants(tid, { page: 1, page_size: 1 })).total ?? 0
+    : 0;
+
   return (
     <div className="container lg:py-16 py-8 space-y-10">
       <div>
@@ -57,10 +64,18 @@ const page = async ({ params, searchParams }: Props) => {
       </div>
       <div className="w-full sm:w-2/3 mx-auto">
         {type === "badminton" && (
-          <BadmintonRulesForm eventId={id} tournament={tournament} />
+          <BadmintonRulesForm
+            eventId={id}
+            tournament={tournament}
+            participantCount={participantCount}
+          />
         )}
         {type === "padel" && (
-          <PadelRulesForm eventId={id} tournament={tournament} />
+          <PadelRulesForm
+            eventId={id}
+            tournament={tournament}
+            participantCount={participantCount}
+          />
         )}
         {!type && (
           <div className="text-center py-10 space-y-4 border rounded-md p-4">

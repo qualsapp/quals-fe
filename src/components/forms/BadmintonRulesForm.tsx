@@ -33,11 +33,17 @@ import { badmintonMaxPointPerSet, badmintonScoreType } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useRouter } from "next/navigation";
-import { createTournament, updateTournament } from "@/actions/tournament";
+import {
+  clearTournamentRoster,
+  createTournament,
+  updateTournament,
+} from "@/actions/tournament";
+import ModeChangeConfirmDialog from "./ModeChangeConfirmDialog";
 
 type Props = {
   eventId: string;
   tournament?: TournamentResponse;
+  participantCount?: number;
 };
 
 const RulesSchema = z
@@ -94,9 +100,18 @@ const RulesSchema = z
     }
   });
 
-const RulesForm = ({ eventId, tournament }: Props) => {
+const RulesForm = ({ eventId, tournament, participantCount = 0 }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>(undefined);
+  // Once people have joined, structural settings (category, participant count,
+  // grouping, mode) are locked because changing them would invalidate the
+  // existing roster/bracket.
+  const hasParticipants = participantCount > 0;
+  // Holds a submission that's waiting on the host to confirm a mode change
+  // (which wipes the roster). Null when no confirmation is pending.
+  const [pendingData, setPendingData] = useState<
+    z.infer<typeof RulesSchema> | null
+  >(null);
   // Stays true once the post-submit redirect kicks off, so the button keeps its
   // loading state until the next page paints (isPending can flip first).
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -127,7 +142,8 @@ const RulesForm = ({ eventId, tournament }: Props) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof RulesSchema>) => {
+  // Performs the actual create/update request and post-submit redirect.
+  const runUpdate = async (data: z.infer<typeof RulesSchema>) => {
     // add community_id from cookies
     const params: TournamentParams & MatchRuleParams = {
       name: data.name,
@@ -154,28 +170,56 @@ const RulesForm = ({ eventId, tournament }: Props) => {
         : { race_to: Number(data.race_to) }),
     };
 
-    setError(undefined);
-    startTransition(async () => {
-      const result = tournament?.id
-        ? await updateTournament(tournament.id, params)
-        : await createTournament(eventId, params);
+    const result = tournament?.id
+      ? await updateTournament(tournament.id, params)
+      : await createTournament(eventId, params);
 
-      if (result.error) {
-        setError(result.error);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    // Navigate WITHOUT resetting first: clearing the form blanks every field
+    // while the event page loads, which reads as a jarring reset. Keep the
+    // form intact + the button loading until the destination paints over it.
+    setIsRedirecting(true);
+    const tournamentId = tournament?.id || result.id;
+    // Only greet with the welcome pop-up when creating a brand-new
+    // tournament; editing an existing one shouldn't re-trigger it.
+    const welcomeParam = tournament?.id ? "" : "&welcome=true";
+    router.push(
+      `/community/events/${eventId}/matches?tournament=${tournamentId}${welcomeParam}`,
+    );
+  };
+
+  const onSubmit = (data: z.infer<typeof RulesSchema>) => {
+    setError(undefined);
+    // Switching mode on a tournament that already has participants is
+    // destructive (it clears the roster), so route it through a confirm dialog
+    // instead of submitting straight away.
+    const modeChanged =
+      !!tournament?.id && data.mode !== (tournament.mode || "AUTO");
+    if (hasParticipants && modeChanged) {
+      setPendingData(data);
+      return;
+    }
+    startTransition(() => runUpdate(data));
+  };
+
+  // Confirmed path for a mode change: empty the roster first (the server
+  // refuses a mode change while participants exist), then apply the update.
+  const confirmModeChange = () => {
+    if (!pendingData || !tournament?.id) return;
+    const data = pendingData;
+    startTransition(async () => {
+      const cleared = await clearTournamentRoster(tournament.id);
+      if (cleared.error) {
+        setError(cleared.error);
+        setPendingData(null);
         return;
       }
-
-      // Navigate WITHOUT resetting first: clearing the form blanks every field
-      // while the event page loads, which reads as a jarring reset. Keep the
-      // form intact + the button loading until the destination paints over it.
-      setIsRedirecting(true);
-      const tournamentId = tournament?.id || result.id;
-      // Only greet with the welcome pop-up when creating a brand-new
-      // tournament; editing an existing one shouldn't re-trigger it.
-      const welcomeParam = tournament?.id ? "" : "&welcome=true";
-      router.push(
-        `/community/events/${eventId}/matches?tournament=${tournamentId}${welcomeParam}`,
-      );
+      setPendingData(null);
+      await runUpdate(data);
     });
   };
 
@@ -225,6 +269,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                 <FormControl>
                   <Select
                     {...field}
+                    disabled={hasParticipants}
                     onValueChange={(value) => {
                       form.setValue("category", value);
                     }}
@@ -252,12 +297,24 @@ const RulesForm = ({ eventId, tournament }: Props) => {
               <FormItem className="md:max-w-[300px]">
                 <FormLabel>Total Participants</FormLabel>
                 <FormControl>
-                  <Input placeholder="Input total participants" {...field} />
+                  <Input
+                    placeholder="Input total participants"
+                    disabled={hasParticipants}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {hasParticipants && (
+            <p className="text-sm text-muted-foreground md:max-w-[300px]">
+              Category, total participants, and grouping are locked because this
+              tournament already has participants. Remove them from the
+              Participants tab to change these.
+            </p>
+          )}
 
           <FormField
             control={form.control}
@@ -307,6 +364,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
                   <Switch
                     id="grouping"
                     checked={field.value}
+                    disabled={hasParticipants}
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
@@ -319,7 +377,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
             <FormField
               control={form.control}
               name="groups_count"
-              disabled={!form.watch("grouping")}
+              disabled={hasParticipants || !form.watch("grouping")}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
@@ -339,7 +397,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
             <FormField
               control={form.control}
               name="seat_per_group"
-              disabled={!form.watch("grouping")}
+              disabled={hasParticipants || !form.watch("grouping")}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
@@ -359,7 +417,7 @@ const RulesForm = ({ eventId, tournament }: Props) => {
             <FormField
               control={form.control}
               name="top_advancing_group"
-              disabled={!form.watch("grouping")}
+              disabled={hasParticipants || !form.watch("grouping")}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
@@ -536,6 +594,14 @@ const RulesForm = ({ eventId, tournament }: Props) => {
           </Button>
         </div>
       </form>
+
+      <ModeChangeConfirmDialog
+        open={pendingData !== null}
+        participantCount={participantCount}
+        isPending={isPending}
+        onConfirm={confirmModeChange}
+        onCancel={() => setPendingData(null)}
+      />
     </Form>
   );
 };

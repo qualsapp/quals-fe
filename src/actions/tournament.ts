@@ -213,6 +213,35 @@ export const deleteTournamentParticipant = async (
   }
 };
 
+// clearTournamentRoster removes every participant from a tournament. Used when a
+// host changes the participant mode (AUTO <-> MANUAL) on a tournament that
+// already has participants, since the two modes are incompatible. Returns an
+// error string if the roster could not be fully cleared.
+export const clearTournamentRoster = async (
+  tournamentId: string,
+): Promise<{ error?: string }> => {
+  try {
+    const { participants } = await getTournamentParticipants(tournamentId, {
+      page: 1,
+      page_size: 1000,
+    });
+
+    for (const participant of participants ?? []) {
+      const result = await deleteParticipant(String(participant.id));
+      if (result.error) {
+        return { error: result.error };
+      }
+    }
+
+    return {};
+  } catch (error: Response | Error | unknown) {
+    return errorResponseHandler<{ error?: string }>(
+      error,
+      "Failed to clear tournament participants",
+    );
+  }
+};
+
 export const deleteParticipant = async (
   participantId: string,
 ): Promise<{ message: string; error?: string }> => {
