@@ -137,7 +137,7 @@ const RulesForm = ({ eventId, tournament, participantCount = 0 }: Props) => {
         tournament?.match_rule?.max_deuce_point?.toString() || "",
       max_point_per_set:
         tournament?.match_rule?.max_point_per_set?.toString() || "",
-      best_of_sets: tournament?.match_rule?.best_of_sets?.toString() || "",
+      best_of_sets: tournament?.match_rule?.best_of?.toString() || "",
       race_to: tournament?.match_rule?.race_to?.toString() || "",
     },
   });
@@ -165,7 +165,7 @@ const RulesForm = ({ eventId, tournament, participantCount = 0 }: Props) => {
       }),
       ...(data.best_of_sets
         ? {
-            best_of_sets: Number(data.best_of_sets),
+            best_of: Number(data.best_of_sets),
           }
         : { race_to: Number(data.race_to) }),
     };

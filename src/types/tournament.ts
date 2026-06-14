@@ -6,7 +6,7 @@ export type MatchRuleParams = {
   max_deuce_point?: number;
   scoring_system?: string;
   max_point_per_set?: number;
-  best_of_sets?: number;
+  best_of?: number;
   race_to?: number;
   total_of?: number;
 };

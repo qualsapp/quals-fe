@@ -81,7 +81,7 @@ const UpdateBadmintonMatchRuleForm = ({
       scoring_system: rule.scoring_system,
       max_deuce_point: rule.max_deuce_point?.toString() || "",
       max_point_per_set: rule.max_point_per_set?.toString() || "",
-      best_of_sets: rule.best_of_sets?.toString() || "",
+      best_of_sets: rule.best_of?.toString() || "",
       race_to: rule.race_to?.toString() || "",
     },
   });
@@ -95,7 +95,7 @@ const UpdateBadmintonMatchRuleForm = ({
         }),
         ...(data.best_of_sets
           ? {
-              best_of_sets: Number(data.best_of_sets),
+              best_of: Number(data.best_of_sets),
             }
           : { race_to: Number(data.race_to) }),
         max_point_per_set: Number(data.max_point_per_set),
