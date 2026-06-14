@@ -100,6 +100,7 @@ const TournamentBracket = ({
             top_advancing_group={tournament.format === "group_stage"}
             participants={selectedMatch.participants}
             court={selectedMatch.court_number}
+            courtsCount={tournament.courts_count}
           />
         )}
     </>

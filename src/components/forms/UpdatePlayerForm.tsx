@@ -39,19 +39,14 @@ type Props = {
   match_rule_id: string;
   participants: BracketParticipant[];
   court: number | undefined;
+  courtsCount: number;
 };
 
-const PlayerScheme = z.object({
-  participant_a: z.array(z.string()).min(1, "Please select participant A"),
-  participant_b: z.array(z.string()).min(1, "Please select participant B"),
-  court_number: z
-    .string()
-    .min(1, "Court number is required")
-    .refine(
-      (value) => Number(value) > 0,
-      "Court number must be a positive number",
-    ),
-});
+type PlayerFormValues = {
+  participant_a: string[];
+  participant_b: string[];
+  court_number: string;
+};
 
 const UpdatePlayerForm = ({
   open,
@@ -61,6 +56,7 @@ const UpdatePlayerForm = ({
   tournamentBracketId,
   participants,
   court,
+  courtsCount,
 }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -69,14 +65,51 @@ const UpdatePlayerForm = ({
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const form = useForm({
-    resolver: zodResolver(PlayerScheme),
+  const playerScheme = React.useMemo(
+    () =>
+      z.object({
+        participant_a: z
+          .array(z.string())
+          .min(1, "Please select participant A"),
+        participant_b: z
+          .array(z.string())
+          .min(1, "Please select participant B"),
+        court_number: z
+          .string()
+          .min(1, "Court number is required")
+          .refine(
+            (value) => Number(value) > 0,
+            "Court number must be a positive number",
+          )
+          .refine(
+            (value) => Number(value) <= courtsCount,
+            `Court number can't be greater than ${courtsCount} (number of courts available)`,
+          ),
+      }),
+    [courtsCount],
+  );
+
+  const form = useForm<PlayerFormValues>({
+    resolver: zodResolver(playerScheme),
     defaultValues: {
       participant_a: participants[0]?.id ? [String(participants[0].id)] : [],
       participant_b: participants[1]?.id ? [String(participants[1].id)] : [],
       court_number: court != null ? String(court) : "",
     },
   });
+
+  // The dialog is mounted once and reused for every match, so the form keeps the
+  // previously edited match's values. Re-seed the fields (and clear any stale
+  // error) each time it opens for a match so the user always sees a fresh form.
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+    form.reset({
+      participant_a: participants[0]?.id ? [String(participants[0].id)] : [],
+      participant_b: participants[1]?.id ? [String(participants[1].id)] : [],
+      court_number: court != null ? String(court) : "",
+    });
+  }, [open, participants, court, form]);
 
   const fetchParticipants = useCallback(
     async (searchValue: string) => {
@@ -132,7 +165,7 @@ const UpdatePlayerForm = ({
     [options, participantA],
   );
 
-  const onSubmit = (data: z.infer<typeof PlayerScheme>) => {
+  const onSubmit = (data: PlayerFormValues) => {
     try {
       const params: MatchParams = {
         participant_a_id: Number(data.participant_a[0]),
