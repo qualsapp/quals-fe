@@ -42,9 +42,15 @@ type Props = {
 };
 
 const PlayerScheme = z.object({
-  participant_a: z.array(z.string()).min(1),
-  participant_b: z.array(z.string()).min(1),
-  court_number: z.string(),
+  participant_a: z.array(z.string()).min(1, "Please select participant A"),
+  participant_b: z.array(z.string()).min(1, "Please select participant B"),
+  court_number: z
+    .string()
+    .min(1, "Court number is required")
+    .refine(
+      (value) => Number(value) > 0,
+      "Court number must be a positive number",
+    ),
 });
 
 const UpdatePlayerForm = ({
@@ -112,6 +118,20 @@ const UpdatePlayerForm = ({
     }
   }, [debouncedSearch, open, fetchParticipants]);
 
+  const participantA = form.watch("participant_a");
+  const participantB = form.watch("participant_b");
+
+  // A participant already picked in one slot must not be selectable in the
+  // other, mirroring how the group form hides participants assigned elsewhere.
+  const optionsForA = React.useMemo(
+    () => options.filter((option) => !participantB.includes(option.value)),
+    [options, participantB],
+  );
+  const optionsForB = React.useMemo(
+    () => options.filter((option) => !participantA.includes(option.value)),
+    [options, participantA],
+  );
+
   const onSubmit = (data: z.infer<typeof PlayerScheme>) => {
     try {
       const params: MatchParams = {
@@ -136,13 +156,6 @@ const UpdatePlayerForm = ({
     }
   };
 
-  const onChangeParticipant = (
-    name: "participant_a" | "participant_b",
-    value: string[],
-  ) => {
-    form.setValue(name, [String(value.pop())]);
-  };
-
   if (!mounted) return null;
 
   return (
@@ -159,18 +172,18 @@ const UpdatePlayerForm = ({
             <FormField
               control={form.control}
               name="participant_a"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Participant A</FormLabel>
                   <FormControl>
                     <MultiSelect
                       {...field}
-                      options={options}
-                      value={field.value}
+                      options={optionsForA}
                       defaultValue={field.value}
-                      onValueChange={(value) =>
-                        onChangeParticipant("participant_a", value)
-                      }
+                      maxSelected={1}
+                      hideSelectAll
+                      closeOnSelect
+                      onValueChange={onChange}
                       onSearchValueChange={setSearch}
                       placeholder="Choose participants..."
                     />
@@ -183,18 +196,18 @@ const UpdatePlayerForm = ({
             <FormField
               control={form.control}
               name="participant_b"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Participant B</FormLabel>
                   <FormControl>
                     <MultiSelect
                       {...field}
-                      options={options}
-                      value={field.value}
+                      options={optionsForB}
                       defaultValue={field.value}
-                      onValueChange={(value) =>
-                        onChangeParticipant("participant_b", value)
-                      }
+                      maxSelected={1}
+                      hideSelectAll
+                      closeOnSelect
+                      onValueChange={onChange}
                       onSearchValueChange={setSearch}
                       placeholder="Choose participants..."
                     />
