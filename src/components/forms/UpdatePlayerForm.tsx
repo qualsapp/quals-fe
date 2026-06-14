@@ -40,6 +40,8 @@ type Props = {
   participants: BracketParticipant[];
   court: number | undefined;
   courtsCount: number;
+  /** Participant ids already assigned to other bracket matches; excluded from options. */
+  excludedParticipantIds?: string[];
 };
 
 type PlayerFormValues = {
@@ -57,6 +59,7 @@ const UpdatePlayerForm = ({
   participants,
   court,
   courtsCount,
+  excludedParticipantIds = [],
 }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -154,15 +157,25 @@ const UpdatePlayerForm = ({
   const participantA = form.watch("participant_a");
   const participantB = form.watch("participant_b");
 
+  // Participants already assigned to other bracket matches can't play this match
+  // too, so they're hidden from both slots (mirrors the group form's exclusion).
+  const excludedKey = excludedParticipantIds.join(",");
+  const availableOptions = React.useMemo(() => {
+    const excluded = new Set(excludedParticipantIds);
+    return options.filter((option) => !excluded.has(option.value));
+    // excludedKey stands in for the array contents to keep the memo stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options, excludedKey]);
+
   // A participant already picked in one slot must not be selectable in the
   // other, mirroring how the group form hides participants assigned elsewhere.
   const optionsForA = React.useMemo(
-    () => options.filter((option) => !participantB.includes(option.value)),
-    [options, participantB],
+    () => availableOptions.filter((option) => !participantB.includes(option.value)),
+    [availableOptions, participantB],
   );
   const optionsForB = React.useMemo(
-    () => options.filter((option) => !participantA.includes(option.value)),
-    [options, participantA],
+    () => availableOptions.filter((option) => !participantA.includes(option.value)),
+    [availableOptions, participantA],
   );
 
   const onSubmit = (data: PlayerFormValues) => {

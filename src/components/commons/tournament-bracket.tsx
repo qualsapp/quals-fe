@@ -101,6 +101,11 @@ const TournamentBracket = ({
             participants={selectedMatch.participants}
             court={selectedMatch.court_number}
             courtsCount={tournament.courts_count}
+            excludedParticipantIds={matches
+              .filter((m) => m.id !== selectedMatch.id)
+              .flatMap(
+                (m) => m.participants?.map((p) => String(p.id)) ?? [],
+              )}
           />
         )}
     </>
