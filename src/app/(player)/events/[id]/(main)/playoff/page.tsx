@@ -17,33 +17,16 @@ type Props = {
 const tournamentLabel = (t: TournamentResponse) =>
   t.name || `${t.category} ${t.format?.replace(/_/g, " ")}`.trim();
 
-const page = async ({ params, searchParams }: Props) => {
-  const { id } = await params;
-  const { tournament } = await searchParams;
-
-  const event = await getEvent(id);
-  const tournaments = event?.tournaments || [];
-
-  const tid =
-    tournament && tournament !== "all"
-      ? tournament
-      : String(tournaments[0]?.id || "");
-
-  if (!tid) {
-    return (
-      <div className="container py-10 md:py-16">No tournament found</div>
-    );
-  }
-
+const buildPlayoffSection = async (id: string, tid: string) => {
   const tournamentData = await getTournament(tid);
 
-  if (!tournamentData?.id || tournamentData.error) {
-    return <div>No tournament found</div>;
-  }
+  if (!tournamentData?.id || tournamentData.error) return null;
 
   const brackets = await getBrackets(tournamentData.id);
 
-  const matchData: Match[] = brackets?.map((bracket) => ({
+  if (!brackets?.length) return null;
+
+  const matchData: Match[] = brackets.map((bracket) => ({
     id: bracket.id,
     round: bracket.round,
     name: `Match ${bracket.match_number}`,
@@ -87,26 +70,65 @@ const page = async ({ params, searchParams }: Props) => {
     ],
     court_number: bracket.match?.court_number,
     href: bracket.match?.id
-      ? `/events/${id}/tournaments/${tid}/matches/${bracket.match.id}`
+      ? `/events/${id}/tournaments/${tournamentData.id}/matches/${bracket.match.id}`
       : undefined,
     startTime: bracket.match?.scheduled_at
       ? dayjs(bracket.match.scheduled_at).format(SCHEDULED_AT_FORMAT)
       : "Not Scheduled",
   }));
 
+  return { tournament: tournamentData, matches: matchData };
+};
+
+const page = async ({ params, searchParams }: Props) => {
+  const { id } = await params;
+  const { tournament } = await searchParams;
+
+  const event = await getEvent(id);
+  const tournaments = event?.tournaments || [];
+
+  const isSingleMode = tournament && tournament !== "all";
+  const tids = isSingleMode
+    ? [tournament]
+    : tournaments.map((t) => String(t.id));
+
+  if (tids.length === 0) {
+    return (
+      <div className="container py-10 md:py-16">No tournament found</div>
+    );
+  }
+
+  const sections = (
+    await Promise.all(tids.map((tid) => buildPlayoffSection(id, tid)))
+  ).filter((s): s is NonNullable<typeof s> => s !== null);
+
+  if (sections.length === 0) {
+    return (
+      <div className="py-10 md:py-16 space-y-10">
+        <div className="container flex space-y-10 flex-col items-center">
+          No playoff brackets found
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-10 md:py-16 space-y-10">
-      <div className="container space-y-8">
-        <h2 className="text-2xl font-bold capitalize border-b-2 border-primary pb-2">
-          {tournamentLabel(tournamentData)}
-        </h2>
-        <div className="flex-col space-y-10">
-          <TournamentBracket
-            matches={matchData}
-            tournament={tournamentData}
-            isEditable={false}
-          />
-        </div>
+      <div className="container flex flex-col gap-16">
+        {sections.map(({ tournament: tournamentData, matches }) => (
+          <div key={String(tournamentData.id)} className="space-y-8">
+            <h2 className="text-2xl font-bold capitalize border-b-2 border-primary pb-2">
+              {tournamentLabel(tournamentData)}
+            </h2>
+            <div className="flex-col space-y-10">
+              <TournamentBracket
+                matches={matches}
+                tournament={tournamentData}
+                isEditable={false}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

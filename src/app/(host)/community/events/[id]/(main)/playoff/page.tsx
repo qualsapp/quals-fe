@@ -23,45 +23,27 @@ type Props = {
 const tournamentLabel = (t: TournamentResponse) =>
   t.name || `${t.category} ${t.format?.replace(/_/g, " ")}`.trim();
 
-const page = async ({ params, searchParams }: Props) => {
-  const { id } = await params;
-  const { tournament } = await searchParams;
+const getAccumulatedScore = (sets: MatchSetModel[], type: "a" | "b") => {
+  if (!sets) return "0";
+  const total = sets.reduce((acc, set) => {
+    if (set.set_score_a === null || set.set_score_b === null) return acc;
+    if (type === "a" && set.set_score_a > set.set_score_b) return acc + 1;
+    if (type === "b" && set.set_score_b > set.set_score_a) return acc + 1;
+    return acc;
+  }, 0);
+  return String(total);
+};
 
-  const event = await getEvent(id);
-  const tournaments = event?.tournaments || [];
-  const sportSlug = event?.sport_type?.slug;
-
-  const tid =
-    tournament && tournament !== "all"
-      ? tournament
-      : String(tournaments[0]?.id || "");
-
-  if (!tid) {
-    return (
-      <div className="container py-10 md:py-16">No tournament found</div>
-    );
-  }
-
+const buildPlayoffSection = async (id: string, tid: string) => {
   const tournamentData = await getTournament(tid);
 
-  if (!tournamentData?.id || tournamentData.error) {
-    return <div>No tournament found</div>;
-  }
+  if (!tournamentData?.id || tournamentData.error) return null;
 
   const brackets = await getBrackets(tournamentData.id);
 
-  const getAccumulatedScore = (sets: MatchSetModel[], type: "a" | "b") => {
-    if (!sets) return "0";
-    const total = sets.reduce((acc, set) => {
-      if (set.set_score_a === null || set.set_score_b === null) return acc;
-      if (type === "a" && set.set_score_a > set.set_score_b) return acc + 1;
-      if (type === "b" && set.set_score_b > set.set_score_a) return acc + 1;
-      return acc;
-    }, 0);
-    return String(total);
-  };
+  if (!brackets?.length) return null;
 
-  const matchData: Match[] = brackets?.map((bracket) => ({
+  const matchData: Match[] = brackets.map((bracket) => ({
     id: bracket.id,
     round: bracket.round,
     name: `Match ${bracket.match_number}`,
@@ -100,7 +82,7 @@ const page = async ({ params, searchParams }: Props) => {
     ],
     court_number: bracket.match?.court_number,
     href: bracket.match?.id
-      ? `/community/events/${id}/tournaments/${tid}/matches/${bracket.match.id}`
+      ? `/community/events/${id}/tournaments/${tournamentData.id}/matches/${bracket.match.id}`
       : undefined,
     startTime: bracket.match?.scheduled_at
       ? dayjs(bracket.match.scheduled_at).format(SCHEDULED_AT_FORMAT)
@@ -108,38 +90,80 @@ const page = async ({ params, searchParams }: Props) => {
     sets: bracket.match?.match_sets || [],
   }));
 
-  const rulesHref = `/community/events/${id}/rules?type=${sportSlug}&tid=${tid}`;
+  return { tournament: tournamentData, matches: matchData };
+};
+
+const page = async ({ params, searchParams }: Props) => {
+  const { id } = await params;
+  const { tournament } = await searchParams;
+
+  const event = await getEvent(id);
+  const tournaments = event?.tournaments || [];
+  const sportSlug = event?.sport_type?.slug;
+
+  const isSingleMode = tournament && tournament !== "all";
+  const tids = isSingleMode
+    ? [tournament]
+    : tournaments.map((t) => String(t.id));
+
+  if (tids.length === 0) {
+    return (
+      <div className="container py-10 md:py-16">No tournament found</div>
+    );
+  }
+
+  const sections = (
+    await Promise.all(tids.map((tid) => buildPlayoffSection(id, tid)))
+  ).filter((s): s is NonNullable<typeof s> => s !== null);
+
+  if (sections.length === 0) {
+    return (
+      <div className="py-10 md:py-16 space-y-10">
+        <div className="container flex space-y-10 flex-col items-center">
+          No playoff brackets found
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-10 md:py-16 space-y-10">
-      <div className="container space-y-8">
-        <div className="flex items-center justify-between border-b-2 border-primary pb-2">
-          <h2 className="text-2xl font-bold capitalize">
-            {tournamentLabel(tournamentData)}
-          </h2>
-          <div className="flex gap-2">
-            <Link href={rulesHref}>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Edit Tournament Rules"
-              >
-                <Settings2 />
-              </Button>
-            </Link>
-            <DeleteTournamentButton
-              tournamentId={tid}
-              redirectTo={`/community/events/${id}/matches`}
-            />
-          </div>
-        </div>
-        <div className="flex-col space-y-10">
-          <TournamentBracket
-            matches={matchData}
-            tournament={tournamentData}
-            isEditable
-          />
-        </div>
+      <div className="container flex flex-col gap-16">
+        {sections.map(({ tournament: tournamentData, matches }) => {
+          const tid = String(tournamentData.id);
+          const rulesHref = `/community/events/${id}/rules?type=${sportSlug}&tid=${tid}`;
+          return (
+            <div key={tid} className="space-y-8">
+              <div className="flex items-center justify-between border-b-2 border-primary pb-2">
+                <h2 className="text-2xl font-bold capitalize">
+                  {tournamentLabel(tournamentData)}
+                </h2>
+                <div className="flex gap-2">
+                  <Link href={rulesHref}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Edit Tournament Rules"
+                    >
+                      <Settings2 />
+                    </Button>
+                  </Link>
+                  <DeleteTournamentButton
+                    tournamentId={tid}
+                    redirectTo={`/community/events/${id}/matches`}
+                  />
+                </div>
+              </div>
+              <div className="flex-col space-y-10">
+                <TournamentBracket
+                  matches={matches}
+                  tournament={tournamentData}
+                  isEditable
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
