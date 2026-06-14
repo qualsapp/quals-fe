@@ -170,8 +170,11 @@ const RulesForm = ({ eventId, tournament }: Props) => {
       // form intact + the button loading until the destination paints over it.
       setIsRedirecting(true);
       const tournamentId = tournament?.id || result.id;
+      // Only greet with the welcome pop-up when creating a brand-new
+      // tournament; editing an existing one shouldn't re-trigger it.
+      const welcomeParam = tournament?.id ? "" : "&welcome=true";
       router.push(
-        `/community/events/${eventId}/matches?tournament=${tournamentId}&welcome=true`,
+        `/community/events/${eventId}/matches?tournament=${tournamentId}${welcomeParam}`,
       );
     });
   };
