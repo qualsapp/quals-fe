@@ -27,7 +27,9 @@ function BracketCard({
   handleOpen,
 }: BracketCardProps) {
   const isFirstRound = String(match.tournamentRoundText) === "1";
-  const isFinished = topWon || bottomWon;
+  // A completed match is locked — its result has been recorded and feeds the
+  // next round, so its participants can no longer be edited.
+  const isFinished = topWon || bottomWon || match.state === "COMPLETED";
 
   return (
     <div
