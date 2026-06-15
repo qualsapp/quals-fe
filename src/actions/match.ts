@@ -87,6 +87,25 @@ export const updateMatchRules = async (
   }
 };
 
+export const reorderMatches = async (
+  tournamentId: number | string,
+  orderedMatchIds: number[],
+): Promise<{ matches?: MatchResponse[]; error?: string }> => {
+  try {
+    const matches = await apiClient<MatchResponse[]>(
+      `/tournaments/${tournamentId}/matches/reorder`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ ordered_match_ids: orderedMatchIds }),
+      },
+    );
+
+    return { matches };
+  } catch (error: unknown) {
+    return { error: errorHandler(error, "Failed to reorder matches") };
+  }
+};
+
 export const createMatchSet = async (
   matchId: string,
   params: MatchSetParams,

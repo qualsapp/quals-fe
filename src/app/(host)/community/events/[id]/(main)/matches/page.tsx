@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Settings2 } from "lucide-react";
 
-import MatchCard from "@/components/commons/match-card";
+import RoundSection from "@/components/matches/round-section";
 import Modal from "@/components/commons/state-modal";
 import { Button } from "@/components/ui/button";
 import DeleteTournamentButton from "@/components/event/delete-tournament";
@@ -14,7 +14,6 @@ import { getEvent } from "@/actions/event";
 import { FilterParams } from "@/types/global";
 import { MatchResponse } from "@/types/match";
 import { TournamentResponse } from "@/types/tournament";
-import { cn } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -37,59 +36,24 @@ const groupByRound = (matches: MatchResponse[]) =>
     ),
   );
 
-const groupByCourt = (matches: MatchResponse[]) =>
-  Object.values(
-    matches.reduce(
-      (acc, match) => {
-        const court = match.court_number;
-        if (!acc[court]) acc[court] = { court, matches: [] };
-        acc[court].matches.push(match);
-        return acc;
-      },
-      {} as Record<number, { court: number; matches: MatchResponse[] }>,
-    ),
-  );
-
 const RoundGrid = ({
   matches,
   base,
+  tournamentId,
 }: {
   matches: MatchResponse[];
   base: string;
+  tournamentId: number | string;
 }) => (
   <>
     {groupByRound(matches).map((round) => (
-      <div key={round.round} className="space-y-4">
-        <h3 className="text-4xl font-bold text-center text-neutral-300 border-y py-3">
-          {round.round}
-        </h3>
-        <div
-          className={cn(
-            "grid gap-y-16 md:gap-8 md:gap-y-16",
-            "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-          )}
-        >
-          {groupByCourt(round.matches).map((court) => (
-            <div
-              key={court.court}
-              className="space-y-4 flex flex-col items-center"
-            >
-              <h3 className="text-xl font-bold text-center">
-                Court {court.court}
-              </h3>
-              {court.matches.map((match, index) => (
-                <MatchCard
-                  key={index}
-                  index={index}
-                  type="order_of_play"
-                  match={match}
-                  url={`${base}/matches/${match.id}`}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <RoundSection
+        key={round.round}
+        roundName={round.round}
+        matches={round.matches}
+        base={base}
+        tournamentId={tournamentId}
+      />
     ))}
   </>
 );
@@ -174,7 +138,11 @@ const page = async ({ params, searchParams }: Props) => {
                   />
                 </div>
               </div>
-              <RoundGrid matches={matches} base={base} />
+              <RoundGrid
+                matches={matches}
+                base={base}
+                tournamentId={tournament.id}
+              />
             </div>
           );
         })}
